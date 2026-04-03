@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About Us | Memorial Monuments of Louisiana</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+<header>
+  <div class="container nav">
+    <a href="index.html" class="brand">
+      <strong id="brandName">Memorial Monuments of Louisiana</strong>
+      <span id="brandTagline">Honoring Loved Ones With Care, Respect, and Craftsmanship</span>
+    </a>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="contact.html">Contact Us</a></li>
+        <li><a href="admin/index.html">Owner Login</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+<main>
+  <section class="hero" style="padding:3rem 0 2.5rem;">
+    <div class="container hero-grid">
+      <div>
+        <div class="eyebrow">About Our Company</div>
+        <h1>Serving families with care and respect</h1>
+        <p class="lead">This page is a draft using the information available so far. The owners can easily replace this text later in the admin area.</p>
+      </div>
+      <div class="hero-card"><div class="about-placeholder">Placeholder About Photo</div></div>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container grid-2">
+      <div class="card">
+        <h2>About Memorial Monuments of Louisiana</h2>
+        <p id="aboutText"></p>
+      </div>
+      <div class="card">
+        <h3>What makes this draft useful</h3>
+        <ul class="clean">
+          <li>The tone already matches a southern, locally owned business.</li>
+          <li>The main services are already in place.</li>
+          <li>Owners can update this page later without editing code.</li>
+        </ul>
+        <div class="notice">Once you get more details from the owners, this page can be updated with company history, years in business, family background, service areas, and values.</div>
+      </div>
+    </div>
+  </section>
+</main>
+
+
+<footer>
+  <div class="container footer-box">
+    <div><strong id="footerName">Memorial Monuments of Louisiana</strong><br><span id="footerTagline">Honoring Loved Ones With Care, Respect, and Craftsmanship</span></div>
+    <div>© <span id="year"></span> Memorial Monuments of Louisiana</div>
+  </div>
+</footer>
+
+<button class="btn btn-primary chat-toggle" id="chatToggle">Message Us</button>
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-head"><strong>Send a Message</strong><div class="small">Preview form for owner contact messages</div></div>
+  <div class="chat-body">
+    <form onsubmit="event.preventDefault(); alert('Preview mode: message form is ready to connect to email later.');">
+      <input type="text" placeholder="Your name" required />
+      <input type="email" placeholder="Your email" required />
+      <textarea placeholder="How can we help you?" required></textarea>
+      <button class="btn btn-primary" type="submit">Send Message</button>
+    </form>
+  </div>
+</div>
+
+<script>
+window.renderPage = (data) => {
+  ['brandName','footerName'].forEach(id => document.getElementById(id).textContent = data.businessName);
+  ['brandTagline','footerTagline'].forEach(id => document.getElementById(id).textContent = data.tagline);
+  document.getElementById('aboutText').textContent = data.aboutText;
+};
+</script>
+<script src="assets/js/main.js"></script>
+</body>
+</html>

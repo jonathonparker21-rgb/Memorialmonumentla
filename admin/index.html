@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Owner Admin | Memorial Monuments of Louisiana</title>
+  <link rel="stylesheet" href="../assets/css/styles.css" />
+</head>
+<body>
+<header>
+  <div class="container nav">
+    <a href="../index.html" class="brand">
+      <strong>Memorial Monuments of Louisiana</strong>
+      <span>Owner Admin Preview</span>
+    </a>
+    <nav>
+      <ul>
+        <li><a href="../index.html">View Site</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main class="container admin-wrap">
+  <div class="admin-box" id="loginBox">
+    <h2>Owner Login</h2>
+    <p class="small">This starter admin is easy to reach, but still behind credentials.</p>
+    <form id="loginForm">
+      <label>Username</label>
+      <input id="username" type="text" required />
+      <label>Password</label>
+      <input id="password" type="password" required />
+      <div class="admin-actions">
+        <button class="btn btn-primary" type="submit">Login</button>
+      </div>
+      <p id="loginError" style="color:#9f1d1d;font-weight:700;"></p>
+    </form>
+    <div class="notice">
+      <strong>Preview credentials</strong><br>
+      Username: <span class="code">admin</span><br>
+      Password: <span class="code">ChangeMe123!</span>
+    </div>
+  </div>
+
+  <div id="editor" style="display:none;">
+    <div class="admin-box">
+      <h2>Edit Website Content</h2>
+      <p class="small">This draft editor updates the preview site content without touching code.</p>
+
+      <div class="admin-grid">
+        <div>
+          <label>Business Name</label><input id="businessName" />
+          <label>Tagline</label><input id="tagline" />
+          <label>Hero Headline</label><input id="heroHeadline" />
+          <label>Hero Text</label><textarea id="heroText"></textarea>
+          <label>Welcome Title</label><input id="welcomeTitle" />
+          <label>Welcome Text</label><textarea id="welcomeText"></textarea>
+          <label>About Text</label><textarea id="aboutText"></textarea>
+        </div>
+        <div>
+          <label>Service 1</label><input id="service1" />
+          <label>Service 2</label><input id="service2" />
+          <label>Service 3</label><input id="service3" />
+          <label>Service 4</label><input id="service4" />
+          <label>Service 5</label><input id="service5" />
+          <label>Service 6</label><input id="service6" />
+        </div>
+      </div>
+
+      <h3>Main Location</h3>
+      <div class="admin-grid">
+        <div>
+          <label>Location Name</label><input id="mainLocName" />
+          <label>Address Line 1</label><input id="mainAddr1" />
+          <label>Address Line 2</label><input id="mainAddr2" />
+          <label>Phone</label><input id="mainPhone" />
+          <label>Email</label><input id="mainEmail" />
+          <label>Map Search Text</label><input id="mainMap" />
+        </div>
+        <div>
+          <label>Second Location Name</label><input id="secondLocName" />
+          <label>Address Line 1</label><input id="secondAddr1" />
+          <label>Address Line 2</label><input id="secondAddr2" />
+          <label>Phone</label><input id="secondPhone" />
+          <label>Email</label><input id="secondEmail" />
+          <label>Map Search Text</label><input id="secondMap" />
+        </div>
+      </div>
+
+      <div class="admin-actions">
+        <button class="btn btn-primary" type="button" id="saveBtn">Save Changes</button>
+        <button class="btn btn-secondary" type="button" id="resetBtn">Reset Draft</button>
+        <button class="btn btn-secondary" type="button" id="logoutBtn">Logout</button>
+      </div>
+      <p id="saveMsg" style="font-weight:700;color:#355b3a;"></p>
+    </div>
+  </div>
+</main>
+
+<script src="admin.js"></script>
+</body>
+</html>

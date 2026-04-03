@@ -1,0 +1,65 @@
+
+:root{
+  --bg:#f7f2eb;
+  --surface:#ffffff;
+  --text:#1f2933;
+  --muted:#5d6770;
+  --accent:#8c694a;
+  --accent-dark:#6e5239;
+  --line:#ddd2c3;
+  --shadow:0 12px 32px rgba(20,20,20,.09);
+  --radius:20px;
+  --max:1180px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Georgia, "Times New Roman", serif;background:var(--bg);color:var(--text);line-height:1.6}
+img{max-width:100%;display:block}
+a{text-decoration:none;color:inherit}
+.container{width:min(100% - 2rem, var(--max));margin:0 auto}
+header{background:#f4ede4;border-bottom:1px solid rgba(0,0,0,.08);position:sticky;top:0;z-index:100}
+.nav{min-height:78px;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.brand strong{display:block;font-size:1.2rem;letter-spacing:.02em}
+.brand span{font-size:.92rem;color:var(--muted)}
+nav ul{list-style:none;display:flex;gap:1rem;padding:0;margin:0;flex-wrap:wrap}
+nav a{font-weight:700;color:#53463a}
+.hero{padding:4.5rem 0 3rem;background:linear-gradient(180deg,#f4ede4 0%, #f7f2eb 100%)}
+.hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:2rem;align-items:center}
+.eyebrow{display:inline-block;padding:.4rem .8rem;border-radius:999px;background:#eadfce;color:var(--accent-dark);font-weight:700;font-size:.88rem}
+h1,h2,h3{line-height:1.1;margin:0 0 1rem}
+h1{font-size:clamp(2.3rem, 5vw, 4.5rem)}
+h2{font-size:clamp(1.8rem, 3vw, 2.8rem)}
+.lead{font-size:1.08rem;color:var(--muted);max-width:60ch}
+.btn{display:inline-block;padding:.95rem 1.3rem;border-radius:999px;font-weight:700;border:1px solid transparent}
+.btn-primary{background:var(--accent);color:#fff;box-shadow:var(--shadow)}
+.btn-secondary{background:#fff;border-color:var(--line)}
+.actions{display:flex;gap:.8rem;flex-wrap:wrap;margin-top:1.4rem}
+.hero-card,.card,.location{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.hero-placeholder,.about-placeholder,.gallery-placeholder{min-height:360px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#e7dccb,#c8b29a);color:#fff;font-size:1.4rem;font-weight:700;padding:2rem;text-align:center}
+.section{padding:3.5rem 0}
+.alt{background:rgba(255,255,255,.55);border-top:1px solid rgba(0,0,0,.05);border-bottom:1px solid rgba(0,0,0,.05)}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem}
+.card{padding:1.3rem}
+ul.clean{padding-left:1.2rem}
+.location iframe{width:100%;height:280px;border:0;display:block}
+.location .copy{padding:1.2rem}
+footer{padding:2rem 0 3rem}
+.footer-box{padding-top:1.2rem;border-top:1px solid rgba(0,0,0,.08);display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;color:var(--muted)}
+.notice{background:#fff7dd;border:1px solid #eedc9a;padding:1rem;border-radius:16px;margin-top:1rem}
+.form-card form,.chat-panel form{display:grid;gap:.85rem}
+input,textarea,select{width:100%;padding:1rem;border-radius:14px;border:1px solid var(--line);font:inherit}
+textarea{min-height:150px;resize:vertical}
+.chat-toggle{position:fixed;right:20px;bottom:20px;z-index:50}
+.chat-panel{display:none;position:fixed;right:20px;bottom:84px;z-index:50;width:min(92vw,360px);background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:0 25px 60px rgba(0,0,0,.16);overflow:hidden}
+.chat-panel.active{display:block}
+.chat-head{background:var(--accent);color:#fff;padding:1rem 1.1rem}
+.chat-body{padding:1rem}
+.small{color:var(--muted);font-size:.95rem}
+.admin-wrap{display:grid;grid-template-columns:320px 1fr;gap:1.25rem;align-items:start;padding:2rem 0}
+.admin-box{background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);padding:1.2rem}
+label{display:block;font-weight:700;margin:.75rem 0 .35rem}
+.admin-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem}
+.admin-actions{display:flex;gap:.8rem;flex-wrap:wrap;margin-top:1rem}
+.code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#f4f4f4;padding:.2rem .45rem;border-radius:8px}
+@media(max-width:980px){.hero-grid,.grid-2,.grid-3,.admin-wrap,.admin-grid{grid-template-columns:1fr}}

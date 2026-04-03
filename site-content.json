@@ -1,0 +1,33 @@
+{
+  "businessName": "Memorial Monuments of Louisiana",
+  "tagline": "Honoring Loved Ones With Care, Respect, and Craftsmanship",
+  "heroHeadline": "Locally Owned. Family Focused. Crafted With Care.",
+  "heroText": "At Memorial Monuments of Louisiana, we\u2019re proud to serve our communities with quality monuments, honest service, and a personal touch. From new headstones and memorials to restoration work on existing monuments, we help families honor their loved ones with care, respect, and lasting craftsmanship.",
+  "welcomeTitle": "A downhome approach you can trust",
+  "welcomeText": "Here at Memorial Monuments of Louisiana, we believe every memorial should be treated with dignity and every family should be treated like neighbors. As a locally owned and operated business, we take pride in helping families across Louisiana with beautiful new monuments as well as restoration services that bring older memorials back to life.",
+  "services": [
+    "New monuments and headstones",
+    "Monument restoration",
+    "Monument cleaning",
+    "Releveling",
+    "Repainting lettering",
+    "On-site engraving"
+  ],
+  "aboutText": "Memorial Monuments of Louisiana is proud to serve families with respectful service, quality workmanship, and lasting memorials. This draft website includes placeholder About Us copy until the owners provide more background about the company history, years in business, and the areas they serve.",
+  "mainLocation": {
+    "name": "Oak Grove Location",
+    "address1": "201 Hospital Road",
+    "address2": "Oak Grove, LA 71263",
+    "phone": "318-369-6060",
+    "email": "monumentsofla@yahoo.com",
+    "mapsQuery": "201 Hospital Road Oak Grove LA 71263"
+  },
+  "secondLocation": {
+    "name": "Monroe Location",
+    "address1": "9850 Hwy 165 North",
+    "address2": "Monroe, LA 71280",
+    "phone": "318-369-6060",
+    "email": "monumentsofla@yahoo.com",
+    "mapsQuery": "9850 Hwy 165 North Monroe LA 71280"
+  }
+}

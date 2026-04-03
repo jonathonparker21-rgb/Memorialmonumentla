@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Memorial Monuments of Louisiana</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+<header>
+  <div class="container nav">
+    <a href="index.html" class="brand">
+      <strong id="brandName">Memorial Monuments of Louisiana</strong>
+      <span id="brandTagline">Honoring Loved Ones With Care, Respect, and Craftsmanship</span>
+    </a>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="contact.html">Contact Us</a></li>
+        <li><a href="admin/index.html">Owner Login</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+<main>
+  <section class="hero">
+    <div class="container hero-grid">
+      <div>
+        <div class="eyebrow">Locally owned and operated</div>
+        <h1 id="heroHeadline"></h1>
+        <p class="lead" id="heroText"></p>
+        <div class="actions">
+          <a class="btn btn-primary" href="contact.html">Get In Touch</a>
+          <a class="btn btn-secondary" href="about.html">Learn More</a>
+        </div>
+      </div>
+      <div class="hero-card"><div class="hero-placeholder">Placeholder Hero Photo<br>Monuments • Memorials • Craftsmanship</div></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid-2">
+      <div>
+        <h2 id="welcomeTitle"></h2>
+        <p class="lead" id="welcomeText"></p>
+        <div class="notice"><strong>Draft note:</strong> The owners have not filled in the company history yet, so this version uses starter wording that can be edited in the admin area.</div>
+      </div>
+      <div class="card">
+        <h3>Our Services</h3>
+        <ul class="clean" id="servicesList"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section alt">
+    <div class="container">
+      <h2>More options can be added later</h2>
+      <div class="grid-3">
+        <div class="card"><h3>Gallery Section</h3><p>This draft is ready for a future gallery page so owners can upload monument photos later.</p></div>
+        <div class="card"><h3>Sizes & Products</h3><p>This draft can be upgraded with an easy headstone size and product manager in admin.</p></div>
+        <div class="card"><h3>Restoration Work</h3><p>The site already highlights restoration, cleaning, releveling, repainting, and on-site engraving.</p></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+
+<footer>
+  <div class="container footer-box">
+    <div><strong id="footerName">Memorial Monuments of Louisiana</strong><br><span id="footerTagline">Honoring Loved Ones With Care, Respect, and Craftsmanship</span></div>
+    <div>© <span id="year"></span> Memorial Monuments of Louisiana</div>
+  </div>
+</footer>
+
+<button class="btn btn-primary chat-toggle" id="chatToggle">Message Us</button>
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-head"><strong>Send a Message</strong><div class="small">Preview form for owner contact messages</div></div>
+  <div class="chat-body">
+    <form onsubmit="event.preventDefault(); alert('Preview mode: message form is ready to connect to email later.');">
+      <input type="text" placeholder="Your name" required />
+      <input type="email" placeholder="Your email" required />
+      <textarea placeholder="How can we help you?" required></textarea>
+      <button class="btn btn-primary" type="submit">Send Message</button>
+    </form>
+  </div>
+</div>
+
+<script>
+window.renderPage = (data) => {
+  ['brandName','footerName'].forEach(id => document.getElementById(id).textContent = data.businessName);
+  ['brandTagline','footerTagline'].forEach(id => document.getElementById(id).textContent = data.tagline);
+  document.getElementById('heroHeadline').textContent = data.heroHeadline;
+  document.getElementById('heroText').textContent = data.heroText;
+  document.getElementById('welcomeTitle').textContent = data.welcomeTitle;
+  document.getElementById('welcomeText').textContent = data.welcomeText;
+  const ul = document.getElementById('servicesList');
+  ul.innerHTML = (data.services || []).map(s => `<li>${s}</li>`).join('');
+};
+</script>
+<script src="assets/js/main.js"></script>
+</body>
+</html>

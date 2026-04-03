@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact Us | Memorial Monuments of Louisiana</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+<header>
+  <div class="container nav">
+    <a href="index.html" class="brand">
+      <strong id="brandName">Memorial Monuments of Louisiana</strong>
+      <span id="brandTagline">Honoring Loved Ones With Care, Respect, and Craftsmanship</span>
+    </a>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="contact.html">Contact Us</a></li>
+        <li><a href="admin/index.html">Owner Login</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+<main>
+  <section class="hero" style="padding:3rem 0 2.5rem;">
+    <div class="container">
+      <div class="eyebrow">Contact Us</div>
+      <h1>Visit one of our two locations</h1>
+      <p class="lead">Need help with a new monument, restoration work, or on-site engraving? Reach out to us and we’ll be glad to help.</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container grid-2">
+      <div class="location">
+        <div class="copy">
+          <h3 id="loc1name"></h3>
+          <p><span id="loc1a1"></span><br><span id="loc1a2"></span></p>
+          <p><strong>Phone:</strong> <span id="loc1phone"></span><br><strong>Email:</strong> <span id="loc1email"></span></p>
+        </div>
+        <iframe id="map1" loading="lazy"></iframe>
+      </div>
+      <div class="location">
+        <div class="copy">
+          <h3 id="loc2name"></h3>
+          <p><span id="loc2a1"></span><br><span id="loc2a2"></span></p>
+          <p><strong>Phone:</strong> <span id="loc2phone"></span><br><strong>Email:</strong> <span id="loc2email"></span></p>
+        </div>
+        <iframe id="map2" loading="lazy"></iframe>
+      </div>
+    </div>
+  </section>
+  <section class="section alt">
+    <div class="container grid-2">
+      <div class="card form-card">
+        <h2>Send Us a Message</h2>
+        <p class="small">This preview form is ready to connect to real email later.</p>
+        <form onsubmit="event.preventDefault(); alert('Preview mode: contact form captured.');">
+          <input type="text" placeholder="Your name" required>
+          <input type="email" placeholder="Your email" required>
+          <input type="tel" placeholder="Your phone number">
+          <select><option>Choose a location</option><option>Oak Grove</option><option>Monroe</option></select>
+          <textarea placeholder="How can we help you?" required></textarea>
+          <button class="btn btn-primary" type="submit">Send Message</button>
+        </form>
+      </div>
+      <div class="card">
+        <h3>Current service highlights</h3>
+        <ul class="clean" id="servicesList"></ul>
+      </div>
+    </div>
+  </section>
+</main>
+
+
+<footer>
+  <div class="container footer-box">
+    <div><strong id="footerName">Memorial Monuments of Louisiana</strong><br><span id="footerTagline">Honoring Loved Ones With Care, Respect, and Craftsmanship</span></div>
+    <div>© <span id="year"></span> Memorial Monuments of Louisiana</div>
+  </div>
+</footer>
+
+<button class="btn btn-primary chat-toggle" id="chatToggle">Message Us</button>
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-head"><strong>Send a Message</strong><div class="small">Preview form for owner contact messages</div></div>
+  <div class="chat-body">
+    <form onsubmit="event.preventDefault(); alert('Preview mode: message form is ready to connect to email later.');">
+      <input type="text" placeholder="Your name" required />
+      <input type="email" placeholder="Your email" required />
+      <textarea placeholder="How can we help you?" required></textarea>
+      <button class="btn btn-primary" type="submit">Send Message</button>
+    </form>
+  </div>
+</div>
+
+<script>
+window.renderPage = (data) => {
+  ['brandName','footerName'].forEach(id => document.getElementById(id).textContent = data.businessName);
+  ['brandTagline','footerTagline'].forEach(id => document.getElementById(id).textContent = data.tagline);
+  const a = data.mainLocation, b = data.secondLocation;
+  [['loc1name',a.name],['loc1a1',a.address1],['loc1a2',a.address2],['loc1phone',a.phone],['loc1email',a.email],
+   ['loc2name',b.name],['loc2a1',b.address1],['loc2a2',b.address2],['loc2phone',b.phone],['loc2email',b.email]
+  ].forEach(([id,val]) => document.getElementById(id).textContent = val);
+  document.getElementById('map1').src = mapSrc(a.mapsQuery);
+  document.getElementById('map2').src = mapSrc(b.mapsQuery);
+  document.getElementById('servicesList').innerHTML = (data.services || []).map(s => `<li>${s}</li>`).join('');
+};
+</script>
+<script src="assets/js/main.js"></script>
+</body>
+</html>
