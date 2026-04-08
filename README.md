@@ -37,3 +37,8 @@ This is a preview-friendly draft package built from the information collected so
 - Public pages load the starter content from `site-content.json`
 - Owner changes in the admin area save to the browser for preview
 - This makes it easy to review wording before building the final Cloudflare production version
+
+
+## Latest fix
+- Header changed to logo only.
+- Transparent logo file added correctly to assets/images/site-logo.png.
