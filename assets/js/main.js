@@ -21,5 +21,11 @@ function setupYear(){ const y = document.getElementById('year'); if(y) y.textCon
 document.addEventListener('DOMContentLoaded', async () => {
   setupYear(); setupChat();
   const data = await loadContent();
+
+  const versionEls = document.querySelectorAll('.siteVersion');
+  if (data.version && versionEls.length){
+    versionEls.forEach(el => { el.textContent = data.version; });
+  }
+
   if(window.renderPage) window.renderPage(data);
 });

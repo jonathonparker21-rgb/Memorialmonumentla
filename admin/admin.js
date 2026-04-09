@@ -28,7 +28,7 @@ function fillForm(data){
     mainAddr2: data.mainLocation.address2, mainPhone: data.mainLocation.phone, mainEmail: data.mainLocation.email,
     mainMap: data.mainLocation.mapsQuery, secondLocName: data.secondLocation.name, secondAddr1: data.secondLocation.address1,
     secondAddr2: data.secondLocation.address2, secondPhone: data.secondLocation.phone, secondEmail: data.secondLocation.email,
-    secondMap: data.secondLocation.mapsQuery, service1: data.services[0] || '', service2: data.services[1] || '',
+    secondMap: data.secondLocation.mapsQuery, version: data.version || 'v1.0.0', service1: data.services[0] || '', service2: data.services[1] || '',
     service3: data.services[2] || '', service4: data.services[3] || '', service5: data.services[4] || '', service6: data.services[5] || ''
   };
   Object.entries(map).forEach(([id,val]) => { const el=document.getElementById(id); if(el) el.value = val || ''; });
@@ -36,6 +36,7 @@ function fillForm(data){
 
 function readForm(){
   return {
+    version: document.getElementById('version').value,
     businessName: document.getElementById('businessName').value,
     tagline: document.getElementById('tagline').value,
     heroHeadline: document.getElementById('heroHeadline').value,

@@ -37,3 +37,10 @@ This is a preview-friendly draft package built from the information collected so
 - Public pages load the starter content from `site-content.json`
 - Owner changes in the admin area save to the browser for preview
 - This makes it easy to review wording before building the final Cloudflare production version
+
+
+## Version system
+- Current version starts at `v1.0.0`
+- Owners can change the version in the admin panel
+- The version appears in the public site footer
+- Each HTML file includes a `<!-- VERSION: ... -->` header comment to help force Git/Cloudflare updates
