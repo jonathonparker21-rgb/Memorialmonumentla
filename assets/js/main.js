@@ -1,3 +1,4 @@
+
 async function loadContent(){
   const local = localStorage.getItem('memorialSiteContent');
   if(local){ try { return JSON.parse(local); } catch(e) {} }
@@ -39,16 +40,27 @@ function applyDesign(design = {}){
   };
   Object.entries(map).forEach(([key, value]) => { if(value) root.style.setProperty(key, value); });
 }
-function renderTestimonials(data){
-  const wrap = document.getElementById('testimonialsList');
-  if(!wrap) return;
-  const items = data.testimonials || [];
-  wrap.innerHTML = items.map(t => `
+function testimonialCard(t){
+  const location = t.location ? ` <span>• ${t.location}</span>` : '';
+  return `
     <article class="testimonial-card">
       <p class="testimonial-text">“${t.text}”</p>
-      <div class="testimonial-meta"><strong>${t.name}</strong>${t.location ? ` <span>• ${t.location}</span>` : ''}</div>
+      <div class="testimonial-meta"><strong>${t.name}</strong>${location}</div>
     </article>
-  `).join('');
+  `;
+}
+function renderHomeTestimonials(data){
+  const track = document.getElementById('testimonialTrack');
+  if(!track) return;
+  const items = data.testimonials || [];
+  const cards = items.concat(items).map(testimonialCard).join('');
+  track.innerHTML = cards;
+}
+function renderTestimonialsPage(data){
+  const wrap = document.getElementById('allTestimonials');
+  if(!wrap) return;
+  const items = data.testimonials || [];
+  wrap.innerHTML = items.map(testimonialCard).join('');
 }
 function setupReviewForm(data){
   const form = document.getElementById('reviewForm');
@@ -67,7 +79,8 @@ function setupReviewForm(data){
     current.testimonials = current.testimonials || [];
     current.testimonials.unshift({ name, location, text });
     localStorage.setItem('memorialSiteContent', JSON.stringify(current));
-    renderTestimonials(current);
+    renderTestimonialsPage(current);
+    renderHomeTestimonials(current);
     form.reset();
     const msg = document.getElementById('reviewMsg');
     if(msg) msg.textContent = 'Thank you. Your review was added to this preview.';
@@ -82,6 +95,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const versionEls = document.querySelectorAll('.siteVersion');
   if(data.version && versionEls.length){ versionEls.forEach(el => { el.textContent = data.version; }); }
   if(window.renderPage) window.renderPage(data);
-  renderTestimonials(data);
+  renderHomeTestimonials(data);
+  renderTestimonialsPage(data);
   setupReviewForm(data);
 });

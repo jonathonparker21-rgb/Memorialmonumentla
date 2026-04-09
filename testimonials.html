@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>About Us | Memorial Monuments of Louisiana</title>
+  <title>Testimonials | Memorial Monuments of Louisiana</title>
   <link rel="stylesheet" href="assets/css/styles.css" />
 </head>
 <body>
@@ -25,37 +25,35 @@
   </div>
 </header>
 
-
 <main>
   <section class="hero" style="padding:3rem 0 2.5rem;">
-    <div class="container hero-grid">
-      <div>
-        <div class="eyebrow">About Our Company</div>
-        <h1>Serving families with care and respect</h1>
-        <p class="lead">We believe families deserve respectful guidance, clear communication, and craftsmanship they can trust when choosing a monument for someone they love.</p>
-      </div>
-      <div class="hero-card"><div class="about-placeholder">Family-focused service • Craftsmanship • Care</div></div>
+    <div class="container">
+      <div class="eyebrow">Testimonials</div>
+      <h1>Words from the families we serve</h1>
+      <p class="lead page-intro">Every family’s experience matters. This page gives visitors a place to see kind words, thoughtful feedback, and the level of care they can expect when working with Memorial Monuments of Louisiana.</p>
     </div>
   </section>
+
   <section class="section">
     <div class="container grid-2">
-      <div class="card">
-        <h2>About Memorial Monuments of Louisiana</h2>
-        <p id="aboutText">Memorial Monuments of Louisiana is proud to serve families with respectful service, quality workmanship, and lasting memorials. We take a downhome, neighborly approach and work hard to help families create monuments that honor the people they love. This draft can be updated later with more company history, years in business, and service area details as those become available.</p>
+      <div>
+        <h2>Customer Testimonials</h2>
+        <div class="testimonials-grid" id="allTestimonials"></div>
       </div>
-      <div class="card">
-        <h3>What families can expect</h3>
-        <ul class="clean">
-          <li>A respectful, neighborly approach from the first conversation to final installation.</li>
-          <li>Quality monument work, restoration services, and on-site engraving when needed.</li>
-          <li>A website that is easy to keep updated as photos, services, and information grow.</li>
-        </ul>
-        <div class="notice">This page can continue to be refined with more company history, service-area details, and family background as those pieces are gathered.</div>
+      <div class="card form-card">
+        <h3>Share Your Experience</h3>
+        <p class="small">This preview form adds a testimonial to the site preview.</p>
+        <form id="reviewForm">
+          <input type="text" name="review_name" placeholder="Your name" required>
+          <input type="text" name="review_location" placeholder="Your city or location">
+          <textarea name="review_text" placeholder="Tell us about your experience" required></textarea>
+          <button class="btn btn-primary" type="submit">Submit Testimonial</button>
+          <p id="reviewMsg" class="small"></p>
+        </form>
       </div>
     </div>
   </section>
 </main>
-
 
 <footer>
   <div class="container footer-box">
@@ -81,7 +79,6 @@
 window.renderPage = (data) => {
   document.getElementById('footerName').textContent = data.businessName;
   document.getElementById('footerTagline').textContent = data.tagline;
-  document.getElementById('aboutText').textContent = data.aboutText;
 };
 </script>
 <script src="assets/js/main.js"></script>
