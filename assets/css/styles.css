@@ -70,36 +70,27 @@ label{display:block;font-weight:700;margin:.75rem 0 .35rem}
   align-items:center;
   justify-content:flex-start;
 }
-
 .brand-logo-large{
   width:220px;
   height:auto;
   object-fit:contain;
   display:block;
 }
-
 .footer-brand{
   display:flex;
   align-items:center;
   gap:.85rem;
 }
-
 .footer-logo-large{
   width:84px;
   height:auto;
   object-fit:contain;
   display:block;
 }
-
 header .nav{
   min-height:110px;
 }
-
 @media (max-width: 760px){
-  .brand-logo-large{
-    width:170px;
-  }
-  .footer-logo-large{
-    width:68px;
-  }
+  .brand-logo-large{ width:170px; }
+  .footer-logo-large{ width:68px; }
 }
