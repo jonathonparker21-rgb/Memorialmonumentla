@@ -1,5 +1,5 @@
 {
-  "version": "v1.0.7",
+  "version": "v1.0.8",
   "businessName": "Memorial Monuments of Louisiana",
   "tagline": "Honoring Loved Ones With Care, Respect, and Craftsmanship",
   "heroHeadline": "Locally Owned. Family Focused. Crafted With Care.",
@@ -42,5 +42,17 @@
     "sectionTitleSize": "2.8rem",
     "bodyTextSize": "1.08rem",
     "navTextSize": "1rem"
-  }
+  },
+  "testimonials": [
+    {
+      "name": "Local Family",
+      "text": "They were kind, respectful, and easy to work with during a difficult time. The monument turned out beautiful.",
+      "location": "Oak Grove, LA"
+    },
+    {
+      "name": "Satisfied Customer",
+      "text": "The restoration work made an older monument look cared for again. Honest people and quality work.",
+      "location": "Monroe, LA"
+    }
+  ]
 }

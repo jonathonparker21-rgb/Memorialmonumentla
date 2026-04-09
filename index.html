@@ -1,4 +1,4 @@
-<!-- VERSION: v1.0.7 -->
+<!-- VERSION: v1.0.8 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,12 +13,12 @@
     <a href="index.html" class="logo-wrap">
       <img src="assets/images/site-logo.png" alt="Memorial Monuments of Louisiana logo" class="brand-logo-large" />
     </a>
-    <nav>
+    <button class="mobile-nav-toggle" id="mobileNavToggle" type="button">Menu</button>
+    <nav id="siteNav">
       <ul>
         <li><a href="index.html">Home</a></li>
         <li><a href="about.html">About Us</a></li>
         <li><a href="contact.html">Contact Us</a></li>
-        <li><a href="admin/index.html">Owner Login</a></li>
       </ul>
     </nav>
   </div>
@@ -72,13 +72,35 @@
       </div>
     </div>
   </section>
+
+  <section class="section">
+    <div class="container grid-2">
+      <div>
+        <h2>What families are saying</h2>
+        <p class="lead">We wanted a simple place for customers to share their experience and kind words.</p>
+        <div class="testimonials-grid" id="testimonialsList"></div>
+      </div>
+      <div class="card form-card">
+        <h3>Leave a Review</h3>
+        <p class="small">This preview form adds reviews to the site preview.</p>
+        <form id="reviewForm">
+          <input type="text" name="review_name" placeholder="Your name" required>
+          <input type="text" name="review_location" placeholder="Your city or location">
+          <textarea name="review_text" placeholder="Share your experience" required></textarea>
+          <button class="btn btn-primary" type="submit">Submit Review</button>
+          <p id="reviewMsg" class="small"></p>
+        </form>
+      </div>
+    </div>
+  </section>
+
 </main>
 
 
 <footer>
   <div class="container footer-box">
     <div class="footer-brand"><img src="assets/images/site-logo.png" alt="Memorial Monuments of Louisiana logo" class="footer-logo-large" /><div><strong id="footerName">Memorial Monuments of Louisiana</strong><br><span id="footerTagline">Honoring Loved Ones With Care, Respect, and Craftsmanship</span></div></div>
-    <div>© <span id="year"></span> Memorial Monuments of Louisiana<br><span>Version: <span class="siteVersion">v1.0.7</span></span></div>
+    <div>© <span id="year"></span> Memorial Monuments of Louisiana<br><span>Version: <span class="siteVersion">v1.0.8</span></span><br><a class="subtle-admin-link" href="admin/index.html">Owner access</a></div>
   </div>
 </footer>
 
