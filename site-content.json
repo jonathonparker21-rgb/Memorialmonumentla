@@ -1,5 +1,5 @@
 {
-  "version": "v1.1.0",
+  "version": "v1.1.1",
   "businessName": "Memorial Monuments of Louisiana",
   "tagline": "Honoring Loved Ones With Care, Respect, and Craftsmanship",
   "heroHeadline": "Locally Owned. Family Focused. Crafted With Care.",
@@ -32,12 +32,12 @@
     "mapsQuery": "9850 Hwy 165 North Monroe LA 71280"
   },
   "design": {
-    "accentColor": "#8c694a",
-    "accentDark": "#6e5239",
-    "backgroundColor": "#f7f2eb",
-    "surfaceColor": "#ffffff",
-    "textColor": "#1f2933",
-    "mutedColor": "#5d6770",
+    "accentColor": "#c84e22",
+    "accentDark": "#8d2a16",
+    "backgroundColor": "#12080a",
+    "surfaceColor": "#1a1012",
+    "textColor": "#f1e8d2",
+    "mutedColor": "#c8b59a",
     "heroTitleSize": "4.5rem",
     "sectionTitleSize": "2.8rem",
     "bodyTextSize": "1.08rem",
