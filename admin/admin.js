@@ -19,7 +19,7 @@ function show(id, on=true){
 function fillForm(data){
   const d = data.design || {};
   const map = {
-    version: data.version || 'v1.0.6',
+    version: data.version || 'v1.1.0',
     businessName: data.businessName, tagline: data.tagline, heroHeadline: data.heroHeadline,
     heroText: data.heroText, welcomeTitle: data.welcomeTitle, welcomeText: data.welcomeText,
     aboutText: data.aboutText, mainLocName: data.mainLocation.name, mainAddr1: data.mainLocation.address1,

@@ -32,7 +32,7 @@ This package restores the site content and working transparent logo.
 - Version system restored and editable in admin
 
 ## Version
-- Current version: `v1.0.9`
+- Current version: `v1.1.0`
 
 - Original uploaded logo kept exactly as provided.
 - Header reduced further and slogan enlarged.
