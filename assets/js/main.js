@@ -1,4 +1,3 @@
-
 async function loadContent(){
   const local = localStorage.getItem('memorialSiteContent');
   if(local){ try { return JSON.parse(local); } catch(e) {} }
@@ -42,25 +41,26 @@ function applyDesign(design = {}){
 }
 function testimonialCard(t){
   const location = t.location ? ` <span>• ${t.location}</span>` : '';
-  return `
-    <article class="testimonial-card">
-      <p class="testimonial-text">“${t.text}”</p>
-      <div class="testimonial-meta"><strong>${t.name}</strong>${location}</div>
-    </article>
-  `;
+  return `<article class="testimonial-card"><p class="testimonial-text">“${t.text}”</p><div class="testimonial-meta"><strong>${t.name}</strong>${location}</div></article>`;
 }
 function renderHomeTestimonials(data){
   const track = document.getElementById('testimonialTrack');
   if(!track) return;
   const items = data.testimonials || [];
-  const cards = items.concat(items).map(testimonialCard).join('');
-  track.innerHTML = cards;
+  track.innerHTML = items.concat(items).map(testimonialCard).join('');
 }
 function renderTestimonialsPage(data){
   const wrap = document.getElementById('allTestimonials');
   if(!wrap) return;
-  const items = data.testimonials || [];
-  wrap.innerHTML = items.map(testimonialCard).join('');
+  wrap.innerHTML = (data.testimonials || []).map(testimonialCard).join('');
+}
+function galleryCard(item){
+  return `<article class="restoration-card"><img src="${item.image}" alt="${item.title}"><div class="restoration-copy"><h3>${item.title}</h3><p>${item.description || ''}</p></div></article>`;
+}
+function renderRestorationGallery(data){
+  const track = document.getElementById('restorationTrack');
+  if(!track) return;
+  track.innerHTML = (data.restorationGallery || []).map(galleryCard).join('');
 }
 function setupReviewForm(data){
   const form = document.getElementById('reviewForm');
@@ -73,9 +73,7 @@ function setupReviewForm(data){
     if(!name || !text) return;
     const local = localStorage.getItem('memorialSiteContent');
     let current = data;
-    if(local){
-      try { current = JSON.parse(local); } catch(e) {}
-    }
+    if(local){ try { current = JSON.parse(local); } catch(e) {} }
     current.testimonials = current.testimonials || [];
     current.testimonials.unshift({ name, location, text });
     localStorage.setItem('memorialSiteContent', JSON.stringify(current));
@@ -97,5 +95,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   if(window.renderPage) window.renderPage(data);
   renderHomeTestimonials(data);
   renderTestimonialsPage(data);
+  renderRestorationGallery(data);
   setupReviewForm(data);
 });

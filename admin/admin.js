@@ -1,5 +1,6 @@
-
 const defaultCreds = { username: 'admin', password: 'ChangeMe123!' };
+let currentGallery = [];
+
 function getCreds(){
   const saved = localStorage.getItem('memorialAdminCreds');
   if(saved){ try { return JSON.parse(saved); } catch(e) {} }
@@ -16,10 +17,30 @@ function show(id, on=true){
   const el = document.getElementById(id);
   if(el) el.style.display = on ? '' : 'none';
 }
+function renderAdminGallery(){
+  const wrap = document.getElementById('adminGalleryList');
+  if(!wrap) return;
+  wrap.innerHTML = (currentGallery || []).map((item, i) => `
+    <div class="admin-gallery-item">
+      <img src="${item.image}" alt="${item.title}">
+      <div>
+        <strong>${item.title}</strong>
+        <div class="small">${item.description || ''}</div>
+      </div>
+      <button class="btn btn-secondary" type="button" onclick="removeGalleryItem(${i})">Remove</button>
+    </div>
+  `).join('');
+}
+window.removeGalleryItem = function(index){
+  currentGallery.splice(index, 1);
+  renderAdminGallery();
+}
 function fillForm(data){
   const d = data.design || {};
+  currentGallery = data.restorationGallery || [];
+  renderAdminGallery();
   const map = {
-    version: data.version || 'v1.1.1',
+    version: data.version || 'v1.1.2',
     businessName: data.businessName, tagline: data.tagline, heroHeadline: data.heroHeadline,
     heroText: data.heroText, welcomeTitle: data.welcomeTitle, welcomeText: data.welcomeText,
     aboutText: data.aboutText, mainLocName: data.mainLocation.name, mainAddr1: data.mainLocation.address1,
@@ -28,9 +49,9 @@ function fillForm(data){
     secondAddr2: data.secondLocation.address2, secondPhone: data.secondLocation.phone, secondEmail: data.secondLocation.email,
     secondMap: data.secondLocation.mapsQuery, service1: data.services[0] || '', service2: data.services[1] || '',
     service3: data.services[2] || '', service4: data.services[3] || '', service5: data.services[4] || '', service6: data.services[5] || '',
-    accentColor: d.accentColor || '#8c694a', accentDark: d.accentDark || '#6e5239',
-    backgroundColor: d.backgroundColor || '#f7f2eb', surfaceColor: d.surfaceColor || '#ffffff',
-    textColor: d.textColor || '#1f2933', mutedColor: d.mutedColor || '#5d6770',
+    accentColor: d.accentColor || '#c84e22', accentDark: d.accentDark || '#8d2a16',
+    backgroundColor: d.backgroundColor || '#12080a', surfaceColor: d.surfaceColor || '#1a1012',
+    textColor: d.textColor || '#f1e8d2', mutedColor: d.mutedColor || '#c8b59a',
     heroTitleSize: d.heroTitleSize || '4.5rem', sectionTitleSize: d.sectionTitleSize || '2.8rem',
     bodyTextSize: d.bodyTextSize || '1.08rem', navTextSize: d.navTextSize || '1rem'
   };
@@ -47,6 +68,7 @@ function readForm(){
     welcomeText: document.getElementById('welcomeText').value,
     aboutText: document.getElementById('aboutText').value,
     services: [1,2,3,4,5,6].map(i => document.getElementById('service'+i).value).filter(Boolean),
+    restorationGallery: currentGallery,
     mainLocation: {
       name: document.getElementById('mainLocName').value,
       address1: document.getElementById('mainAddr1').value,
@@ -97,6 +119,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else {
       err.textContent = 'Incorrect username or password.';
     }
+  });
+  document.getElementById('addGalleryBtn')?.addEventListener('click', () => {
+    const title = document.getElementById('galleryTitle').value.trim();
+    const description = document.getElementById('galleryDescription').value.trim();
+    const image = document.getElementById('galleryImage').value.trim();
+    if(!title || !image) return;
+    currentGallery.push({ title, description, image });
+    renderAdminGallery();
+    document.getElementById('galleryTitle').value = '';
+    document.getElementById('galleryDescription').value = '';
+    document.getElementById('galleryImage').value = '';
   });
   document.getElementById('saveBtn')?.addEventListener('click', () => {
     const data = readForm();

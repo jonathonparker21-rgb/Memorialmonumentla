@@ -32,7 +32,7 @@ This package restores the site content and working transparent logo.
 - Version system restored and editable in admin
 
 ## Version
-- Current version: `v1.1.1`
+- Current version: `v1.1.2`
 
 - Original uploaded logo kept exactly as provided.
 - Header reduced further and slogan enlarged.
@@ -46,3 +46,6 @@ This package restores the site content and working transparent logo.
 
 - Testimonials moved to a separate page with a homepage scrolling preview.
 - Filler wording replaced with more complete client-ready copy.
+
+- Added a horizontal restoration gallery section on the homepage.
+- Added admin controls to add and remove restoration photos in preview.
