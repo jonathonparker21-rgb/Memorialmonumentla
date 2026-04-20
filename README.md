@@ -1,6 +1,6 @@
 # Memorial Monuments of Louisiana — Production Build
 
-Version: v1.2.0
+Version: v1.2.1
 
 ## What this version includes
 - Production-ready Cloudflare Pages build
@@ -46,3 +46,8 @@ In admin:
 ## Notes
 - If API bindings are not configured yet, the admin can still save locally for preview
 - Production publishing requires the Cloudflare bindings above
+
+## New in v1.2.1
+- Drag-and-drop restoration photo uploads in admin
+- Click-to-choose upload fallback
+- New uploads appear first in the gallery

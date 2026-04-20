@@ -69,7 +69,7 @@ function fillForm(data){
   currentGallery = data.restorationGallery || [];
   renderAdminGallery();
   const map = {
-    version: data.version || 'v1.2.0',
+    version: data.version || 'v1.2.1',
     businessName: data.businessName, tagline: data.tagline, heroHeadline: data.heroHeadline,
     heroText: data.heroText, welcomeTitle: data.welcomeTitle, welcomeText: data.welcomeText,
     aboutText: data.aboutText, mainLocName: data.mainLocation.name, mainAddr1: data.mainLocation.address1,
@@ -171,6 +171,37 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('galleryFile');
+
+if(dropZone && fileInput){
+  dropZone.addEventListener('click', () => fileInput.click());
+
+  dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.classList.add('dragover');
+  });
+
+  dropZone.addEventListener('dragleave', () => {
+    dropZone.classList.remove('dragover');
+  });
+
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    if(e.dataTransfer.files.length){
+      fileInput.files = e.dataTransfer.files;
+    }
+  });
+
+  fileInput.addEventListener('change', () => {
+    const status = document.getElementById('galleryUploadMsg');
+    if (fileInput.files && fileInput.files[0] && status) {
+      status.textContent = `Selected: ${fileInput.files[0].name}`;
+    }
+  });
+}
+
   document.getElementById('uploadGalleryBtn')?.addEventListener('click', async () => {
     const title = document.getElementById('galleryTitle').value.trim();
     const description = document.getElementById('galleryDescription').value.trim();
@@ -194,7 +225,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const payload = await res.json();
       if(!res.ok || !payload.url) throw new Error(payload.error || 'Upload failed');
 
-      currentGallery.push({
+      currentGallery.unshift({
         title,
         description,
         image: payload.url,
