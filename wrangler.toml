@@ -1,0 +1,12 @@
+name = "memorial-monuments-of-louisiana"
+compatibility_date = "2026-04-15"
+
+# For Cloudflare Pages, configure these bindings in the Pages dashboard:
+# KV:
+#   SITE_CONTENT
+# R2:
+#   RESTORATION_IMAGES
+#
+# Optional env vars:
+#   OWNER_USERNAME
+#   OWNER_PASSWORD

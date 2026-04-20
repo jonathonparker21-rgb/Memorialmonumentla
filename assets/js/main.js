@@ -1,7 +1,13 @@
 async function loadContent(){
   const local = localStorage.getItem('memorialSiteContent');
   if(local){ try { return JSON.parse(local); } catch(e) {} }
-  const res = await fetch('site-content.json');
+
+  try {
+    const apiRes = await fetch('/api/get-content', { cache: 'no-store' });
+    if (apiRes.ok) return await apiRes.json();
+  } catch (e) {}
+
+  const res = await fetch('site-content.json', { cache: 'no-store' });
   return await res.json();
 }
 function mapSrc(q){ return 'https://www.google.com/maps?q=' + encodeURIComponent(q) + '&output=embed'; }

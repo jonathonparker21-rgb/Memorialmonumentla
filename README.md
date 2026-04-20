@@ -1,51 +1,48 @@
-# Memorial Monuments of Louisiana — Rebuilt Fixed Site
+# Memorial Monuments of Louisiana — Production Build
 
-This package restores the site content and working transparent logo.
+Version: v1.2.0
 
-## Included pages
-- Home: `index.html`
-- About Us: `about.html`
-- Contact Us: `contact.html`
-- Owner Admin: `admin/index.html`
+## What this version includes
+- Production-ready Cloudflare Pages build
+- Responsive admin layout that looks better on laptop screens
+- Restoration gallery with real upload flow ready for Cloudflare R2
+- Content save API ready for Cloudflare KV
+- Delete support for uploaded gallery images
 
-## Preview admin login
+## Cloudflare setup required
+
+### 1. Add KV binding
+Create a KV namespace and bind it as:
+- `SITE_CONTENT`
+
+### 2. Add R2 binding
+Create an R2 bucket and bind it as:
+- `RESTORATION_IMAGES`
+
+### 3. Add environment variables
+Set these in Cloudflare Pages:
+- `OWNER_USERNAME`
+- `OWNER_PASSWORD`
+
+Optional:
+- `R2_PUBLIC_BASE_URL`
+  - Use this if your R2 bucket has a public/custom domain
+  - Example: `https://cdn.yourdomain.com`
+
+## Admin login
+Default starter login:
 - Username: `admin`
 - Password: `ChangeMe123!`
 
-## Restored content
-- Business name
-- Two locations
-- Main phone and email
-- Southern, locally owned homepage tone
-- Main services:
-  - new monuments and headstones
-  - monument restoration
-  - monument cleaning
-  - releveling
-  - repainting lettering
-  - on-site engraving
+Set your own values in Cloudflare Pages environment variables before going live.
 
-## Fixes included
-- Rebuilt from scratch to avoid the blank-site issue
-- Transparent logo included at `assets/images/site-logo.png`
-- Header bar is shorter, while the logo stays large
-- Version system restored and editable in admin
+## Upload flow
+In admin:
+1. Add a title and description
+2. Choose a photo file
+3. Click Upload Photo
+4. Click Save Changes
 
-## Version
-- Current version: `v1.1.2`
-
-- Original uploaded logo kept exactly as provided.
-- Header reduced further and slogan enlarged.
-
-- Combined logo with integrated slogan added as-is.
-- Separate slogan text removed from header.
-
-- Added a testimonial section and preview review form.
-- Mobile navigation updated with a cleaner menu button.
-- Admin link moved to a subtler footer location.
-
-- Testimonials moved to a separate page with a homepage scrolling preview.
-- Filler wording replaced with more complete client-ready copy.
-
-- Added a horizontal restoration gallery section on the homepage.
-- Added admin controls to add and remove restoration photos in preview.
+## Notes
+- If API bindings are not configured yet, the admin can still save locally for preview
+- Production publishing requires the Cloudflare bindings above

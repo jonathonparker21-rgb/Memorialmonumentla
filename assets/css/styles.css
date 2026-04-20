@@ -407,3 +407,39 @@ footer{
     grid-template-columns:1fr;
   }
 }
+
+/* v1.2.0 production admin improvements */
+.admin-wrap{
+  grid-template-columns: 300px minmax(0, 1fr) !important;
+  gap: 1.5rem !important;
+  width: min(100% - 2rem, 1400px) !important;
+}
+#editor .admin-box{
+  padding: 1.4rem !important;
+}
+.admin-grid{
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 1.15rem !important;
+}
+textarea{
+  min-height: 130px !important;
+}
+input, textarea, select{
+  font-size: 15px !important;
+}
+@media (min-width: 1200px){
+  .admin-wrap{
+    grid-template-columns: 300px minmax(0, 1fr) !important;
+  }
+  #editor .admin-box{
+    max-width: 100%;
+  }
+}
+@media (max-width: 980px){
+  .admin-wrap{
+    grid-template-columns: 1fr !important;
+  }
+  .admin-grid{
+    grid-template-columns: 1fr !important;
+  }
+}

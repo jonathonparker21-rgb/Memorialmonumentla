@@ -6,17 +6,30 @@ function getCreds(){
   if(saved){ try { return JSON.parse(saved); } catch(e) {} }
   return defaultCreds;
 }
+function getAuthHeader() {
+  const creds = getCreds();
+  return 'Basic ' + btoa(`${creds.username}:${creds.password}`);
+}
 function isLoggedIn(){ return sessionStorage.getItem('memorialAdminAuth') === 'true'; }
+
 async function loadSiteContent(){
   const local = localStorage.getItem('memorialSiteContent');
   if(local){ try { return JSON.parse(local); } catch(e) {} }
-  const res = await fetch('../site-content.json');
+
+  try {
+    const res = await fetch('/api/get-content', { cache: 'no-store' });
+    if (res.ok) return await res.json();
+  } catch (e) {}
+
+  const res = await fetch('../site-content.json', { cache: 'no-store' });
   return await res.json();
 }
+
 function show(id, on=true){
   const el = document.getElementById(id);
   if(el) el.style.display = on ? '' : 'none';
 }
+
 function renderAdminGallery(){
   const wrap = document.getElementById('adminGalleryList');
   if(!wrap) return;
@@ -31,16 +44,32 @@ function renderAdminGallery(){
     </div>
   `).join('');
 }
-window.removeGalleryItem = function(index){
+
+window.removeGalleryItem = async function(index){
+  const item = currentGallery[index];
+  if (!item) return;
+  if (item.key) {
+    try {
+      await fetch('/api/delete-image', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'authorization': getAuthHeader()
+        },
+        body: JSON.stringify({ key: item.key })
+      });
+    } catch (e) {}
+  }
   currentGallery.splice(index, 1);
   renderAdminGallery();
 }
+
 function fillForm(data){
   const d = data.design || {};
   currentGallery = data.restorationGallery || [];
   renderAdminGallery();
   const map = {
-    version: data.version || 'v1.1.2',
+    version: data.version || 'v1.2.0',
     businessName: data.businessName, tagline: data.tagline, heroHeadline: data.heroHeadline,
     heroText: data.heroText, welcomeTitle: data.welcomeTitle, welcomeText: data.welcomeText,
     aboutText: data.aboutText, mainLocName: data.mainLocation.name, mainAddr1: data.mainLocation.address1,
@@ -55,8 +84,12 @@ function fillForm(data){
     heroTitleSize: d.heroTitleSize || '4.5rem', sectionTitleSize: d.sectionTitleSize || '2.8rem',
     bodyTextSize: d.bodyTextSize || '1.08rem', navTextSize: d.navTextSize || '1rem'
   };
-  Object.entries(map).forEach(([id,val]) => { const el=document.getElementById(id); if(el) el.value = val || ''; });
+  Object.entries(map).forEach(([id,val]) => {
+    const el=document.getElementById(id);
+    if(el) el.value = val || '';
+  });
 }
+
 function readForm(){
   return {
     version: document.getElementById('version').value,
@@ -69,6 +102,7 @@ function readForm(){
     aboutText: document.getElementById('aboutText').value,
     services: [1,2,3,4,5,6].map(i => document.getElementById('service'+i).value).filter(Boolean),
     restorationGallery: currentGallery,
+    testimonials: [],
     mainLocation: {
       name: document.getElementById('mainLocName').value,
       address1: document.getElementById('mainAddr1').value,
@@ -99,14 +133,30 @@ function readForm(){
     }
   };
 }
+
+async function saveContentToApi(data) {
+  const res = await fetch('/api/save-content', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'authorization': getAuthHeader()
+    },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error('Save failed');
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   const loginForm = document.getElementById('loginForm');
+
   async function initEditor(){
     show('loginBox', false);
     show('editor', true);
     fillForm(await loadSiteContent());
   }
+
   if(isLoggedIn()) initEditor();
+
   loginForm?.addEventListener('submit', (e) => {
     e.preventDefault();
     const creds = getCreds();
@@ -120,27 +170,69 @@ document.addEventListener('DOMContentLoaded', async () => {
       err.textContent = 'Incorrect username or password.';
     }
   });
-  document.getElementById('addGalleryBtn')?.addEventListener('click', () => {
+
+  document.getElementById('uploadGalleryBtn')?.addEventListener('click', async () => {
     const title = document.getElementById('galleryTitle').value.trim();
     const description = document.getElementById('galleryDescription').value.trim();
-    const image = document.getElementById('galleryImage').value.trim();
-    if(!title || !image) return;
-    currentGallery.push({ title, description, image });
-    renderAdminGallery();
-    document.getElementById('galleryTitle').value = '';
-    document.getElementById('galleryDescription').value = '';
-    document.getElementById('galleryImage').value = '';
+    const fileInput = document.getElementById('galleryFile');
+    const status = document.getElementById('galleryUploadMsg');
+    const file = fileInput?.files?.[0];
+    if(!title || !file){
+      status.textContent = 'Add a title and choose a photo first.';
+      return;
+    }
+    status.textContent = 'Uploading...';
+    const form = new FormData();
+    form.append('file', file);
+
+    try {
+      const res = await fetch('/api/upload-image', {
+        method: 'POST',
+        headers: { 'authorization': getAuthHeader() },
+        body: form
+      });
+      const payload = await res.json();
+      if(!res.ok || !payload.url) throw new Error(payload.error || 'Upload failed');
+
+      currentGallery.push({
+        title,
+        description,
+        image: payload.url,
+        key: payload.key
+      });
+      renderAdminGallery();
+      document.getElementById('galleryTitle').value = '';
+      document.getElementById('galleryDescription').value = '';
+      document.getElementById('galleryFile').value = '';
+      status.textContent = 'Photo uploaded. Save changes to publish it on the site.';
+    } catch (error) {
+      status.textContent = 'Upload failed. Check your Cloudflare bindings and try again.';
+    }
   });
-  document.getElementById('saveBtn')?.addEventListener('click', () => {
+
+  document.getElementById('saveBtn')?.addEventListener('click', async () => {
     const data = readForm();
-    localStorage.setItem('memorialSiteContent', JSON.stringify(data));
-    document.getElementById('saveMsg').textContent = 'Changes saved for preview. Refresh the public pages to see updates.';
+
+    // keep existing testimonials from current stored content if available
+    const current = await loadSiteContent();
+    data.testimonials = current.testimonials || [];
+
+    try {
+      await saveContentToApi(data);
+      localStorage.setItem('memorialSiteContent', JSON.stringify(data));
+      document.getElementById('saveMsg').textContent = 'Changes saved. Refresh the public pages to confirm the update.';
+    } catch (error) {
+      localStorage.setItem('memorialSiteContent', JSON.stringify(data));
+      document.getElementById('saveMsg').textContent = 'Saved locally for preview. API save failed, so production data was not updated.';
+    }
   });
+
   document.getElementById('resetBtn')?.addEventListener('click', async () => {
     localStorage.removeItem('memorialSiteContent');
     fillForm(await loadSiteContent());
-    document.getElementById('saveMsg').textContent = 'Reset to the original draft content.';
+    document.getElementById('saveMsg').textContent = 'Reset to the current saved content.';
   });
+
   document.getElementById('logoutBtn')?.addEventListener('click', () => {
     sessionStorage.removeItem('memorialAdminAuth');
     location.reload();
