@@ -470,3 +470,90 @@ input, textarea, select{
   font-size:.85rem;
   opacity:.7;
 }
+
+
+/* v1.2.2 admin full-width responsive fix */
+.admin-wrap{
+  width:min(100% - 24px, 1760px) !important;
+  max-width:1760px !important;
+  margin:0 auto !important;
+  padding:1.25rem 0 2.5rem !important;
+  display:grid !important;
+  grid-template-columns:280px minmax(0, 1fr) !important;
+  gap:1.25rem !important;
+  align-items:start !important;
+}
+#editor{
+  min-width:0 !important;
+  width:100% !important;
+}
+#editor .admin-box,
+#loginBox{
+  width:100% !important;
+  max-width:none !important;
+}
+.admin-grid{
+  display:grid !important;
+  grid-template-columns:repeat(2, minmax(0, 1fr)) !important;
+  gap:1rem 1.25rem !important;
+}
+.admin-gallery-list{
+  max-height:620px !important;
+  overflow:auto !important;
+  padding-right:.25rem !important;
+}
+.admin-gallery-item{
+  display:grid !important;
+  grid-template-columns:120px minmax(0, 1fr) auto !important;
+  gap:.85rem !important;
+  align-items:center !important;
+}
+.admin-gallery-item img{
+  width:120px !important;
+  height:82px !important;
+  object-fit:cover !important;
+}
+.admin-gallery-item strong,
+.admin-gallery-item .small{
+  overflow-wrap:anywhere !important;
+}
+.drop-zone{
+  border:2px dashed rgba(200,78,34,.55) !important;
+  border-radius:18px !important;
+  padding:34px 18px !important;
+  text-align:center !important;
+  cursor:pointer !important;
+  transition:.2s ease !important;
+  background:rgba(255,255,255,.035) !important;
+}
+.drop-zone:hover,
+.drop-zone.dragover{
+  border-color:#ff7a3c !important;
+  background:rgba(255,122,60,.12) !important;
+}
+.drop-zone p{
+  margin:0 0 .35rem 0 !important;
+  font-weight:700 !important;
+}
+.drop-zone span{
+  font-size:.9rem !important;
+  opacity:.82 !important;
+}
+@media (min-width: 1400px){
+  .admin-grid{
+    grid-template-columns:repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+@media (max-width: 1100px){
+  .admin-wrap{
+    grid-template-columns:1fr !important;
+  }
+  .admin-grid{
+    grid-template-columns:1fr !important;
+  }
+}
+@media (max-width: 760px){
+  .admin-gallery-item{
+    grid-template-columns:1fr !important;
+  }
+}

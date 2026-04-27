@@ -69,7 +69,7 @@ function fillForm(data){
   currentGallery = data.restorationGallery || [];
   renderAdminGallery();
   const map = {
-    version: data.version || 'v1.2.1',
+    version: data.version || 'v1.2.2',
     businessName: data.businessName, tagline: data.tagline, heroHeadline: data.heroHeadline,
     heroText: data.heroText, welcomeTitle: data.welcomeTitle, welcomeText: data.welcomeText,
     aboutText: data.aboutText, mainLocName: data.mainLocation.name, mainAddr1: data.mainLocation.address1,
@@ -223,7 +223,7 @@ if(dropZone && fileInput){
         body: form
       });
       const payload = await res.json();
-      if(!res.ok || !payload.url) throw new Error(payload.error || 'Upload failed');
+      if(!res.ok || !payload.url) throw new Error(payload.error || 'Upload failed. Check RESTORATION_IMAGES binding and redeploy.');
 
       currentGallery.unshift({
         title,
@@ -237,7 +237,7 @@ if(dropZone && fileInput){
       document.getElementById('galleryFile').value = '';
       status.textContent = 'Photo uploaded. Save changes to publish it on the site.';
     } catch (error) {
-      status.textContent = 'Upload failed. Check your Cloudflare bindings and try again.';
+      status.textContent = `Upload failed: ${error.message || 'Check Cloudflare R2 binding RESTORATION_IMAGES and redeploy.'}`;
     }
   });
 
