@@ -1,3 +1,4 @@
+/* FORCE_REFRESH_BUILD v1.2.3 2026-04-29 13:10:31 */
 async function loadContent(){
   const local = localStorage.getItem('memorialSiteContent');
   if(local){ try { return JSON.parse(local); } catch(e) {} }

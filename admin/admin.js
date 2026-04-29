@@ -1,3 +1,4 @@
+/* FORCE_REFRESH_BUILD v1.2.3 2026-04-29 13:10:31 */
 const defaultCreds = { username: 'admin', password: 'ChangeMe123!' };
 let currentGallery = [];
 
@@ -69,7 +70,7 @@ function fillForm(data){
   currentGallery = data.restorationGallery || [];
   renderAdminGallery();
   const map = {
-    version: data.version || 'v1.2.2',
+    version: data.version || 'v1.2.3',
     businessName: data.businessName, tagline: data.tagline, heroHeadline: data.heroHeadline,
     heroText: data.heroText, welcomeTitle: data.welcomeTitle, welcomeText: data.welcomeText,
     aboutText: data.aboutText, mainLocName: data.mainLocation.name, mainAddr1: data.mainLocation.address1,

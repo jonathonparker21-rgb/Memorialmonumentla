@@ -1,3 +1,4 @@
+/* FORCE_REFRESH_BUILD v1.2.3 2026-04-29 13:10:31 */
 export async function onRequestGet(context) {
   const { env, params } = context;
   const key = params.key;

@@ -1,6 +1,6 @@
 # Memorial Monuments of Louisiana — Production Build
 
-Version: v1.2.2
+Version: v1.2.3
 
 ## What this version includes
 - Production-ready Cloudflare Pages build
@@ -47,7 +47,7 @@ In admin:
 - If API bindings are not configured yet, the admin can still save locally for preview
 - Production publishing requires the Cloudflare bindings above
 
-## New in v1.2.2
+## New in v1.2.3
 - Drag-and-drop restoration photo uploads in admin
 - Click-to-choose upload fallback
 - New uploads appear first in the gallery
@@ -61,3 +61,9 @@ If upload fails:
 4. Redeploy after adding or changing bindings.
 5. Visit `/api/get-content` on the live site. It should return JSON, not a 404.
 6. In admin, the upload area should say “Drag & drop a photo here”. If it still shows a URL field, the old build is deployed.
+
+
+## Force refresh build
+- Version: v1.2.3
+- Build timestamp: 2026-04-29 13:10:31
+- Purpose: force GitHub/Cloudflare to detect latest files.
