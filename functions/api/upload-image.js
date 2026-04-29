@@ -1,9 +1,12 @@
-/* FORCE_REFRESH_BUILD v1.2.3 2026-04-29 13:10:31 */
-function unauthorized() {
-  return new Response(JSON.stringify({ error: "Unauthorized" }), {
-    status: 401,
+function json(data, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
     headers: { "content-type": "application/json; charset=utf-8" }
   });
+}
+
+function unauthorized() {
+  return json({ error: "Unauthorized. Check OWNER_USERNAME and OWNER_PASSWORD." }, 401);
 }
 
 async function checkAuth(request, env) {
@@ -26,20 +29,23 @@ function sanitizeFilename(name = "upload") {
 
 export async function onRequestPost(context) {
   const { request, env } = context;
+
+  if (!env.RESTORATION_IMAGES) {
+    return json({ error: "Missing R2 binding RESTORATION_IMAGES." }, 500);
+  }
+
   if (!(await checkAuth(request, env))) return unauthorized();
 
   try {
     const form = await request.formData();
     const file = form.get("file");
+
     if (!file || typeof file === "string") {
-      return new Response(JSON.stringify({ error: "No file uploaded." }), {
-        status: 400,
-        headers: { "content-type": "application/json; charset=utf-8" }
-      });
+      return json({ error: "No file uploaded." }, 400);
     }
 
-    const ext = file.name.includes(".") ? file.name.split(".").pop() : "jpg";
-    const key = `restoration/${Date.now()}-${sanitizeFilename(file.name || "photo")}`;
+    const key = `restoration/${Date.now()}-${sanitizeFilename(file.name || "photo.jpg")}`;
+
     await env.RESTORATION_IMAGES.put(key, await file.arrayBuffer(), {
       httpMetadata: { contentType: file.type || "application/octet-stream" }
     });
@@ -49,13 +55,8 @@ export async function onRequestPost(context) {
       ? `${publicBase.replace(/\/$/, "")}/${key}`
       : `/api/image/${encodeURIComponent(key)}`;
 
-    return new Response(JSON.stringify({ ok: true, key, url }), {
-      headers: { "content-type": "application/json; charset=utf-8" }
-    });
+    return json({ ok: true, key, url });
   } catch (error) {
-    return new Response(JSON.stringify({ error: "Failed to upload image." }), {
-      status: 500,
-      headers: { "content-type": "application/json; charset=utf-8" }
-    });
+    return json({ error: error.message || "Failed to upload image." }, 500);
   }
 }

@@ -1,4 +1,4 @@
-<!-- VERSION: v1.2.3 FORCE_REFRESH 2026-04-29 13:10:31 -->
+<!-- VERSION: v1.2.4 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,7 +7,7 @@
   <title>Owner Admin | Memorial Monuments of Louisiana</title>
   <link rel="stylesheet" href="../assets/css/styles.css" />
 </head>
-<body>
+<body class="admin-page">
 <header>
   <div class="container nav">
     <a href="../index.html" class="logo-wrap">
@@ -21,75 +21,95 @@
   </div>
 </header>
 
-<main class="container admin-wrap">
-  <div class="admin-box" id="loginBox">
+<main class="admin-shell">
+  <aside class="admin-login-card" id="loginBox">
     <h2>Owner Login</h2>
-    <p class="small">This starter admin is easy to reach, but still behind credentials.</p>
+    <p class="small">Login with the owner username and password set in Cloudflare.</p>
     <form id="loginForm">
       <label>Username</label>
       <input id="username" type="text" required />
       <label>Password</label>
       <input id="password" type="password" required />
-      <div class="admin-actions">
-        <button class="btn btn-primary" type="submit">Login</button>
-      </div>
-      <p id="loginError" style="color:#9f1d1d;font-weight:700;"></p>
+      <button class="btn btn-primary" type="submit">Login</button>
+      <p id="loginError" style="color:#ffb4a5;font-weight:700;"></p>
     </form>
     <div class="notice">
-      <strong>Preview credentials</strong><br>
+      <strong>Fallback login</strong><br>
       Username: <span class="code">admin</span><br>
-      Password: <span class="code">ChangeMe123!</span>
+      Password: <span class="code">ChangeMe123!</span><br><br>
+      Set <span class="code">OWNER_USERNAME</span> and <span class="code">OWNER_PASSWORD</span> in Cloudflare.
     </div>
-  </div>
+  </aside>
 
-  <div id="editor" style="display:none;">
-    <div class="admin-box">
-      <h2>Edit Website Content</h2>
-      <p class="small">This draft editor updates the preview site content without touching code.</p>
+  <section id="editor" class="admin-editor" style="display:none;">
+    <div class="admin-topbar">
+      <div>
+        <h1>Website Admin</h1>
+        <p class="small">Version <span class="siteVersion">v1.2.4</span></p>
+      </div>
+      <div class="admin-actions">
+        <button class="btn btn-primary" type="button" id="saveBtn">Save Changes</button>
+        <button class="btn btn-secondary" type="button" id="resetBtn">Reset</button>
+        <button class="btn btn-secondary" type="button" id="logoutBtn">Logout</button>
+      </div>
+    </div>
 
-      <div class="admin-grid">
+    <div class="admin-status-card" id="diagnosticsBox">
+      <strong>Upload status:</strong>
+      <span id="diagnosticsText">Checking Cloudflare bindings...</span>
+    </div>
+
+    <div class="admin-section">
+      <h2>Website Text</h2>
+      <div class="admin-form-grid">
         <div>
-          <label>Site Version</label><input id="version" placeholder="v1.2.3" />
+          <label>Site Version</label><input id="version" placeholder="v1.2.4" />
           <label>Business Name</label><input id="businessName" />
           <label>Tagline</label><input id="tagline" />
           <label>Hero Headline</label><input id="heroHeadline" />
           <label>Hero Text</label><textarea id="heroText"></textarea>
+        </div>
+        <div>
           <label>Welcome Title</label><input id="welcomeTitle" />
           <label>Welcome Text</label><textarea id="welcomeText"></textarea>
           <label>About Text</label><textarea id="aboutText"></textarea>
         </div>
-        <div>
-          <label>Service 1</label><input id="service1" />
-          <label>Service 2</label><input id="service2" />
-          <label>Service 3</label><input id="service3" />
-          <label>Service 4</label><input id="service4" />
-          <label>Service 5</label><input id="service5" />
-          <label>Service 6</label><input id="service6" />
-        </div>
       </div>
+    </div>
 
-      <h3>Design Controls</h3>
-      <div class="admin-grid">
-        <div>
-          <label>Accent Color</label><input id="accentColor" type="color" />
-          <label>Accent Dark</label><input id="accentDark" type="color" />
-          <label>Background Color</label><input id="backgroundColor" type="color" />
-          <label>Surface Color</label><input id="surfaceColor" type="color" />
-          <label>Text Color</label><input id="textColor" type="color" />
-          <label>Muted Text Color</label><input id="mutedColor" type="color" />
-        </div>
-        <div>
-          <label>Hero Title Size</label><input id="heroTitleSize" placeholder="4.5rem" />
-          <label>Section Title Size</label><input id="sectionTitleSize" placeholder="2.8rem" />
-          <label>Body Text Size</label><input id="bodyTextSize" placeholder="1.08rem" />
-          <label>Navigation Text Size</label><input id="navTextSize" placeholder="1rem" />
-          <div class="notice"><strong>Tip:</strong> Use values like <span class="code">4rem</span>, <span class="code">2.5rem</span>, or <span class="code">18px</span>.</div>
-        </div>
+    <div class="admin-section">
+      <h2>Services</h2>
+      <div class="admin-form-grid three">
+        <div><label>Service 1</label><input id="service1" /></div>
+        <div><label>Service 2</label><input id="service2" /></div>
+        <div><label>Service 3</label><input id="service3" /></div>
+        <div><label>Service 4</label><input id="service4" /></div>
+        <div><label>Service 5</label><input id="service5" /></div>
+        <div><label>Service 6</label><input id="service6" /></div>
       </div>
+    </div>
 
-      <h3>Main Location</h3>
-      <div class="admin-grid">
+    <div class="admin-section">
+      <h2>Design Controls</h2>
+      <div class="admin-form-grid three">
+        <div><label>Accent Color</label><input id="accentColor" type="color" /></div>
+        <div><label>Accent Dark</label><input id="accentDark" type="color" /></div>
+        <div><label>Background Color</label><input id="backgroundColor" type="color" /></div>
+        <div><label>Surface Color</label><input id="surfaceColor" type="color" /></div>
+        <div><label>Text Color</label><input id="textColor" type="color" /></div>
+        <div><label>Muted Text Color</label><input id="mutedColor" type="color" /></div>
+        <div><label>Hero Title Size</label><input id="heroTitleSize" placeholder="4.5rem" /></div>
+        <div><label>Section Title Size</label><input id="sectionTitleSize" placeholder="2.8rem" /></div>
+        <div><label>Body Text Size</label><input id="bodyTextSize" placeholder="1.08rem" /></div>
+        <div><label>Navigation Text Size</label><input id="navTextSize" placeholder="1rem" /></div>
+      </div>
+    </div>
+
+    <div class="admin-section">
+      <h2>Locations</h2>
+      <div class="admin-form-grid">
         <div>
+          <h3>Main Location</h3>
           <label>Location Name</label><input id="mainLocName" />
           <label>Address Line 1</label><input id="mainAddr1" />
           <label>Address Line 2</label><input id="mainAddr2" />
@@ -98,7 +118,8 @@
           <label>Map Search Text</label><input id="mainMap" />
         </div>
         <div>
-          <label>Second Location Name</label><input id="secondLocName" />
+          <h3>Second Location</h3>
+          <label>Location Name</label><input id="secondLocName" />
           <label>Address Line 1</label><input id="secondAddr1" />
           <label>Address Line 2</label><input id="secondAddr2" />
           <label>Phone</label><input id="secondPhone" />
@@ -106,38 +127,40 @@
           <label>Map Search Text</label><input id="secondMap" />
         </div>
       </div>
+    </div>
 
-      
-      <h3>Restoration Gallery</h3>
-      <div class="admin-grid">
-        <div>
-          <label>Photo Title</label><input id="galleryTitle" placeholder="Lettering Restoration" />
-          <label>Photo Description</label><textarea id="galleryDescription" placeholder="Describe the restoration work shown in the photo"></textarea>
+    <div class="admin-section">
+      <h2>Restoration Gallery</h2>
+      <div class="admin-gallery-layout">
+        <div class="gallery-uploader">
+          <label>Photo Title</label>
+          <input id="galleryTitle" placeholder="Lettering Restoration" />
+          <label>Photo Description</label>
+          <textarea id="galleryDescription" placeholder="Describe the restoration work shown in the photo"></textarea>
           <label>Upload Photo</label>
           <div id="dropZone" class="drop-zone">
             <p>Drag &amp; drop a photo here</p>
-            <span>or click to choose</span>
+            <span>or click to choose from your computer</span>
             <input id="galleryFile" type="file" accept="image/*" hidden />
           </div>
-          <div class="admin-actions">
-            <button class="btn btn-primary" type="button" id="uploadGalleryBtn">Upload Photo</button>
-          </div>
+          <button class="btn btn-primary" type="button" id="uploadGalleryBtn">Upload Photo</button>
           <p id="galleryUploadMsg" class="small"></p>
-          <div class="notice">This production build is wired for Cloudflare R2 uploads. After the photo uploads, click Save Changes to publish the updated gallery.</div>
+          <div class="notice">
+            Upload requires <span class="code">RESTORATION_IMAGES</span> R2 binding. Save Changes publishes the new gallery.
+          </div>
         </div>
         <div>
+          <h3>Current Photos</h3>
           <div class="admin-gallery-list" id="adminGalleryList"></div>
         </div>
       </div>
-
-      <div class="admin-actions">
-        <button class="btn btn-primary" type="button" id="saveBtn">Save Changes</button>
-        <button class="btn btn-secondary" type="button" id="resetBtn">Reset Draft</button>
-        <button class="btn btn-secondary" type="button" id="logoutBtn">Logout</button>
-      </div>
-      <p id="saveMsg" style="font-weight:700;color:#355b3a;"></p>
     </div>
-  </div>
+
+    <div class="admin-bottom-actions">
+      <button class="btn btn-primary" type="button" id="saveBtnBottom">Save Changes</button>
+      <p id="saveMsg"></p>
+    </div>
+  </section>
 </main>
 
 <script src="admin.js"></script>
