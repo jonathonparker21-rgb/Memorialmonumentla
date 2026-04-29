@@ -2,6 +2,40 @@ const defaultCreds = { username: 'admin', password: 'ChangeMe123!' };
 let currentGallery = [];
 let cachedContent = null;
 
+
+
+function isHeicFile(file){
+  const name = (file?.name || '').toLowerCase();
+  const type = (file?.type || '').toLowerCase();
+  return name.endsWith('.heic') || name.endsWith('.heif') || type.includes('heic') || type.includes('heif');
+}
+
+async function prepareUploadFile(file, status){
+  if(!file) return file;
+
+  if(isHeicFile(file)){
+    if(status) status.textContent = 'Converting HEIC photo to JPEG...';
+
+    if(typeof heic2any === 'undefined'){
+      throw new Error('HEIC converter did not load. Convert the photo to JPG first, then upload again.');
+    }
+
+    const converted = await heic2any({
+      blob: file,
+      toType: 'image/jpeg',
+      quality: 0.9
+    });
+
+    const blob = Array.isArray(converted) ? converted[0] : converted;
+    const newName = (file.name || 'photo.heic').replace(/\.(heic|heif)$/i, '.jpg');
+
+    return new File([blob], newName, { type: 'image/jpeg' });
+  }
+
+  return file;
+}
+
+
 function getCreds(){
   const saved = localStorage.getItem('memorialAdminCreds');
   if(saved){ try { return JSON.parse(saved); } catch(e) {} }
@@ -95,7 +129,7 @@ function fillForm(data){
   renderAdminGallery();
 
   const map = {
-    version: data.version || 'v1.2.4',
+    version: data.version || 'v1.2.5',
     businessName: data.businessName || '',
     tagline: data.tagline || '',
     heroHeadline: data.heroHeadline || '',
@@ -142,7 +176,7 @@ function fillForm(data){
 function readForm(){
   return {
     ...(cachedContent || {}),
-    version: document.getElementById('version').value || 'v1.2.4',
+    version: document.getElementById('version').value || 'v1.2.5',
     businessName: document.getElementById('businessName').value,
     tagline: document.getElementById('tagline').value,
     heroHeadline: document.getElementById('heroHeadline').value,
@@ -276,7 +310,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const title = document.getElementById('galleryTitle').value.trim();
     const description = document.getElementById('galleryDescription').value.trim();
     const status = document.getElementById('galleryUploadMsg');
-    const file = document.getElementById('galleryFile')?.files?.[0];
+    let file = document.getElementById('galleryFile')?.files?.[0];
 
     if(!title || !file){
       status.textContent = 'Add a title and choose a photo first.';
@@ -284,6 +318,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     status.textContent = 'Uploading...';
+    file = await prepareUploadFile(file, status);
+
     const form = new FormData();
     form.append('file', file);
 
@@ -307,7 +343,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       document.getElementById('galleryTitle').value = '';
       document.getElementById('galleryDescription').value = '';
       document.getElementById('galleryFile').value = '';
-      status.textContent = 'Photo uploaded. Click Save Changes to publish it.';
+      status.textContent = 'Photo uploaded. Click Save Changes to publish it. HEIC photos are converted to JPEG automatically.';
     } catch(error) {
       status.textContent = 'Upload failed: ' + error.message;
       checkDiagnostics();
