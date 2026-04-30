@@ -1,5 +1,5 @@
-/* FORCE_REFRESH_BUILD v1.2.9 2026-04-29 13:10:31 */
-const BUILD_VERSION = 'v1.2.9';
+/* FORCE_REFRESH_BUILD v1.3.0 2026-04-29 13:10:31 */
+const BUILD_VERSION = 'v1.3.0';
 
 function versionNumber(v){
   return String(v || 'v0.0.0').replace(/^v/, '').split('.').map(n => parseInt(n, 10) || 0);
@@ -15,7 +15,7 @@ function isOlderVersion(a, b){
 }
 
 async function loadBundledContent(){
-  const res = await fetch('site-content.json?v=v1.2.9', { cache: 'no-store' });
+  const res = await fetch('site-content.json?v=v1.3.0', { cache: 'no-store' });
   return await res.json();
 }
 
@@ -23,7 +23,7 @@ async function loadContent(){
   const bundled = await loadBundledContent();
 
   try {
-    const apiRes = await fetch('/api/get-content?build=v1.2.9', { cache: 'no-store' });
+    const apiRes = await fetch('/api/get-content?build=v1.3.0', { cache: 'no-store' });
     if (apiRes.ok) {
       const apiData = await apiRes.json();
 
@@ -94,14 +94,20 @@ function renderTestimonialsPage(data){
 
 
 
+
 function galleryCard(item){
   const img = item.image || '';
+
+  // Hide old broken R2 route images instead of showing a bad card.
+  if(!img || img.includes('/api/image') || img.includes('restoration%2F')){
+    return '';
+  }
+
   return `<article class="restoration-card">
-    <img src="${img}" alt="${item.title}" loading="lazy" onerror="this.closest('.restoration-card').classList.add('image-missing'); this.style.display='none';">
+    <img src="${img}" alt="${item.title}" loading="lazy" onerror="this.closest('.restoration-card').remove();">
     <div class="restoration-copy">
       <h3>${item.title}</h3>
       <p>${item.description || ''}</p>
-      <p class="small image-error-note">Image could not load. Remove and re-upload this photo.</p>
     </div>
   </article>`;
 }

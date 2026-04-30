@@ -1,4 +1,4 @@
-<!-- VERSION: v1.2.8 -->
+<!-- VERSION: v1.3.0 CACHE_BUST 2026-04-30 16:44:21 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -45,7 +45,7 @@
     <div class="admin-topbar">
       <div>
         <h1>Website Admin</h1>
-        <p class="small">Version <span class="siteVersion">v1.2.8</span></p>
+        <p class="small">Version <span class="siteVersion">v1.3.0</span></p>
       </div>
       <div class="admin-actions">
         <button class="btn btn-primary" type="button" id="saveBtn">Save Changes</button>
@@ -63,7 +63,7 @@
       <h2>Website Text</h2>
       <div class="admin-form-grid">
         <div>
-          <label>Site Version</label><input id="version" placeholder="v1.2.8" />
+          <label>Site Version</label><input id="version" placeholder="v1.3.0" />
           <label>Business Name</label><input id="businessName" />
           <label>Tagline</label><input id="tagline" />
           <label>Hero Headline</label><input id="heroHeadline" />
@@ -146,7 +146,7 @@
           <button class="btn btn-primary" type="button" id="uploadGalleryBtn">Upload Photo</button>
           <p id="galleryUploadMsg" class="small"></p>
           <div class="notice">
-            Upload requires <span class="code">RESTORATION_IMAGES</span> R2 binding. Save Changes publishes the new gallery.
+            Photos are compressed and saved directly with the gallery content. Click Save Changes to publish the new gallery.
           </div>
         </div>
         <div>
@@ -164,6 +164,6 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/heic2any/dist/heic2any.min.js"></script>
-<script src="admin.js"></script>
+<script src="admin-v130.js?v=v1.3.0"></script>
 </body>
 </html>
