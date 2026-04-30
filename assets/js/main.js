@@ -1,4 +1,4 @@
-/* FORCE_REFRESH_BUILD v1.2.5 2026-04-29 13:10:31 */
+/* FORCE_REFRESH_BUILD v1.2.6 2026-04-29 13:10:31 */
 async function loadContent(){
   const local = localStorage.getItem('memorialSiteContent');
   if(local){ try { return JSON.parse(local); } catch(e) {} }
@@ -61,8 +61,23 @@ function renderTestimonialsPage(data){
   if(!wrap) return;
   wrap.innerHTML = (data.testimonials || []).map(testimonialCard).join('');
 }
+
+function normalizeImageUrl(url){
+  if(!url) return '';
+  return url
+    .replace('/api/image/restoration%2F', '/api/image/restoration/')
+    .replace('/api/image/restoration%2f', '/api/image/restoration/');
+}
 function galleryCard(item){
-  return `<article class="restoration-card"><img src="${item.image}" alt="${item.title}"><div class="restoration-copy"><h3>${item.title}</h3><p>${item.description || ''}</p></div></article>`;
+  const img = normalizeImageUrl(item.image);
+  return `<article class="restoration-card">
+    <img src="${img}" alt="${item.title}" loading="lazy" onerror="this.closest('.restoration-card').classList.add('image-missing'); this.style.display='none';">
+    <div class="restoration-copy">
+      <h3>${item.title}</h3>
+      <p>${item.description || ''}</p>
+      <p class="small image-error-note">Image could not load. Re-upload this photo after v1.2.6.</p>
+    </div>
+  </article>`;
 }
 function renderRestorationGallery(data){
   const track = document.getElementById('restorationTrack');

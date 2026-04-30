@@ -2,6 +2,14 @@ const defaultCreds = { username: 'admin', password: 'ChangeMe123!' };
 let currentGallery = [];
 let cachedContent = null;
 
+function normalizeImageUrl(url){
+  if(!url) return '';
+  return url
+    .replace('/api/image/restoration%2F', '/api/image/restoration/')
+    .replace('/api/image/restoration%2f', '/api/image/restoration/');
+}
+
+
 
 
 function isHeicFile(file){
@@ -93,7 +101,7 @@ function renderAdminGallery(){
   if(!wrap) return;
   wrap.innerHTML = (currentGallery || []).map((item, i) => `
     <div class="admin-gallery-item">
-      <img src="${item.image}" alt="${item.title}">
+      <img src="${normalizeImageUrl(item.image)}" alt="${item.title}">
       <div>
         <strong>${item.title}</strong>
         <div class="small">${item.description || ''}</div>
@@ -129,7 +137,7 @@ function fillForm(data){
   renderAdminGallery();
 
   const map = {
-    version: data.version || 'v1.2.5',
+    version: data.version || 'v1.2.6',
     businessName: data.businessName || '',
     tagline: data.tagline || '',
     heroHeadline: data.heroHeadline || '',
@@ -176,7 +184,7 @@ function fillForm(data){
 function readForm(){
   return {
     ...(cachedContent || {}),
-    version: document.getElementById('version').value || 'v1.2.5',
+    version: document.getElementById('version').value || 'v1.2.6',
     businessName: document.getElementById('businessName').value,
     tagline: document.getElementById('tagline').value,
     heroHeadline: document.getElementById('heroHeadline').value,
@@ -335,7 +343,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       currentGallery.unshift({
         title,
         description,
-        image: payload.url,
+        image: normalizeImageUrl(payload.url),
         key: payload.key
       });
       renderAdminGallery();

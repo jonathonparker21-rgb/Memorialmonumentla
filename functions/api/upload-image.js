@@ -47,13 +47,13 @@ export async function onRequestPost(context) {
     const key = `restoration/${Date.now()}-${sanitizeFilename(file.name || "photo.jpg")}`;
 
     await env.RESTORATION_IMAGES.put(key, await file.arrayBuffer(), {
-      httpMetadata: { contentType: file.type || "application/octet-stream" }
+      httpMetadata: { contentType: file.type || "image/jpeg" }
     });
 
     const publicBase = env.R2_PUBLIC_BASE_URL || "";
     const url = publicBase
       ? `${publicBase.replace(/\/$/, "")}/${key}`
-      : `/api/image/${encodeURIComponent(key)}`;
+      : `/api/image/${key}`;
 
     return json({ ok: true, key, url });
   } catch (error) {

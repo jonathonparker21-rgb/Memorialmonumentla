@@ -5,19 +5,27 @@ export async function onRequestGet(context) {
     return new Response("Missing RESTORATION_IMAGES binding", { status: 500 });
   }
 
-  let key = params.path;
-  if (Array.isArray(key)) key = key.join("/");
+  const url = new URL(request.url);
+  let key = "";
+
+  if (params.path) {
+    key = Array.isArray(params.path) ? params.path.join("/") : params.path;
+  }
+
   if (!key) {
-    const url = new URL(request.url);
     key = url.pathname.replace(/^\/api\/image\//, "");
   }
+
   key = decodeURIComponent(key || "");
 
+  if (!key) return new Response("Missing image key", { status: 400 });
+
   const object = await env.RESTORATION_IMAGES.get(key);
-  if (!object) return new Response("Not found", { status: 404 });
+  if (!object) return new Response("Image not found: " + key, { status: 404 });
 
   const headers = new Headers();
   object.writeHttpMetadata(headers);
+  if (!headers.get("content-type")) headers.set("content-type", "image/jpeg");
   headers.set("cache-control", "public, max-age=31536000, immutable");
   return new Response(object.body, { headers });
 }
