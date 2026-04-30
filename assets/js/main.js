@@ -1,16 +1,44 @@
-/* FORCE_REFRESH_BUILD v1.2.6 2026-04-29 13:10:31 */
-async function loadContent(){
-  const local = localStorage.getItem('memorialSiteContent');
-  if(local){ try { return JSON.parse(local); } catch(e) {} }
+/* FORCE_REFRESH_BUILD v1.2.8 2026-04-29 13:10:31 */
+const BUILD_VERSION = 'v1.2.8';
 
-  try {
-    const apiRes = await fetch('/api/get-content', { cache: 'no-store' });
-    if (apiRes.ok) return await apiRes.json();
-  } catch (e) {}
+function versionNumber(v){
+  return String(v || 'v0.0.0').replace(/^v/, '').split('.').map(n => parseInt(n, 10) || 0);
+}
+function isOlderVersion(a, b){
+  const av = versionNumber(a);
+  const bv = versionNumber(b);
+  for(let i=0; i<3; i++){
+    if(av[i] < bv[i]) return true;
+    if(av[i] > bv[i]) return false;
+  }
+  return false;
+}
 
-  const res = await fetch('site-content.json', { cache: 'no-store' });
+async function loadBundledContent(){
+  const res = await fetch('site-content.json?v=v1.2.8', { cache: 'no-store' });
   return await res.json();
 }
+
+async function loadContent(){
+  const bundled = await loadBundledContent();
+
+  try {
+    const apiRes = await fetch('/api/get-content?build=v1.2.8', { cache: 'no-store' });
+    if (apiRes.ok) {
+      const apiData = await apiRes.json();
+
+      // If Cloudflare KV still has an older saved copy, do not let it override this build.
+      if(apiData.version && isOlderVersion(apiData.version, bundled.version)){
+        return bundled;
+      }
+
+      return { ...bundled, ...apiData, version: apiData.version || bundled.version };
+    }
+  } catch (e) {}
+
+  return bundled;
+}
+
 function mapSrc(q){ return 'https://www.google.com/maps?q=' + encodeURIComponent(q) + '&output=embed'; }
 function setupChat(){
   const btn = document.getElementById('chatToggle');
@@ -62,20 +90,32 @@ function renderTestimonialsPage(data){
   wrap.innerHTML = (data.testimonials || []).map(testimonialCard).join('');
 }
 
-function normalizeImageUrl(url){
-  if(!url) return '';
-  return url
-    .replace('/api/image/restoration%2F', '/api/image/restoration/')
-    .replace('/api/image/restoration%2f', '/api/image/restoration/');
+
+
+function buildImageUrl(item){
+  if(item && item.key){
+    return `/api/image?key=${encodeURIComponent(item.key)}`;
+  }
+  const url = item?.image || '';
+  if(url.includes('/api/image?key=')) return url;
+
+  // repair older path-style URLs if possible
+  const marker = '/api/image/';
+  if(url.includes(marker)){
+    const key = url.split(marker).pop();
+    return `/api/image?key=${encodeURIComponent(decodeURIComponent(key))}`;
+  }
+
+  return url;
 }
 function galleryCard(item){
-  const img = normalizeImageUrl(item.image);
+  const img = buildImageUrl(item);
   return `<article class="restoration-card">
     <img src="${img}" alt="${item.title}" loading="lazy" onerror="this.closest('.restoration-card').classList.add('image-missing'); this.style.display='none';">
     <div class="restoration-copy">
       <h3>${item.title}</h3>
       <p>${item.description || ''}</p>
-      <p class="small image-error-note">Image could not load. Re-upload this photo after v1.2.6.</p>
+      <p class="small image-error-note">Image could not load. Remove and re-upload this photo after v1.2.8.</p>
     </div>
   </article>`;
 }

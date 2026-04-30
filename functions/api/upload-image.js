@@ -53,7 +53,7 @@ export async function onRequestPost(context) {
     const publicBase = env.R2_PUBLIC_BASE_URL || "";
     const url = publicBase
       ? `${publicBase.replace(/\/$/, "")}/${key}`
-      : `/api/image/${key}`;
+      : `/api/image?key=${encodeURIComponent(key)}`;
 
     return json({ ok: true, key, url });
   } catch (error) {

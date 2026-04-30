@@ -2,6 +2,21 @@ const defaultCreds = { username: 'admin', password: 'ChangeMe123!' };
 let currentGallery = [];
 let cachedContent = null;
 
+function buildImageUrl(item){
+  if(item && item.key){
+    return `/api/image?key=${encodeURIComponent(item.key)}`;
+  }
+  const url = item?.image || '';
+  if(url.includes('/api/image?key=')) return url;
+  const marker = '/api/image/';
+  if(url.includes(marker)){
+    const key = url.split(marker).pop();
+    return `/api/image?key=${encodeURIComponent(decodeURIComponent(key))}`;
+  }
+  return url;
+}
+
+
 function normalizeImageUrl(url){
   if(!url) return '';
   return url
@@ -56,17 +71,46 @@ function getAuthHeader() {
 function isLoggedIn(){ return sessionStorage.getItem('memorialAdminAuth') === 'true'; }
 
 async function loadSiteContent(){
-  const local = localStorage.getItem('memorialSiteContent');
-  if(local){ try { return JSON.parse(local); } catch(e) {} }
-
   try {
-    const res = await fetch('/api/get-content', { cache: 'no-store' });
-    if (res.ok) return await res.json();
+    const res = await fetch('/api/get-content?build=v1.2.8', { cache: 'no-store' });
+    if (res.ok) {
+      const data = await res.json();
+
+      // If KV is stale, fall back to bundled content so old v1.2.8 data does not override this build.
+      const bundledRes = await fetch('../site-content.json?v=v1.2.8', { cache: 'no-store' });
+      const bundled = await bundledRes.json();
+
+      if(data.version && isOlderAdminVersion(data.version, bundled.version)){
+        return bundled;
+      }
+
+      return { ...bundled, ...data, version: data.version || bundled.version };
+    }
   } catch (e) {}
 
-  const res = await fetch('../site-content.json', { cache: 'no-store' });
-  return await res.json();
+  try {
+    const res = await fetch('../site-content.json?v=v1.2.8', { cache: 'no-store' });
+    return await res.json();
+  } catch (e) {}
+
+  const local = localStorage.getItem('memorialSiteContent');
+  if(local){ try { return JSON.parse(local); } catch(e) {} }
+  return {};
 }
+
+function adminVersionNumber(v){
+  return String(v || 'v0.0.0').replace(/^v/, '').split('.').map(n => parseInt(n, 10) || 0);
+}
+function isOlderAdminVersion(a, b){
+  const av = adminVersionNumber(a);
+  const bv = adminVersionNumber(b);
+  for(let i=0; i<3; i++){
+    if(av[i] < bv[i]) return true;
+    if(av[i] > bv[i]) return false;
+  }
+  return false;
+}
+
 
 async function checkDiagnostics(){
   const out = document.getElementById('diagnosticsText');
@@ -101,7 +145,7 @@ function renderAdminGallery(){
   if(!wrap) return;
   wrap.innerHTML = (currentGallery || []).map((item, i) => `
     <div class="admin-gallery-item">
-      <img src="${normalizeImageUrl(item.image)}" alt="${item.title}">
+      <img src="${buildImageUrl(item)}" alt="${item.title}">
       <div>
         <strong>${item.title}</strong>
         <div class="small">${item.description || ''}</div>
@@ -137,7 +181,7 @@ function fillForm(data){
   renderAdminGallery();
 
   const map = {
-    version: data.version || 'v1.2.6',
+    version: data.version || 'v1.2.8',
     businessName: data.businessName || '',
     tagline: data.tagline || '',
     heroHeadline: data.heroHeadline || '',
@@ -184,7 +228,7 @@ function fillForm(data){
 function readForm(){
   return {
     ...(cachedContent || {}),
-    version: document.getElementById('version').value || 'v1.2.6',
+    version: document.getElementById('version').value || 'v1.2.8' || 'v1.2.8',
     businessName: document.getElementById('businessName').value,
     tagline: document.getElementById('tagline').value,
     heroHeadline: document.getElementById('heroHeadline').value,
@@ -343,7 +387,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       currentGallery.unshift({
         title,
         description,
-        image: normalizeImageUrl(payload.url),
+        image: payload.url,
         key: payload.key
       });
       renderAdminGallery();
