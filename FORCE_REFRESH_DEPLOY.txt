@@ -1,3 +1,3 @@
-v1.4.7
-2026-05-07 20:54:05
-Hard-seeded built-in testimonials into admin and content.
+v1.4.8
+2026-05-07 20:58:37
+Admin login now uses entered credentials directly.
