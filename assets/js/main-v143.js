@@ -81,7 +81,7 @@ function testimonialCard(t){
 function renderHomeTestimonials(data){
   const track = document.getElementById('testimonialTrack');
   if(!track) return;
-  const items = data.testimonials || [];
+  const items = (data.testimonials || []).filter(t => (t.status || 'approved') === 'approved');
   track.innerHTML = items.concat(items).map(testimonialCard).join('');
 }
 function renderTestimonialsPage(data){
@@ -94,17 +94,67 @@ function renderTestimonialsPage(data){
 
 
 
+
+
+
+
+
+
 function galleryCard(item){
-  const img = item.image || '';
-  return `<article class="restoration-card">
-    <img src="${img}" alt="${item.title}" loading="lazy" onerror="this.closest('.restoration-card').classList.add('image-missing'); this.style.display='none';">
+  const afterImg = item.image || '';
+  const beforeImg = item.beforeImage || '';
+
+  if(!afterImg) return '';
+
+  if(beforeImg){
+    return `<article class="restoration-card restoration-card-ba">
+      <div class="ba-wrap pro-ba-wrap" data-ba-wrap>
+        <img class="ba-img ba-after" src="${afterImg}" alt="${item.title} after" loading="lazy">
+        <div class="ba-before-layer" style="width:50%;">
+          <img class="ba-img ba-before" src="${beforeImg}" alt="${item.title} before" loading="lazy">
+        </div>
+        <div class="ba-divider"></div>
+        <div class="ba-label ba-label-before">Before</div>
+        <div class="ba-label ba-label-after">After</div>
+        <input class="ba-slider" type="range" min="0" max="100" value="50" aria-label="Before and after comparison">
+      </div>
+      <div class="restoration-copy">
+        <h3>${item.title}</h3>
+        <p>${item.description || ''}</p>
+      </div>
+    </article>`;
+  }
+
+  return `<article class="restoration-card restoration-card-single">
+    <div class="single-restoration-media">
+      <img src="${afterImg}" alt="${item.title}" loading="lazy" onerror="this.closest('.restoration-card').remove();">
+      <div class="single-photo-badge">Completed Work</div>
+    </div>
     <div class="restoration-copy">
       <h3>${item.title}</h3>
       <p>${item.description || ''}</p>
-      <p class="small image-error-note">Image could not load. Remove and re-upload this photo.</p>
     </div>
   </article>`;
 }
+
+function setupBeforeAfterSliders(){
+  document.querySelectorAll('[data-ba-wrap]').forEach(wrap => {
+    const slider = wrap.querySelector('.ba-slider');
+    const beforeLayer = wrap.querySelector('.ba-before-layer');
+    const divider = wrap.querySelector('.ba-divider');
+    if(!slider || !beforeLayer || slider.dataset.ready === 'true') return;
+    slider.dataset.ready = 'true';
+
+    const update = () => {
+      beforeLayer.style.width = `${slider.value}%`;
+      if(divider) divider.style.left = `${slider.value}%`;
+    };
+
+    slider.addEventListener('input', update);
+    update();
+  });
+}
+
 function renderRestorationGallery(data){
   const track = document.getElementById('restorationTrack');
   if(!track) return;
@@ -123,13 +173,14 @@ function setupReviewForm(data){
     let current = data;
     if(local){ try { current = JSON.parse(local); } catch(e) {} }
     current.testimonials = current.testimonials || [];
-    current.testimonials.unshift({ name, location, text });
+    current.pendingTestimonials = current.pendingTestimonials || [];
+    current.pendingTestimonials.unshift({ name, location, text, status: 'pending' });
     localStorage.setItem('memorialSiteContent', JSON.stringify(current));
     renderTestimonialsPage(current);
     renderHomeTestimonials(current);
     form.reset();
     const msg = document.getElementById('reviewMsg');
-    if(msg) msg.textContent = 'Thank you. Your review was added to this preview.';
+    if(msg) msg.textContent = 'Thank you. Your testimonial has been submitted for review.';
   });
 }
 document.addEventListener('DOMContentLoaded', async () => {
@@ -141,8 +192,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   const versionEls = document.querySelectorAll('.siteVersion');
   if(data.version && versionEls.length){ versionEls.forEach(el => { el.textContent = data.version; }); }
   if(window.renderPage) window.renderPage(data);
+  const heroPhotoEl = document.getElementById('heroPhotoImage');
+  const heroPhotoBox = document.getElementById('heroPhotoBox');
+  if(heroPhotoEl && heroPhotoBox && data.heroPhoto){ heroPhotoEl.src = data.heroPhoto; heroPhotoBox.classList.add('has-photo'); }
   renderHomeTestimonials(data);
   renderTestimonialsPage(data);
   renderRestorationGallery(data);
+  setupBeforeAfterSliders();
+  setupBeforeAfterSliders();
   setupReviewForm(data);
 });

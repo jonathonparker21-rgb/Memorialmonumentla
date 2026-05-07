@@ -1,5 +1,5 @@
 {
-  "version": "v1.4.1",
+  "version": "v1.4.3",
   "businessName": "Memorial Monuments of Louisiana",
   "tagline": "Honoring Loved Ones With Care, Respect, and Craftsmanship",
   "heroHeadline": "Locally Owned. Family Focused. Crafted With Care.",
@@ -45,15 +45,21 @@
   },
   "testimonials": [
     {
-      "name": "Local Family",
-      "text": "They were kind, respectful, and easy to work with during a difficult time. The monument turned out beautiful.",
+      "name": "The Walker Family",
       "location": "Oak Grove, LA",
+      "text": "They were kind, easy to work with, and did a beautiful job. Everything turned out just right, and that meant a lot to our family.",
       "status": "approved"
     },
     {
-      "name": "Satisfied Customer",
-      "text": "The restoration work made an older monument look cared for again. Honest people and quality work.",
+      "name": "B. Johnson",
       "location": "Monroe, LA",
+      "text": "We wanted something done right and built to last, and that is exactly what we got. Good people, good work, and they treated us with respect the whole way through.",
+      "status": "approved"
+    },
+    {
+      "name": "The Thomas Family",
+      "location": "North Louisiana",
+      "text": "They helped us through the process without making it feel overwhelming. If you want folks that will treat you right and take pride in what they do, I would recommend them.",
       "status": "approved"
     }
   ],
@@ -61,20 +67,23 @@
     {
       "title": "Lettering Restoration",
       "description": "Cleaned and refreshed lettering for a clearer, more respectful finish.",
-      "image": "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=1200&q=80"
+      "image": "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=1200&q=80",
+      "beforeImage": ""
     },
     {
       "title": "Monument Cleaning",
       "description": "Gentle cleaning to remove years of buildup while preserving the stone.",
-      "image": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80"
+      "image": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+      "beforeImage": ""
     },
     {
       "title": "Releveling Work",
       "description": "Careful reset and leveling work to help restore a monument\u2019s original presence.",
-      "image": "https://images.unsplash.com/photo-1520637836862-4d197d17c90a?auto=format&fit=crop&w=1200&q=80"
+      "image": "https://images.unsplash.com/photo-1520637836862-4d197d17c90a?auto=format&fit=crop&w=1200&q=80",
+      "beforeImage": ""
     }
   ],
-  "buildTimestamp": "2026-05-07 19:45:37",
+  "buildTimestamp": "2026-05-07 20:20:50",
   "forceRefreshBuild": true,
   "heicUploadFix": true,
   "imageDisplayFix": true,
@@ -90,5 +99,7 @@
   "heroPhotoManager": true,
   "testimonialAdmin": true,
   "pendingTestimonials": [],
-  "heroTestimonialAdminFix": true
+  "heroTestimonialAdminFix": true,
+  "restorationGalleryPro": true,
+  "localTestimonialsSeeded": true
 }

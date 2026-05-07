@@ -203,7 +203,7 @@ function renderAdminGallery(){
       <div>
         <strong>${item.title}</strong>
         <div class="small">${item.description || ''}</div>
-        ${item.beforeImage ? '<div class="small">Before/after enabled</div>' : '<div class="small">After photo only</div>'}
+        ${item.beforeImage ? '<div class="small">Display style: Before / After comparison</div>' : '<div class="small">Display style: Single finished photo</div>'}
       </div>
       <button class="btn btn-secondary" type="button" onclick="removeGalleryItem(${i})">Remove</button>
     </div>
@@ -270,6 +270,7 @@ function fillForm(data){
   currentHeroPhoto = data.heroPhoto || '';
   currentServices = data.services || [];
   currentTestimonials = (data.testimonials || []).filter(t => (t.status || 'approved') === 'approved');
+  if(!currentTestimonials.length && Array.isArray(data.testimonials) && data.testimonials.length){ currentTestimonials = data.testimonials.map(t => ({ ...t, status: t.status || 'approved' })); }
   currentPendingTestimonials = data.pendingTestimonials || (data.testimonials || []).filter(t => t.status === 'pending');
   renderAdminGallery();
   renderServicesAdmin();
@@ -536,7 +537,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         title,
         description,
         image: afterData,
-        beforeImage: beforeData
+        beforeImage: beforeData || ''
       });
 
       renderAdminGallery();
@@ -548,7 +549,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       status.textContent = 'Photo added. Saving changes...';
       await doSave();
-      status.textContent = 'Photo uploaded and saved.';
+      status.textContent = beforeData ? 'Before/after restoration photo uploaded and saved.' : 'Single restoration photo uploaded and saved.';
     } catch(error) {
       status.textContent = 'Upload failed: ' + error.message;
     }
@@ -648,6 +649,7 @@ window.removeApprovedTestimonial = async function(index){
 function initHeroAndTestimonialsFromData(data){
   currentHeroPhoto = data.heroPhoto || '';
   currentTestimonials = (data.testimonials || []).filter(t => (t.status || 'approved') === 'approved');
+  if(!currentTestimonials.length && Array.isArray(data.testimonials) && data.testimonials.length){ currentTestimonials = data.testimonials.map(t => ({ ...t, status: t.status || 'approved' })); }
   currentPendingTestimonials = data.pendingTestimonials || (data.testimonials || []).filter(t => t.status === 'pending');
   renderHeroPhotoAdmin();
   renderTestimonialsAdmin();
