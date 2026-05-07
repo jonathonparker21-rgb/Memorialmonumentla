@@ -1,3 +1,3 @@
-v1.4.6
-2026-05-07 20:47:08
-Force sample testimonials visible in admin active list.
+v1.4.7
+2026-05-07 20:54:05
+Hard-seeded built-in testimonials into admin and content.

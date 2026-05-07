@@ -1,4 +1,24 @@
 
+const HARDSEEDED_TESTIMONIALS = [
+  { name: "The Walker Family", location: "Oak Grove, LA", text: "They were kind, easy to work with, and did a beautiful job. Everything turned out just right, and that meant a lot to our family.", status: "approved" },
+  { name: "B. Johnson", location: "Monroe, LA", text: "We wanted something done right and built to last, and that is exactly what we got. Good people, good work, and they treated us with respect the whole way through.", status: "approved" },
+  { name: "The Thomas Family", location: "North Louisiana", text: "They helped us through the process without making it feel overwhelming. If you want folks that will treat you right and take pride in what they do, I would recommend them.", status: "approved" }
+];
+
+function hardSeedTestimonials(list){
+  const current = Array.isArray(list) ? [...list] : [];
+  const seen = new Set(current.map(t => `${t.name || ''}|${t.text || ''}`));
+  HARDSEEDED_TESTIMONIALS.forEach(t => {
+    const key = `${t.name || ''}|${t.text || ''}`;
+    if(!seen.has(key)){
+      current.unshift({ ...t });
+      seen.add(key);
+    }
+  });
+  return current;
+}
+
+
 const FALLBACK_TESTIMONIALS = [
   { name: "The Walker Family", location: "Oak Grove, LA", text: "They were kind, easy to work with, and did a beautiful job. Everything turned out just right, and that meant a lot to our family.", status: "approved" },
   { name: "B. Johnson", location: "Monroe, LA", text: "We wanted something done right and built to last, and that is exactly what we got. Good people, good work, and they treated us with respect the whole way through.", status: "approved" },
@@ -8,7 +28,7 @@ const defaultCreds = { username: 'admin', password: 'ChangeMe123!' };
 let currentGallery = [];
 let currentHeroPhoto = '';
 let currentServices = [];
-let currentTestimonials = [];
+let currentTestimonials = hardSeedTestimonials((data.testimonials || []).filter(t => (t.status || 'approved') === 'approved'));
 let currentPendingTestimonials = [];
 let cachedContent = null;
 function byId(id){
@@ -123,6 +143,17 @@ function show(id, on=true){
 
 function escapeAttr(value){
   return String(value || '').replace(/"/g, '&quot;');
+}
+
+
+function mergeSampleTestimonials(list){
+  const current = Array.isArray(list) ? [...list] : [];
+  const names = new Set(current.map(t => `${t.name || ''}|${t.location || ''}|${t.text || ''}`));
+  FALLBACK_TESTIMONIALS.forEach(t => {
+    const key = `${t.name || ''}|${t.location || ''}|${t.text || ''}`;
+    if(!names.has(key)) current.push({ ...t });
+  });
+  return current;
 }
 
 function renderTestimonialsAdmin(){
@@ -300,8 +331,8 @@ function fillForm(data){
   currentGallery = data.restorationGallery || [];
   currentHeroPhoto = data.heroPhoto || '';
   currentServices = data.services || [];
-  currentTestimonials = (data.testimonials || []).filter(t => (t.status || 'approved') === 'approved');
-  if(!currentTestimonials.length) currentTestimonials = FALLBACK_TESTIMONIALS.map(t => ({ ...t }));
+  currentTestimonials = mergeSampleTestimonials((data.testimonials || []).filter(t => (t.status || 'approved') === 'approved'));
+  currentTestimonials = hardSeedTestimonials(currentTestimonials);
   if(!currentTestimonials.length && Array.isArray(data.testimonials) && data.testimonials.length){ currentTestimonials = data.testimonials.map(t => ({ ...t, status: t.status || 'approved' })); }
   currentPendingTestimonials = data.pendingTestimonials || (data.testimonials || []).filter(t => t.status === 'pending');
   renderAdminGallery();
@@ -633,8 +664,8 @@ window.removeApprovedTestimonial = async function(index){
 
 function initHeroAndTestimonialsFromData(data){
   currentHeroPhoto = data.heroPhoto || '';
-  currentTestimonials = (data.testimonials || []).filter(t => (t.status || 'approved') === 'approved');
-  if(!currentTestimonials.length) currentTestimonials = FALLBACK_TESTIMONIALS.map(t => ({ ...t }));
+  currentTestimonials = mergeSampleTestimonials((data.testimonials || []).filter(t => (t.status || 'approved') === 'approved'));
+  currentTestimonials = hardSeedTestimonials(currentTestimonials);
   if(!currentTestimonials.length && Array.isArray(data.testimonials) && data.testimonials.length){ currentTestimonials = data.testimonials.map(t => ({ ...t, status: t.status || 'approved' })); }
   currentPendingTestimonials = data.pendingTestimonials || (data.testimonials || []).filter(t => t.status === 'pending');
   renderHeroPhotoAdmin();
