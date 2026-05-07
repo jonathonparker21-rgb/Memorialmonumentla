@@ -166,3 +166,8 @@ This build uses `main-v130.js` and `admin-v130.js` so the browser cannot keep lo
 ## New in v1.4.3
 - Sample testimonials are now visible in the admin testimonial manager too.
 - Seeded testimonials were rewritten to sound more natural for North Louisiana while still staying professional.
+
+
+## New in v1.4.4
+- Separate upload sections for single restoration photos and before/after sets.
+- Sample testimonials are forced to appear in the admin active testimonials section if no active testimonials are currently saved.

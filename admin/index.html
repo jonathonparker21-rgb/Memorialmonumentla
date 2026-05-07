@@ -1,4 +1,4 @@
-<!-- VERSION: v1.4.3 -->
+<!-- VERSION: v1.4.4 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -45,7 +45,7 @@
     <div class="admin-topbar">
       <div>
         <h1>Website Admin</h1>
-        <p class="small">Version <span class="siteVersion">v1.4.3</span></p>
+        <p class="small">Version <span class="siteVersion">v1.4.4</span></p>
       </div>
       <div class="admin-actions">
         <button class="btn btn-primary" type="button" id="saveBtn">Save Changes</button>
@@ -63,7 +63,7 @@
       <h2>Website Text</h2>
       <div class="admin-form-grid">
         <div>
-          <label>Site Version</label><input id="version" placeholder="v1.4.3" />
+          <label>Site Version</label><input id="version" placeholder="v1.4.4" />
           <label>Business Name</label><input id="businessName" />
           <label>Tagline</label><input id="tagline" />
           <label>Hero Headline</label><input id="heroHeadline" />
@@ -131,7 +131,7 @@
     
     <div class="admin-section">
       <h2>Testimonials</h2>
-      <p class="small">Manage current active testimonials, including the sample ones already on the site, and approve or deny new ones.</p>
+      <p class="small">Manage current active testimonials, including the sample ones already on the site, and approve or deny new ones. Sample testimonials should appear below in the active section.</p>
 
       <h3>Current Active Testimonials (including sample ones)</h3>
       <div class="testimonial-card-grid" id="approvedTestimonialsList"></div>
@@ -168,38 +168,64 @@
       </div>
     </div>
 
-<div class="admin-section">
+
+    <div class="admin-section">
       <h2>Restoration Gallery</h2>
-      <div class="admin-gallery-layout">
-        <div class="gallery-uploader">
-          <label>Photo Title</label>
-          <input id="galleryTitle" placeholder="Lettering Restoration" />
-          <label>Photo Description</label>
-          <textarea id="galleryDescription" placeholder="Describe the restoration work shown in the photo"></textarea>
-          <label>Upload Photo</label>
-          <div id="dropZone" class="drop-zone">
-            <p>Drag &amp; drop a photo here</p>
+      <p class="small">Use the separate upload areas below depending on whether you have one finished photo or a before-and-after set.</p>
+
+      <div class="testimonial-admin-layout">
+        <div class="testimonial-admin-card">
+          <h3>Single Finished Photo</h3>
+          <label>Title</label>
+          <input id="singleGalleryTitle" placeholder="Lettering Restoration" />
+          <label>Description</label>
+          <textarea id="singleGalleryDescription" placeholder="Describe the finished work"></textarea>
+          <label>Finished Photo</label>
+          <div id="singleDropZone" class="drop-zone">
+            <p>Drag &amp; drop the finished photo here</p>
             <span>or click to choose from your computer</span>
-            <input id="galleryFile" type="file" accept="image/*,.heic,.heif" hidden />
+            <input id="singleGalleryFile" type="file" accept="image/*,.heic,.heif" hidden />
           </div>
-          <button class="btn btn-primary" type="button" id="uploadGalleryBtn">Upload Photo</button>
-          <p id="galleryUploadMsg" class="small"></p>
-          <div class="notice">
-            Photos are compressed and saved directly with the gallery content. The Upload &amp; Save button publishes the new gallery automatically.
+          <div class="admin-actions">
+            <button class="btn btn-primary" type="button" id="uploadSingleGalleryBtn">Upload &amp; Save Single Photo</button>
           </div>
+          <p id="singleGalleryMsg" class="small"></p>
         </div>
-        <div>
-          <h3>Current Photos</h3>
-          <div class="admin-gallery-list" id="adminGalleryList"></div>
+
+        <div class="testimonial-admin-card">
+          <h3>Before / After Set</h3>
+          <label>Title</label>
+          <input id="baGalleryTitle" placeholder="Monument Cleaning" />
+          <label>Description</label>
+          <textarea id="baGalleryDescription" placeholder="Describe the restoration work"></textarea>
+          <label>Before Photo</label>
+          <div id="beforeDropZone" class="drop-zone secondary-drop-zone">
+            <p>Drag &amp; drop the before photo here</p>
+            <span>or click to choose from your computer</span>
+            <input id="beforeGalleryFile" type="file" accept="image/*,.heic,.heif" hidden />
+          </div>
+          <label>After / Finished Photo</label>
+          <div id="afterDropZone" class="drop-zone">
+            <p>Drag &amp; drop the finished photo here</p>
+            <span>or click to choose from your computer</span>
+            <input id="afterGalleryFile" type="file" accept="image/*,.heic,.heif" hidden />
+          </div>
+          <div class="admin-actions">
+            <button class="btn btn-primary" type="button" id="uploadBeforeAfterBtn">Upload &amp; Save Before/After</button>
+          </div>
+          <p id="beforeAfterMsg" class="small"></p>
         </div>
       </div>
+
+      <h3>Current Restoration Items</h3>
+      <div class="admin-gallery-list" id="adminGalleryList"></div>
     </div>
 
-    <div class="admin-bottom-actions"><p id="saveMsg"></p></div>
+<div class="admin-bottom-actions"><p id="saveMsg"></p></div>
   </section>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/heic2any/dist/heic2any.min.js"></script>
-<script src="admin-v143.js?v=v1.4.3?v=v1.4.3?v=v1.4.3?v=v1.4.3"></script>
+<script src="admin-v144.js?v=v1.4.4?v=v1.4.4?v=v1.4.4?v=v1.4.4?v=v1.4.4?v=v1.4.4"></script>
 </body>
 </html>
