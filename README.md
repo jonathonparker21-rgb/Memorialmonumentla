@@ -171,3 +171,9 @@ This build uses `main-v130.js` and `admin-v130.js` so the browser cannot keep lo
 ## New in v1.4.4
 - Separate upload sections for single restoration photos and before/after sets.
 - Sample testimonials are forced to appear in the admin active testimonials section if no active testimonials are currently saved.
+
+
+## New in v1.4.5
+- Separate upload sections for Single Photo and Before / After Set.
+- Before / After Set now supports multiple photos on each side.
+- Active sample testimonials are forced to appear in admin if no active testimonials are saved.
