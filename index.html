@@ -1,4 +1,4 @@
-<!-- VERSION: v1.3.3 -->
+<!-- VERSION: v1.3.4 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -38,7 +38,7 @@
           <a class="btn btn-secondary" href="about.html">Learn More</a>
         </div>
       </div>
-      <div class="hero-card"><div class="hero-placeholder">Placeholder Hero Photo<br>Monuments • Memorials • Craftsmanship</div></div>
+      <div class="hero-card hero-photo-box" id="heroPhotoBox"><img id="heroPhotoImage" alt="Memorial Monuments of Louisiana featured monument photo" /><div class="hero-placeholder">Monuments • Memorials • Craftsmanship</div></div>
     </div>
   </section>
 
@@ -103,7 +103,7 @@
 <footer>
   <div class="container footer-box">
     <div class="footer-brand"><img src="assets/images/site-logo.png" alt="Memorial Monuments of Louisiana logo" class="footer-logo-large" /><div><strong id="footerName">Memorial Monuments of Louisiana</strong><br><span id="footerTagline">Honoring Loved Ones With Care, Respect, and Craftsmanship</span></div></div>
-    <div>© <span id="year"></span> Memorial Monuments of Louisiana<br><span>Version: <span class="siteVersion">v1.3.3</span></span><br><a class="subtle-admin-link" href="admin/index.html">Owner access</a></div>
+    <div>© <span id="year"></span> Memorial Monuments of Louisiana<br><span>Version: <span class="siteVersion">v1.3.4</span></span><br><a class="subtle-admin-link" href="admin/index.html">Owner access</a></div>
   </div>
 </footer>
 
@@ -126,11 +126,14 @@ window.renderPage = (data) => {
   document.getElementById('footerTagline').textContent = data.tagline;
   document.getElementById('heroHeadline').textContent = data.heroHeadline;
   document.getElementById('heroText').textContent = data.heroText;
+  const heroPhotoEl = document.getElementById('heroPhotoImage');
+  const heroPhotoBox = document.getElementById('heroPhotoBox');
+  if(heroPhotoEl && heroPhotoBox && data.heroPhoto){ heroPhotoEl.src = data.heroPhoto; heroPhotoBox.classList.add('has-photo'); }
   document.getElementById('welcomeTitle').textContent = data.welcomeTitle;
   document.getElementById('welcomeText').textContent = data.welcomeText;
   document.getElementById('servicesList').innerHTML = (data.services || []).map(s => `<li>${s}</li>`).join('');
 };
 </script>
-<script src="assets/js/main-v131.js?v=v1.3.3"></script>
+<script src="assets/js/main-v134.js?v=v1.3.4?v=v1.3.4"></script>
 </body>
 </html>

@@ -1,7 +1,20 @@
 const defaultCreds = { username: 'admin', password: 'ChangeMe123!' };
 let currentGallery = [];
+let currentHeroPhoto = '';
 let currentServices = [];
 let cachedContent = null;
+function byId(id){
+  return document.getElementById(id);
+}
+function val(id){
+  const el = byId(id);
+  return el ? el.value : '';
+}
+function setVal(id, value){
+  const el = byId(id);
+  if(el) el.value = value || '';
+}
+
 
 function getCreds(){
   const saved = localStorage.getItem('memorialAdminCreds');
@@ -94,6 +107,24 @@ window.removeServiceItem = function(index){
   renderServicesAdmin();
 }
 
+
+function renderHeroPhotoAdmin(){
+  const preview = document.getElementById('heroPhotoPreview');
+  const download = document.getElementById('downloadHeroPhotoBtn');
+  const clearBtn = document.getElementById('removeHeroPhotoBtn');
+  if(preview){
+    if(currentHeroPhoto){
+      preview.src = currentHeroPhoto;
+      preview.style.display = 'block';
+    } else {
+      preview.removeAttribute('src');
+      preview.style.display = 'none';
+    }
+  }
+  if(download) download.style.display = currentHeroPhoto ? 'inline-block' : 'none';
+  if(clearBtn) clearBtn.style.display = currentHeroPhoto ? 'inline-block' : 'none';
+}
+
 function renderAdminGallery(){
   const wrap = document.getElementById('adminGalleryList');
   if(!wrap) return;
@@ -113,6 +144,7 @@ function renderAdminGallery(){
 window.removeGalleryItem = function(index){
   currentGallery.splice(index, 1);
   renderAdminGallery();
+  renderHeroPhotoAdmin();
 }
 
 function isHeicFile(file){
@@ -164,6 +196,7 @@ function fillForm(data){
   cachedContent = data;
   const d = data.design || {};
   currentGallery = data.restorationGallery || [];
+  currentHeroPhoto = data.heroPhoto || '';
   currentServices = data.services || [];
   renderAdminGallery();
   renderServicesAdmin();
@@ -201,10 +234,7 @@ function fillForm(data){
     navTextSize: d.navTextSize || '1rem'
   };
 
-  Object.entries(map).forEach(([id,val]) => {
-    const el = document.getElementById(id);
-    if(el) el.value = val;
-  });
+  Object.entries(map).forEach(([id,value]) => setVal(id, value));
 }
 
 function val(id){
@@ -225,6 +255,7 @@ function readForm(){
     aboutText: val('aboutText'),
     services: currentServices.map(s => String(s).trim()).filter(Boolean),
     restorationGallery: currentGallery,
+    heroPhoto: currentHeroPhoto,
     mainLocation: {
       name: val('mainLocName'),
       address1: val('mainAddr1'),
@@ -347,6 +378,49 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderServicesAdmin();
   });
 
+
+  setupDropZone('heroDropZone', 'heroPhotoFile', 'hero photo');
+
+  document.getElementById('uploadHeroPhotoBtn')?.addEventListener('click', async () => {
+    const status = document.getElementById('heroPhotoMsg');
+    const file = document.getElementById('heroPhotoFile')?.files?.[0];
+
+    if(!file){
+      if(status) status.textContent = 'Choose a hero photo first.';
+      return;
+    }
+
+    try{
+      if(status) status.textContent = 'Preparing hero photo...';
+      currentHeroPhoto = await compressImageToDataUrl(file, status);
+      renderHeroPhotoAdmin();
+      if(status) status.textContent = 'Hero photo added. Saving changes...';
+      await doSave();
+      if(status) status.textContent = 'Hero photo uploaded and saved.';
+    } catch(error){
+      if(status) status.textContent = 'Hero upload failed: ' + error.message;
+    }
+  });
+
+  document.getElementById('downloadHeroPhotoBtn')?.addEventListener('click', () => {
+    if(!currentHeroPhoto) return;
+    const a = document.createElement('a');
+    a.href = currentHeroPhoto;
+    a.download = 'memorial-monuments-hero-photo.jpg';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  });
+
+  document.getElementById('removeHeroPhotoBtn')?.addEventListener('click', async () => {
+    const status = document.getElementById('heroPhotoMsg');
+    currentHeroPhoto = '';
+    renderHeroPhotoAdmin();
+    if(status) status.textContent = 'Hero photo removed. Saving changes...';
+    await doSave();
+    if(status) status.textContent = 'Hero photo removed and saved.';
+  });
+
   document.getElementById('uploadGalleryBtn')?.addEventListener('click', async () => {
     const title = val('galleryTitle').trim();
     const description = val('galleryDescription').trim();
@@ -377,10 +451,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       renderAdminGallery();
 
-      val('galleryTitle') = '';
-      val('galleryDescription') = '';
-      val('galleryFile') = '';
-      val('beforeGalleryFile') = '';
+      setVal('galleryTitle', '');
+      setVal('galleryDescription', '');
+      setVal('galleryFile', '');
+      setVal('beforeGalleryFile', '');
 
       status.textContent = 'Photo added. Saving changes...';
       await doSave();

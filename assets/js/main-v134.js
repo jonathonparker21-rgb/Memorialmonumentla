@@ -183,5 +183,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderTestimonialsPage(data);
   renderRestorationGallery(data);
   setupBeforeAfterSliders();
+  setupBeforeAfterSliders();
   setupReviewForm(data);
 });
