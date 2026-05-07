@@ -207,46 +207,51 @@ function fillForm(data){
   });
 }
 
+function val(id){
+  const el = document.getElementById(id);
+  return el ? el.value : '';
+}
+
 function readForm(){
   return {
     ...(cachedContent || {}),
-    version: document.getElementById('version').value || 'v1.3.3',
-    businessName: document.getElementById('businessName').value,
-    tagline: document.getElementById('tagline').value,
-    heroHeadline: document.getElementById('heroHeadline').value,
-    heroText: document.getElementById('heroText').value,
-    welcomeTitle: document.getElementById('welcomeTitle').value,
-    welcomeText: document.getElementById('welcomeText').value,
-    aboutText: document.getElementById('aboutText').value,
+    version: val('version') || 'v1.3.3',
+    businessName: val('businessName'),
+    tagline: val('tagline'),
+    heroHeadline: val('heroHeadline'),
+    heroText: val('heroText'),
+    welcomeTitle: val('welcomeTitle'),
+    welcomeText: val('welcomeText'),
+    aboutText: val('aboutText'),
     services: currentServices.map(s => String(s).trim()).filter(Boolean),
     restorationGallery: currentGallery,
     mainLocation: {
-      name: document.getElementById('mainLocName').value,
-      address1: document.getElementById('mainAddr1').value,
-      address2: document.getElementById('mainAddr2').value,
-      phone: document.getElementById('mainPhone').value,
-      email: document.getElementById('mainEmail').value,
-      mapsQuery: document.getElementById('mainMap').value
+      name: val('mainLocName'),
+      address1: val('mainAddr1'),
+      address2: val('mainAddr2'),
+      phone: val('mainPhone'),
+      email: val('mainEmail'),
+      mapsQuery: val('mainMap')
     },
     secondLocation: {
-      name: document.getElementById('secondLocName').value,
-      address1: document.getElementById('secondAddr1').value,
-      address2: document.getElementById('secondAddr2').value,
-      phone: document.getElementById('secondPhone').value,
-      email: document.getElementById('secondEmail').value,
-      mapsQuery: document.getElementById('secondMap').value
+      name: val('secondLocName'),
+      address1: val('secondAddr1'),
+      address2: val('secondAddr2'),
+      phone: val('secondPhone'),
+      email: val('secondEmail'),
+      mapsQuery: val('secondMap')
     },
     design: {
-      accentColor: document.getElementById('accentColor').value,
-      accentDark: document.getElementById('accentDark').value,
-      backgroundColor: document.getElementById('backgroundColor').value,
-      surfaceColor: document.getElementById('surfaceColor').value,
-      textColor: document.getElementById('textColor').value,
-      mutedColor: document.getElementById('mutedColor').value,
-      heroTitleSize: document.getElementById('heroTitleSize').value,
-      sectionTitleSize: document.getElementById('sectionTitleSize').value,
-      bodyTextSize: document.getElementById('bodyTextSize').value,
-      navTextSize: document.getElementById('navTextSize').value
+      accentColor: val('accentColor'),
+      accentDark: val('accentDark'),
+      backgroundColor: val('backgroundColor'),
+      surfaceColor: val('surfaceColor'),
+      textColor: val('textColor'),
+      mutedColor: val('mutedColor'),
+      heroTitleSize: val('heroTitleSize'),
+      sectionTitleSize: val('sectionTitleSize'),
+      bodyTextSize: val('bodyTextSize'),
+      navTextSize: val('navTextSize')
     }
   };
 }
@@ -319,8 +324,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   loginForm?.addEventListener('submit', e => {
     e.preventDefault();
     const creds = getCreds();
-    const u = document.getElementById('username').value;
-    const p = document.getElementById('password').value;
+    const u = val('username');
+    const p = val('password');
     const err = document.getElementById('loginError');
     if(u === creds.username && p === creds.password){
       sessionStorage.setItem('memorialAdminAuth', 'true');
@@ -343,8 +348,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   document.getElementById('uploadGalleryBtn')?.addEventListener('click', async () => {
-    const title = document.getElementById('galleryTitle').value.trim();
-    const description = document.getElementById('galleryDescription').value.trim();
+    const title = val('galleryTitle').trim();
+    const description = val('galleryDescription').trim();
     const status = document.getElementById('galleryUploadMsg');
     const afterFile = document.getElementById('galleryFile')?.files?.[0];
     const beforeFile = document.getElementById('beforeGalleryFile')?.files?.[0];
@@ -372,10 +377,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       renderAdminGallery();
 
-      document.getElementById('galleryTitle').value = '';
-      document.getElementById('galleryDescription').value = '';
-      document.getElementById('galleryFile').value = '';
-      document.getElementById('beforeGalleryFile').value = '';
+      val('galleryTitle') = '';
+      val('galleryDescription') = '';
+      val('galleryFile') = '';
+      val('beforeGalleryFile') = '';
 
       status.textContent = 'Photo added. Saving changes...';
       await doSave();
