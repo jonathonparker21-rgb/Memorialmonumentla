@@ -1,4 +1,4 @@
-<!-- VERSION: v1.3.0 CACHE_BUST 2026-04-30 16:44:21 -->
+<!-- VERSION: v1.3.1 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -45,7 +45,7 @@
     <div class="admin-topbar">
       <div>
         <h1>Website Admin</h1>
-        <p class="small">Version <span class="siteVersion">v1.3.0</span></p>
+        <p class="small">Version <span class="siteVersion">v1.3.1</span></p>
       </div>
       <div class="admin-actions">
         <button class="btn btn-primary" type="button" id="saveBtn">Save Changes</button>
@@ -63,7 +63,7 @@
       <h2>Website Text</h2>
       <div class="admin-form-grid">
         <div>
-          <label>Site Version</label><input id="version" placeholder="v1.3.0" />
+          <label>Site Version</label><input id="version" placeholder="v1.3.1" />
           <label>Business Name</label><input id="businessName" />
           <label>Tagline</label><input id="tagline" />
           <label>Hero Headline</label><input id="heroHeadline" />
@@ -79,13 +79,11 @@
 
     <div class="admin-section">
       <h2>Services</h2>
-      <div class="admin-form-grid three">
-        <div><label>Service 1</label><input id="service1" /></div>
-        <div><label>Service 2</label><input id="service2" /></div>
-        <div><label>Service 3</label><input id="service3" /></div>
-        <div><label>Service 4</label><input id="service4" /></div>
-        <div><label>Service 5</label><input id="service5" /></div>
-        <div><label>Service 6</label><input id="service6" /></div>
+      <p class="small">Add as many services as needed. They will show anywhere the site lists services.</p>
+      <div class="services-admin-list" id="servicesAdminList"></div>
+      <div class="admin-actions">
+        <input id="newServiceInput" placeholder="Add a new service" />
+        <button class="btn btn-primary" type="button" id="addServiceBtn">Add Service</button>
       </div>
     </div>
 
@@ -146,7 +144,7 @@
           <button class="btn btn-primary" type="button" id="uploadGalleryBtn">Upload Photo</button>
           <p id="galleryUploadMsg" class="small"></p>
           <div class="notice">
-            Photos are compressed and saved directly with the gallery content. Click Save Changes to publish the new gallery.
+            Photos are compressed and saved directly with the gallery content. The Upload &amp; Save button publishes the new gallery automatically.
           </div>
         </div>
         <div>
@@ -164,6 +162,6 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/heic2any/dist/heic2any.min.js"></script>
-<script src="admin-v130.js?v=v1.3.0"></script>
+<script src="admin-v131.js?v=v1.3.1"></script>
 </body>
 </html>

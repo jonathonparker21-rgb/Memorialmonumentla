@@ -1,159 +1,25 @@
 const defaultCreds = { username: 'admin', password: 'ChangeMe123!' };
 let currentGallery = [];
+let currentServices = [];
 let cachedContent = null;
-
-function isHeicFile(file){
-  const name = (file?.name || '').toLowerCase();
-  const type = (file?.type || '').toLowerCase();
-  return name.endsWith('.heic') || name.endsWith('.heif') || type.includes('heic') || type.includes('heif');
-}
-
-async function maybeConvertHeic(file, status){
-  if(!file) return file;
-  if(!isHeicFile(file)) return file;
-
-  if(status) status.textContent = 'Converting HEIC photo to JPEG...';
-
-  if(typeof heic2any === 'undefined'){
-    throw new Error('HEIC converter did not load. Convert the photo to JPG first, then upload again.');
-  }
-
-  const converted = await heic2any({
-    blob: file,
-    toType: 'image/jpeg',
-    quality: 0.9
-  });
-
-  const blob = Array.isArray(converted) ? converted[0] : converted;
-  const newName = (file.name || 'photo.heic').replace(/\.(heic|heif)$/i, '.jpg');
-  return new File([blob], newName, { type: 'image/jpeg' });
-}
-
-function fileToImage(file){
-  return new Promise((resolve, reject) => {
-    const url = URL.createObjectURL(file);
-    const img = new Image();
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      resolve(img);
-    };
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error('Could not read the selected image.'));
-    };
-    img.src = url;
-  });
-}
-
-async function compressImageToDataUrl(file, status){
-  file = await maybeConvertHeic(file, status);
-
-  if(status) status.textContent = 'Preparing photo for gallery...';
-
-  const img = await fileToImage(file);
-  const maxWidth = 1400;
-  const maxHeight = 1000;
-
-  let width = img.width;
-  let height = img.height;
-
-  const ratio = Math.min(maxWidth / width, maxHeight / height, 1);
-  width = Math.round(width * ratio);
-  height = Math.round(height * ratio);
-
-  const canvas = document.createElement('canvas');
-  canvas.width = width;
-  canvas.height = height;
-
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(img, 0, 0, width, height);
-
-  return canvas.toDataURL('image/jpeg', 0.82);
-}
-
-
-
-
-
-
-
-
-
-
-function isHeicFile(file){
-  const name = (file?.name || '').toLowerCase();
-  const type = (file?.type || '').toLowerCase();
-  return name.endsWith('.heic') || name.endsWith('.heif') || type.includes('heic') || type.includes('heif');
-}
-
-async function prepareUploadFile(file, status){
-  if(!file) return file;
-
-  if(isHeicFile(file)){
-    if(status) status.textContent = 'Converting HEIC photo to JPEG...';
-
-    if(typeof heic2any === 'undefined'){
-      throw new Error('HEIC converter did not load. Convert the photo to JPG first, then upload again.');
-    }
-
-    const converted = await heic2any({
-      blob: file,
-      toType: 'image/jpeg',
-      quality: 0.9
-    });
-
-    const blob = Array.isArray(converted) ? converted[0] : converted;
-    const newName = (file.name || 'photo.heic').replace(/\.(heic|heif)$/i, '.jpg');
-
-    return new File([blob], newName, { type: 'image/jpeg' });
-  }
-
-  return file;
-}
-
 
 function getCreds(){
   const saved = localStorage.getItem('memorialAdminCreds');
   if(saved){ try { return JSON.parse(saved); } catch(e) {} }
   return defaultCreds;
 }
-function getAuthHeader() {
+
+function getAuthHeader(){
   const creds = getCreds();
   return 'Basic ' + btoa(`${creds.username}:${creds.password}`);
 }
+
 function isLoggedIn(){ return sessionStorage.getItem('memorialAdminAuth') === 'true'; }
-
-async function loadSiteContent(){
-  try {
-    const res = await fetch('/api/get-content?build=v1.3.1', { cache: 'no-store' });
-    if (res.ok) {
-      const data = await res.json();
-
-      // If KV is stale, fall back to bundled content so old v1.3.1 data does not override this build.
-      const bundledRes = await fetch('../site-content.json?v=v1.3.1', { cache: 'no-store' });
-      const bundled = await bundledRes.json();
-
-      if(data.version && isOlderAdminVersion(data.version, bundled.version)){
-        return bundled;
-      }
-
-      return { ...bundled, ...data, version: data.version || bundled.version };
-    }
-  } catch (e) {}
-
-  try {
-    const res = await fetch('../site-content.json?v=v1.3.1', { cache: 'no-store' });
-    return await res.json();
-  } catch (e) {}
-
-  const local = localStorage.getItem('memorialSiteContent');
-  if(local){ try { return JSON.parse(local); } catch(e) {} }
-  return {};
-}
 
 function adminVersionNumber(v){
   return String(v || 'v0.0.0').replace(/^v/, '').split('.').map(n => parseInt(n, 10) || 0);
 }
+
 function isOlderAdminVersion(a, b){
   const av = adminVersionNumber(a);
   const bv = adminVersionNumber(b);
@@ -164,6 +30,27 @@ function isOlderAdminVersion(a, b){
   return false;
 }
 
+async function loadSiteContent(){
+  try {
+    const res = await fetch('/api/get-content?build=v1.3.1', { cache: 'no-store' });
+    if(res.ok){
+      const data = await res.json();
+      const bundledRes = await fetch('../site-content.json?v=v1.3.1', { cache: 'no-store' });
+      const bundled = await bundledRes.json();
+      if(data.version && isOlderAdminVersion(data.version, bundled.version)) return bundled;
+      return { ...bundled, ...data, version: data.version || bundled.version };
+    }
+  } catch(e) {}
+
+  try {
+    const res = await fetch('../site-content.json?v=v1.3.1', { cache: 'no-store' });
+    return await res.json();
+  } catch(e) {}
+
+  const local = localStorage.getItem('memorialSiteContent');
+  if(local){ try { return JSON.parse(local); } catch(e) {} }
+  return {};
+}
 
 async function checkDiagnostics(){
   const out = document.getElementById('diagnosticsText');
@@ -174,23 +61,37 @@ async function checkDiagnostics(){
     const d = await res.json();
     const missing = [];
     if(!d.SITE_CONTENT) missing.push('SITE_CONTENT');
-    if(!d.RESTORATION_IMAGES) missing.push('RESTORATION_IMAGES');
     if(!d.OWNER_USERNAME) missing.push('OWNER_USERNAME');
     if(!d.OWNER_PASSWORD) missing.push('OWNER_PASSWORD');
-
-    if(missing.length){
-      out.textContent = 'Missing or inactive: ' + missing.join(', ') + '. Add bindings/variables and redeploy.';
-    } else {
-      out.textContent = 'Cloudflare bindings look ready.';
-    }
+    out.textContent = missing.length ? 'Missing or inactive: ' + missing.join(', ') + '. Add variables/bindings and redeploy.' : 'Cloudflare bindings look ready.';
   } catch(error) {
-    out.textContent = 'Diagnostics endpoint not available. Make sure the functions folder is deployed at the project root.';
+    out.textContent = 'Diagnostics endpoint not available. Functions may not be deployed.';
   }
 }
 
 function show(id, on=true){
   const el = document.getElementById(id);
   if(el) el.style.display = on ? '' : 'none';
+}
+
+function renderServicesAdmin(){
+  const wrap = document.getElementById('servicesAdminList');
+  if(!wrap) return;
+  wrap.innerHTML = currentServices.map((service, i) => `
+    <div class="service-admin-item">
+      <input value="${String(service).replace(/"/g, '&quot;')}" oninput="updateServiceItem(${i}, this.value)" />
+      <button class="btn btn-secondary" type="button" onclick="removeServiceItem(${i})">Remove</button>
+    </div>
+  `).join('');
+}
+
+window.updateServiceItem = function(index, value){
+  currentServices[index] = value;
+}
+
+window.removeServiceItem = function(index){
+  currentServices.splice(index, 1);
+  renderServicesAdmin();
 }
 
 function renderAdminGallery(){
@@ -202,36 +103,70 @@ function renderAdminGallery(){
       <div>
         <strong>${item.title}</strong>
         <div class="small">${item.description || ''}</div>
+        ${item.beforeImage ? '<div class="small">Before/after enabled</div>' : '<div class="small">After photo only</div>'}
       </div>
       <button class="btn btn-secondary" type="button" onclick="removeGalleryItem(${i})">Remove</button>
     </div>
   `).join('');
 }
 
-window.removeGalleryItem = async function(index){
-  const item = currentGallery[index];
-  if (!item) return;
-  if (item.key) {
-    try {
-      await fetch('/api/delete-image', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          'authorization': getAuthHeader()
-        },
-        body: JSON.stringify({ key: item.key })
-      });
-    } catch (e) {}
-  }
+window.removeGalleryItem = function(index){
   currentGallery.splice(index, 1);
   renderAdminGallery();
+}
+
+function isHeicFile(file){
+  const name = (file?.name || '').toLowerCase();
+  const type = (file?.type || '').toLowerCase();
+  return name.endsWith('.heic') || name.endsWith('.heif') || type.includes('heic') || type.includes('heif');
+}
+
+async function maybeConvertHeic(file, status){
+  if(!file || !isHeicFile(file)) return file;
+  if(status) status.textContent = 'Converting HEIC photo to JPEG...';
+  if(typeof heic2any === 'undefined') throw new Error('HEIC converter did not load. Convert to JPG first and try again.');
+  const converted = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.9 });
+  const blob = Array.isArray(converted) ? converted[0] : converted;
+  const newName = (file.name || 'photo.heic').replace(/\.(heic|heif)$/i, '.jpg');
+  return new File([blob], newName, { type: 'image/jpeg' });
+}
+
+function fileToImage(file){
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Could not read selected image.')); };
+    img.src = url;
+  });
+}
+
+async function compressImageToDataUrl(file, status){
+  file = await maybeConvertHeic(file, status);
+  if(status) status.textContent = 'Preparing photo for gallery...';
+  const img = await fileToImage(file);
+  const maxWidth = 1400;
+  const maxHeight = 1000;
+  let width = img.width;
+  let height = img.height;
+  const ratio = Math.min(maxWidth / width, maxHeight / height, 1);
+  width = Math.round(width * ratio);
+  height = Math.round(height * ratio);
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(img, 0, 0, width, height);
+  return canvas.toDataURL('image/jpeg', 0.82);
 }
 
 function fillForm(data){
   cachedContent = data;
   const d = data.design || {};
   currentGallery = data.restorationGallery || [];
+  currentServices = data.services || [];
   renderAdminGallery();
+  renderServicesAdmin();
 
   const map = {
     version: data.version || 'v1.3.1',
@@ -254,12 +189,6 @@ function fillForm(data){
     secondPhone: data.secondLocation?.phone || '',
     secondEmail: data.secondLocation?.email || '',
     secondMap: data.secondLocation?.mapsQuery || '',
-    service1: data.services?.[0] || '',
-    service2: data.services?.[1] || '',
-    service3: data.services?.[2] || '',
-    service4: data.services?.[3] || '',
-    service5: data.services?.[4] || '',
-    service6: data.services?.[5] || '',
     accentColor: d.accentColor || '#c84e22',
     accentDark: d.accentDark || '#8d2a16',
     backgroundColor: d.backgroundColor || '#12080a',
@@ -281,7 +210,7 @@ function fillForm(data){
 function readForm(){
   return {
     ...(cachedContent || {}),
-    version: document.getElementById('version').value || 'v1.3.1' || 'v1.3.1',
+    version: document.getElementById('version').value || 'v1.3.1',
     businessName: document.getElementById('businessName').value,
     tagline: document.getElementById('tagline').value,
     heroHeadline: document.getElementById('heroHeadline').value,
@@ -289,7 +218,7 @@ function readForm(){
     welcomeTitle: document.getElementById('welcomeTitle').value,
     welcomeText: document.getElementById('welcomeText').value,
     aboutText: document.getElementById('aboutText').value,
-    services: [1,2,3,4,5,6].map(i => document.getElementById('service'+i).value).filter(Boolean),
+    services: currentServices.map(s => String(s).trim()).filter(Boolean),
     restorationGallery: currentGallery,
     mainLocation: {
       name: document.getElementById('mainLocName').value,
@@ -297,7 +226,7 @@ function readForm(){
       address2: document.getElementById('mainAddr2').value,
       phone: document.getElementById('mainPhone').value,
       email: document.getElementById('mainEmail').value,
-      mapsQuery: document.getElementById('mainMap').value,
+      mapsQuery: document.getElementById('mainMap').value
     },
     secondLocation: {
       name: document.getElementById('secondLocName').value,
@@ -305,7 +234,7 @@ function readForm(){
       address2: document.getElementById('secondAddr2').value,
       phone: document.getElementById('secondPhone').value,
       email: document.getElementById('secondEmail').value,
-      mapsQuery: document.getElementById('secondMap').value,
+      mapsQuery: document.getElementById('secondMap').value
     },
     design: {
       accentColor: document.getElementById('accentColor').value,
@@ -317,12 +246,12 @@ function readForm(){
       heroTitleSize: document.getElementById('heroTitleSize').value,
       sectionTitleSize: document.getElementById('sectionTitleSize').value,
       bodyTextSize: document.getElementById('bodyTextSize').value,
-      navTextSize: document.getElementById('navTextSize').value,
+      navTextSize: document.getElementById('navTextSize').value
     }
   };
 }
 
-async function saveContentToApi(data) {
+async function saveContentToApi(data){
   const res = await fetch('/api/save-content', {
     method: 'POST',
     headers: {
@@ -331,7 +260,7 @@ async function saveContentToApi(data) {
     },
     body: JSON.stringify(data)
   });
-  if (!res.ok) {
+  if(!res.ok){
     const payload = await res.json().catch(() => ({}));
     throw new Error(payload.error || 'Save failed');
   }
@@ -351,6 +280,30 @@ async function doSave(){
   }
 }
 
+function setupDropZone(zoneId, inputId, label){
+  const zone = document.getElementById(zoneId);
+  const input = document.getElementById(inputId);
+  if(!zone || !input) return;
+  zone.addEventListener('click', () => input.click());
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('dragover');
+    if(e.dataTransfer.files.length){
+      input.files = e.dataTransfer.files;
+      const status = document.getElementById('galleryUploadMsg');
+      if(status) status.textContent = `Selected ${label}: ${e.dataTransfer.files[0].name}`;
+    }
+  });
+  input.addEventListener('change', () => {
+    const status = document.getElementById('galleryUploadMsg');
+    if(input.files && input.files[0] && status){
+      status.textContent = `Selected ${label}: ${input.files[0].name}`;
+    }
+  });
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   const loginForm = document.getElementById('loginForm');
 
@@ -363,13 +316,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if(isLoggedIn()) initEditor();
 
-  loginForm?.addEventListener('submit', (e) => {
+  loginForm?.addEventListener('submit', e => {
     e.preventDefault();
     const creds = getCreds();
     const u = document.getElementById('username').value;
     const p = document.getElementById('password').value;
     const err = document.getElementById('loginError');
-
     if(u === creds.username && p === creds.password){
       sessionStorage.setItem('memorialAdminAuth', 'true');
       initEditor();
@@ -378,57 +330,44 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  const dropZone = document.getElementById('dropZone');
-  const fileInput = document.getElementById('galleryFile');
+  setupDropZone('dropZone', 'galleryFile', 'finished photo');
+  setupDropZone('beforeDropZone', 'beforeGalleryFile', 'before photo');
 
-  if(dropZone && fileInput){
-    dropZone.addEventListener('click', () => fileInput.click());
-
-    dropZone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      dropZone.classList.add('dragover');
-    });
-
-    dropZone.addEventListener('dragleave', () => {
-      dropZone.classList.remove('dragover');
-    });
-
-    dropZone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dropZone.classList.remove('dragover');
-      if(e.dataTransfer.files.length){
-        fileInput.files = e.dataTransfer.files;
-        const status = document.getElementById('galleryUploadMsg');
-        if(status) status.textContent = `Selected: ${e.dataTransfer.files[0].name}`;
-      }
-    });
-
-    fileInput.addEventListener('change', () => {
-      const status = document.getElementById('galleryUploadMsg');
-      if(fileInput.files && fileInput.files[0] && status){
-        status.textContent = `Selected: ${fileInput.files[0].name}`;
-      }
-    });
-  }
+  document.getElementById('addServiceBtn')?.addEventListener('click', () => {
+    const input = document.getElementById('newServiceInput');
+    const value = input.value.trim();
+    if(!value) return;
+    currentServices.push(value);
+    input.value = '';
+    renderServicesAdmin();
+  });
 
   document.getElementById('uploadGalleryBtn')?.addEventListener('click', async () => {
     const title = document.getElementById('galleryTitle').value.trim();
     const description = document.getElementById('galleryDescription').value.trim();
     const status = document.getElementById('galleryUploadMsg');
-    const file = document.getElementById('galleryFile')?.files?.[0];
+    const afterFile = document.getElementById('galleryFile')?.files?.[0];
+    const beforeFile = document.getElementById('beforeGalleryFile')?.files?.[0];
 
-    if(!title || !file){
-      status.textContent = 'Add a title and choose a photo first.';
+    if(!title || !afterFile){
+      status.textContent = 'Add a title and choose the finished photo first.';
       return;
     }
 
     try {
-      const imageData = await compressImageToDataUrl(file, status);
+      status.textContent = 'Preparing finished photo...';
+      const afterData = await compressImageToDataUrl(afterFile, status);
+      let beforeData = '';
+      if(beforeFile){
+        status.textContent = 'Preparing before photo...';
+        beforeData = await compressImageToDataUrl(beforeFile, status);
+      }
 
       currentGallery.unshift({
         title,
         description,
-        image: imageData
+        image: afterData,
+        beforeImage: beforeData
       });
 
       renderAdminGallery();
@@ -436,7 +375,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       document.getElementById('galleryTitle').value = '';
       document.getElementById('galleryDescription').value = '';
       document.getElementById('galleryFile').value = '';
-      status.textContent = 'Photo added. Click Save Changes to publish it.';
+      document.getElementById('beforeGalleryFile').value = '';
+
+      status.textContent = 'Photo added. Saving changes...';
+      await doSave();
+      status.textContent = 'Photo uploaded and saved.';
     } catch(error) {
       status.textContent = 'Upload failed: ' + error.message;
     }
@@ -444,14 +387,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   document.getElementById('saveBtn')?.addEventListener('click', doSave);
   document.getElementById('saveBtnBottom')?.addEventListener('click', doSave);
-
   document.getElementById('resetBtn')?.addEventListener('click', async () => {
     localStorage.removeItem('memorialSiteContent');
     fillForm(await loadSiteContent());
     const saveMsg = document.getElementById('saveMsg');
     if(saveMsg) saveMsg.textContent = 'Reset to current Cloudflare content.';
   });
-
   document.getElementById('logoutBtn')?.addEventListener('click', () => {
     sessionStorage.removeItem('memorialAdminAuth');
     location.reload();

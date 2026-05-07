@@ -1,4 +1,4 @@
-/* FORCE_REFRESH_BUILD v1.2.9 2026-04-29 13:10:31 */
+/* FORCE_REFRESH_BUILD v1.3.1 2026-04-29 13:10:31 */
 export async function onRequestGet(context) {
   const { env } = context;
   try {

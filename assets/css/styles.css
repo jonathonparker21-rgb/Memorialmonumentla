@@ -1,4 +1,4 @@
-/* FORCE_REFRESH_BUILD v1.3.0 2026-04-29 13:10:31 */
+/* FORCE_REFRESH_BUILD v1.3.1 2026-04-29 13:10:31 */
 
 :root{
   --bg:#f7f2eb;
@@ -85,7 +85,7 @@ label{display:block;font-weight:700;margin:.75rem 0 .35rem}
 
 
 
-/* v1.3.0 combined logo header */
+/* v1.3.1 combined logo header */
 header{
   padding: 2px 0 !important;
   overflow: visible;
@@ -131,7 +131,7 @@ nav ul{
 }
 
 
-/* v1.3.0 mobile nav + testimonials */
+/* v1.3.1 mobile nav + testimonials */
 .mobile-nav-toggle{
   display:none;
   padding:.55rem .9rem;
@@ -203,7 +203,7 @@ nav ul{
 }
 
 
-/* v1.3.0 testimonials page + homepage scroller */
+/* v1.3.1 testimonials page + homepage scroller */
 .testimonial-marquee{
   overflow:hidden;
   position:relative;
@@ -243,7 +243,7 @@ nav ul{
 }
 
 
-/* v1.3.0 logo-matched theme */
+/* v1.3.1 logo-matched theme */
 :root{
   --bg:#12080a;
   --surface:#1a1012;
@@ -346,7 +346,7 @@ footer{
 }
 
 
-/* v1.3.0 restoration gallery */
+/* v1.3.1 restoration gallery */
 .restoration-scroller{
   overflow-x:auto;
   padding-bottom:.35rem;
@@ -409,7 +409,7 @@ footer{
   }
 }
 
-/* v1.3.0 production admin improvements */
+/* v1.3.1 production admin improvements */
 .admin-wrap{
   grid-template-columns: 300px minmax(0, 1fr) !important;
   gap: 1.5rem !important;
@@ -445,7 +445,7 @@ input, textarea, select{
   }
 }
 
-/* v1.3.0 drag and drop upload */
+/* v1.3.1 drag and drop upload */
 .drop-zone{
   border:2px dashed rgba(200,78,34,.5);
   border-radius:16px;
@@ -473,7 +473,7 @@ input, textarea, select{
 }
 
 
-/* v1.3.0 admin full-width responsive fix */
+/* v1.3.1 admin full-width responsive fix */
 .admin-wrap{
   width:min(100% - 24px, 1760px) !important;
   max-width:1760px !important;
@@ -560,7 +560,7 @@ input, textarea, select{
 }
 
 
-/* v1.3.0 rebuilt admin layout */
+/* v1.3.1 rebuilt admin layout */
 body.admin-page{
   min-height:100vh;
 }
@@ -674,14 +674,14 @@ body.admin-page{
 }
 
 
-/* v1.3.0 heic note */
+/* v1.3.1 heic note */
 .drop-zone span::after{
   content:" • HEIC supported";
   opacity:.85;
 }
 
 
-/* v1.3.0 image display fix */
+/* v1.3.1 image display fix */
 .image-error-note{
   display:none;
   color:#ffb4a5 !important;
@@ -694,7 +694,7 @@ body.admin-page{
 }
 
 
-/* v1.3.0 r2 query image route */
+/* v1.3.1 r2 query image route */
 .image-error-note{
   display:none;
   color:#ffb4a5 !important;
@@ -704,7 +704,7 @@ body.admin-page{
 }
 
 
-/* v1.3.0 embedded gallery fix */
+/* v1.3.1 embedded gallery fix */
 .image-error-note{
   display:none;
   color:#ffb4a5 !important;
@@ -714,7 +714,84 @@ body.admin-page{
 }
 
 
-/* v1.3.0 cache-bust gallery fix */
+/* v1.3.1 cache-bust gallery fix */
 .restoration-card.image-missing{
   display:none !important;
+}
+
+
+/* v1.3.1 before/after + unlimited services */
+.before-after-card .restoration-copy{
+  min-height:112px;
+}
+.ba-wrap{
+  position:relative;
+  width:100%;
+  height:220px;
+  overflow:hidden;
+  background:#0b0506;
+}
+.ba-img{
+  width:100%;
+  height:220px;
+  object-fit:cover;
+  display:block;
+}
+.ba-after{
+  position:absolute;
+  inset:0;
+}
+.ba-before-layer{
+  position:absolute;
+  inset:0 auto 0 0;
+  overflow:hidden;
+  border-right:2px solid rgba(255,255,255,.8);
+}
+.ba-before{
+  width:320px;
+  max-width:none;
+}
+.ba-slider{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:10px;
+  width:90%;
+  margin:auto;
+  z-index:4;
+}
+.ba-label{
+  position:absolute;
+  top:10px;
+  z-index:3;
+  padding:.25rem .55rem;
+  border-radius:999px;
+  font-size:.78rem;
+  font-weight:700;
+  background:rgba(0,0,0,.58);
+  color:#fff;
+}
+.ba-label-before{ left:10px; }
+.ba-label-after{ right:10px; }
+.services-admin-list{
+  display:grid;
+  gap:.75rem;
+  margin-bottom:1rem;
+}
+.service-admin-item{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:.75rem;
+  align-items:center;
+}
+.secondary-drop-zone{
+  margin-bottom:.9rem;
+}
+@media(max-width:760px){
+  .ba-before{
+    width:280px;
+  }
+  .service-admin-item{
+    grid-template-columns:1fr;
+  }
 }

@@ -94,17 +94,55 @@ function renderTestimonialsPage(data){
 
 
 
+
+
 function galleryCard(item){
-  const img = item.image || '';
+  const afterImg = item.image || '';
+  const beforeImg = item.beforeImage || '';
+
+  if(!afterImg || afterImg.includes('/api/image') || afterImg.includes('restoration%2F')){
+    return '';
+  }
+
+  if(beforeImg && !beforeImg.includes('/api/image') && !beforeImg.includes('restoration%2F')){
+    return `<article class="restoration-card before-after-card">
+      <div class="ba-wrap" data-ba-wrap>
+        <img class="ba-img ba-after" src="${afterImg}" alt="${item.title} after" loading="lazy">
+        <div class="ba-before-layer" style="width:50%;">
+          <img class="ba-img ba-before" src="${beforeImg}" alt="${item.title} before" loading="lazy">
+        </div>
+        <div class="ba-label ba-label-before">Before</div>
+        <div class="ba-label ba-label-after">After</div>
+        <input class="ba-slider" type="range" min="0" max="100" value="50" aria-label="Before and after comparison">
+      </div>
+      <div class="restoration-copy">
+        <h3>${item.title}</h3>
+        <p>${item.description || ''}</p>
+      </div>
+    </article>`;
+  }
+
   return `<article class="restoration-card">
-    <img src="${img}" alt="${item.title}" loading="lazy" onerror="this.closest('.restoration-card').classList.add('image-missing'); this.style.display='none';">
+    <img src="${afterImg}" alt="${item.title}" loading="lazy" onerror="this.closest('.restoration-card').remove();">
     <div class="restoration-copy">
       <h3>${item.title}</h3>
       <p>${item.description || ''}</p>
-      <p class="small image-error-note">Image could not load. Remove and re-upload this photo.</p>
     </div>
   </article>`;
 }
+
+function setupBeforeAfterSliders(){
+  document.querySelectorAll('[data-ba-wrap]').forEach(wrap => {
+    const slider = wrap.querySelector('.ba-slider');
+    const beforeLayer = wrap.querySelector('.ba-before-layer');
+    if(!slider || !beforeLayer || slider.dataset.ready === 'true') return;
+    slider.dataset.ready = 'true';
+    slider.addEventListener('input', () => {
+      beforeLayer.style.width = `${slider.value}%`;
+    });
+  });
+}
+
 function renderRestorationGallery(data){
   const track = document.getElementById('restorationTrack');
   if(!track) return;
@@ -144,5 +182,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderHomeTestimonials(data);
   renderTestimonialsPage(data);
   renderRestorationGallery(data);
+  setupBeforeAfterSliders();
   setupReviewForm(data);
 });
