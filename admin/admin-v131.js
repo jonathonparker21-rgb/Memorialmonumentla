@@ -32,10 +32,10 @@ function isOlderAdminVersion(a, b){
 
 async function loadSiteContent(){
   try {
-    const res = await fetch('/api/get-content?build=v1.3.6', { cache: 'no-store' });
+    const res = await fetch('/api/get-content?build=v1.3.7', { cache: 'no-store' });
     if(res.ok){
       const data = await res.json();
-      const bundledRes = await fetch('../site-content.json?v=v1.3.6', { cache: 'no-store' });
+      const bundledRes = await fetch('../site-content.json?v=v1.3.7', { cache: 'no-store' });
       const bundled = await bundledRes.json();
       if(data.version && isOlderAdminVersion(data.version, bundled.version)) return bundled;
       return { ...bundled, ...data, version: data.version || bundled.version };
@@ -43,7 +43,7 @@ async function loadSiteContent(){
   } catch(e) {}
 
   try {
-    const res = await fetch('../site-content.json?v=v1.3.6', { cache: 'no-store' });
+    const res = await fetch('../site-content.json?v=v1.3.7', { cache: 'no-store' });
     return await res.json();
   } catch(e) {}
 
@@ -169,7 +169,7 @@ function fillForm(data){
   renderServicesAdmin();
 
   const map = {
-    version: data.version || 'v1.3.6',
+    version: data.version || 'v1.3.7',
     businessName: data.businessName || '',
     tagline: data.tagline || '',
     heroHeadline: data.heroHeadline || '',
@@ -210,7 +210,7 @@ function fillForm(data){
 function readForm(){
   return {
     ...(cachedContent || {}),
-    version: document.getElementById('version').value || 'v1.3.6',
+    version: document.getElementById('version').value || 'v1.3.7',
     businessName: document.getElementById('businessName').value,
     tagline: document.getElementById('tagline').value,
     heroHeadline: document.getElementById('heroHeadline').value,

@@ -1,18 +1,18 @@
 {
-  "version": "v1.3.6",
+  "version": "v1.3.7",
   "businessName": "Memorial Monuments of Louisiana",
   "tagline": "Honoring Loved Ones With Care, Respect, and Craftsmanship",
   "heroHeadline": "Locally Owned. Family Focused. Crafted With Care.",
   "heroText": "At Memorial Monuments of Louisiana, we\u2019re proud to serve our communities with quality monuments, honest service, and a personal touch. From new headstones and memorials to restoration work on existing monuments, we help families honor their loved ones with care, respect, and lasting craftsmanship.",
-  "welcomeTitle": "A downhome approach you can trust",
-  "welcomeText": "Here at Memorial Monuments of Louisiana, we believe every memorial should be treated with dignity and every family should be treated like neighbors. As a locally owned and operated business, we take pride in helping families across Louisiana with beautiful new monuments as well as restoration services that bring older memorials back to life.",
-  "aboutText": "At Memorial Monuments of Louisiana, we understand that choosing a monument is more than a purchase \u2014 it is a way to honor a life, preserve a memory, and create something meaningful for generations to come. Our team takes pride in offering respectful service, quality craftsmanship, and a personal approach that treats every family like neighbors. From new monuments to restoration and on-site engraving, we are here to help with care, patience, and attention to detail.",
+  "welcomeTitle": "Memorial services tailored to each family",
+  "welcomeText": "We help families design, restore, and care for monuments with the kind of personal attention that matters. Whether you are choosing a new headstone, refreshing an older memorial, or needing on-site engraving, our team is here to make the process clear, respectful, and dependable.",
+  "aboutText": "Memorial Monuments of Louisiana is locally owned and operated, serving families with dependable care, quality craftsmanship, and honest guidance. From new monuments and headstones to cleaning, releveling, lettering repaint, restoration, and on-site engraving, our goal is to help families choose a lasting tribute that honors their loved one with dignity and respect.",
   "services": [
-    "New monuments and headstones",
+    "Custom monuments and headstones",
     "Monument restoration",
-    "Monument cleaning",
-    "Releveling",
-    "Repainting lettering",
+    "Professional monument cleaning",
+    "Releveling and resetting",
+    "Repainting and refreshing lettering",
     "On-site engraving"
   ],
   "mainLocation": {
@@ -74,7 +74,7 @@
       "image": "https://images.unsplash.com/photo-1520637836862-4d197d17c90a?auto=format&fit=crop&w=1200&q=80"
     }
   ],
-  "buildTimestamp": "2026-05-07 18:47:13",
+  "buildTimestamp": "2026-05-07 19:17:17",
   "forceRefreshBuild": true,
   "heicUploadFix": true,
   "imageDisplayFix": true,
