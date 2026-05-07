@@ -1,5 +1,5 @@
 {
-  "version": "v1.3.4",
+  "version": "v1.3.5",
   "businessName": "Memorial Monuments of Louisiana",
   "tagline": "Honoring Loved Ones With Care, Respect, and Craftsmanship",
   "heroHeadline": "Locally Owned. Family Focused. Crafted With Care.",
@@ -47,12 +47,14 @@
     {
       "name": "Local Family",
       "text": "They were kind, respectful, and easy to work with during a difficult time. The monument turned out beautiful.",
-      "location": "Oak Grove, LA"
+      "location": "Oak Grove, LA",
+      "status": "approved"
     },
     {
       "name": "Satisfied Customer",
       "text": "The restoration work made an older monument look cared for again. Honest people and quality work.",
-      "location": "Monroe, LA"
+      "location": "Monroe, LA",
+      "status": "approved"
     }
   ],
   "restorationGallery": [
@@ -72,7 +74,7 @@
       "image": "https://images.unsplash.com/photo-1520637836862-4d197d17c90a?auto=format&fit=crop&w=1200&q=80"
     }
   ],
-  "buildTimestamp": "2026-05-07 18:08:10",
+  "buildTimestamp": "2026-05-07 18:25:18",
   "forceRefreshBuild": true,
   "heicUploadFix": true,
   "imageDisplayFix": true,
@@ -85,5 +87,7 @@
   "uploadNullFix": true,
   "hardNullFix": true,
   "heroPhoto": "",
-  "heroPhotoManager": true
+  "heroPhotoManager": true,
+  "testimonialAdmin": true,
+  "pendingTestimonials": []
 }
