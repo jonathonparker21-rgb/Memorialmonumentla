@@ -47,10 +47,10 @@ function isOlderAdminVersion(a, b){
 
 async function loadSiteContent(){
   try {
-    const res = await fetch('/api/get-content?build=v1.4.3', { cache: 'no-store' });
+    const res = await fetch('/api/get-content?build=v1.4.6', { cache: 'no-store' });
     if(res.ok){
       const data = await res.json();
-      const bundledRes = await fetch('../site-content.json?v=v1.4.3', { cache: 'no-store' });
+      const bundledRes = await fetch('../site-content.json?v=v1.4.6', { cache: 'no-store' });
       const bundled = await bundledRes.json();
       if(data.version && isOlderAdminVersion(data.version, bundled.version)) return bundled;
       return { ...bundled, ...data, version: data.version || bundled.version };
@@ -58,7 +58,7 @@ async function loadSiteContent(){
   } catch(e) {}
 
   try {
-    const res = await fetch('../site-content.json?v=v1.4.3', { cache: 'no-store' });
+    const res = await fetch('../site-content.json?v=v1.4.6', { cache: 'no-store' });
     return await res.json();
   } catch(e) {}
 
@@ -275,7 +275,7 @@ function fillForm(data){
   renderServicesAdmin();
 
   const map = {
-    version: data.version || 'v1.4.3',
+    version: data.version || 'v1.4.6',
     businessName: data.businessName || '',
     tagline: data.tagline || '',
     heroHeadline: data.heroHeadline || '',
@@ -318,7 +318,7 @@ function val(id){
 function readForm(){
   return {
     ...(cachedContent || {}),
-    version: val('version') || 'v1.4.3',
+    version: val('version') || 'v1.4.6',
     businessName: val('businessName'),
     tagline: val('tagline'),
     heroHeadline: val('heroHeadline'),
@@ -568,7 +568,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 
-/* v1.4.3 forced hero + testimonial admin fix */
+/* v1.4.6 forced hero + testimonial admin fix */
 function renderHeroPhotoAdmin(){
   const preview = document.getElementById('heroPhotoPreview');
   const download = document.getElementById('downloadHeroPhotoBtn');

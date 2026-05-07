@@ -1,3 +1,3 @@
-v1.4.5
-2026-05-07 20:36:46
-Separate single photo section, multi-photo before/after sets, sample testimonials visible.
+v1.4.6
+2026-05-07 20:47:08
+Force sample testimonials visible in admin active list.
