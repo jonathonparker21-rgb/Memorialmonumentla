@@ -81,7 +81,7 @@ function testimonialCard(t){
 function renderHomeTestimonials(data){
   const track = document.getElementById('testimonialTrack');
   if(!track) return;
-  const items = data.testimonials || [];
+  const items = (data.testimonials || []).filter(t => (t.status || 'approved') === 'approved');
   track.innerHTML = items.concat(items).map(testimonialCard).join('');
 }
 function renderTestimonialsPage(data){
@@ -161,13 +161,14 @@ function setupReviewForm(data){
     let current = data;
     if(local){ try { current = JSON.parse(local); } catch(e) {} }
     current.testimonials = current.testimonials || [];
-    current.testimonials.unshift({ name, location, text });
+    current.pendingTestimonials = current.pendingTestimonials || [];
+    current.pendingTestimonials.unshift({ name, location, text, status: 'pending' });
     localStorage.setItem('memorialSiteContent', JSON.stringify(current));
     renderTestimonialsPage(current);
     renderHomeTestimonials(current);
     form.reset();
     const msg = document.getElementById('reviewMsg');
-    if(msg) msg.textContent = 'Thank you. Your review was added to this preview.';
+    if(msg) msg.textContent = 'Thank you. Your testimonial has been submitted for review.';
   });
 }
 document.addEventListener('DOMContentLoaded', async () => {
@@ -179,9 +180,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   const versionEls = document.querySelectorAll('.siteVersion');
   if(data.version && versionEls.length){ versionEls.forEach(el => { el.textContent = data.version; }); }
   if(window.renderPage) window.renderPage(data);
+  const heroPhotoEl = document.getElementById('heroPhotoImage');
+  const heroPhotoBox = document.getElementById('heroPhotoBox');
+  if(heroPhotoEl && heroPhotoBox && data.heroPhoto){ heroPhotoEl.src = data.heroPhoto; heroPhotoBox.classList.add('has-photo'); }
   renderHomeTestimonials(data);
   renderTestimonialsPage(data);
   renderRestorationGallery(data);
+  setupBeforeAfterSliders();
   setupBeforeAfterSliders();
   setupReviewForm(data);
 });

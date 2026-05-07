@@ -213,6 +213,8 @@ function renderAdminGallery(){
 window.removeGalleryItem = function(index){
   currentGallery.splice(index, 1);
   renderAdminGallery();
+  initHeroAndTestimonialsFromData(data);
+  setupHeroPhotoHandlers();
   renderHeroPhotoAdmin();
 }
 
@@ -328,6 +330,9 @@ function readForm(){
     testimonials: currentTestimonials.map(t => ({ ...t, status: 'approved' })),
     pendingTestimonials: currentPendingTestimonials.map(t => ({ ...t, status: 'pending' })),
     restorationGallery: currentGallery,
+    heroPhoto: currentHeroPhoto,
+    testimonials: currentTestimonials.map(t => ({ ...t, status: 'approved' })),
+    pendingTestimonials: currentPendingTestimonials.map(t => ({ ...t, status: 'pending' })),
     heroPhoto: currentHeroPhoto,
     mainLocation: {
       name: val('mainLocName'),
@@ -561,3 +566,134 @@ document.addEventListener('DOMContentLoaded', async () => {
     location.reload();
   });
 });
+
+
+/* v1.3.6 forced hero + testimonial admin fix */
+function renderHeroPhotoAdmin(){
+  const preview = document.getElementById('heroPhotoPreview');
+  const download = document.getElementById('downloadHeroPhotoBtn');
+  const clearBtn = document.getElementById('removeHeroPhotoBtn');
+  if(preview){
+    if(currentHeroPhoto){
+      preview.src = currentHeroPhoto;
+      preview.style.display = 'block';
+    } else {
+      preview.removeAttribute('src');
+      preview.style.display = 'none';
+    }
+  }
+  if(download) download.style.display = currentHeroPhoto ? 'inline-block' : 'none';
+  if(clearBtn) clearBtn.style.display = currentHeroPhoto ? 'inline-block' : 'none';
+}
+
+function testimonialAdminCard(t, i, type){
+  const isPending = type === 'pending';
+  return `
+    <div class="testimonial-admin-card">
+      <div class="testimonial-card-preview">
+        <p class="testimonial-text">“${t.text || ''}”</p>
+        <div class="testimonial-meta"><strong>${t.name || ''}</strong>${t.location ? ` <span>• ${t.location}</span>` : ''}</div>
+      </div>
+      <label>Name</label><input value="${String(t.name || '').replace(/"/g, '&quot;')}" oninput="${isPending ? 'updatePendingTestimonial' : 'updateApprovedTestimonial'}(${i}, 'name', this.value)" />
+      <label>Location</label><input value="${String(t.location || '').replace(/"/g, '&quot;')}" oninput="${isPending ? 'updatePendingTestimonial' : 'updateApprovedTestimonial'}(${i}, 'location', this.value)" />
+      <label>Testimonial</label><textarea oninput="${isPending ? 'updatePendingTestimonial' : 'updateApprovedTestimonial'}(${i}, 'text', this.value)">${t.text || ''}</textarea>
+      <div class="admin-actions">
+        ${isPending ? `<button class="btn btn-primary" type="button" onclick="approveTestimonial(${i})">Approve</button><button class="btn btn-secondary" type="button" onclick="denyPendingTestimonial(${i})">Deny</button>` : `<button class="btn btn-secondary" type="button" onclick="removeApprovedTestimonial(${i})">Remove</button>`}
+      </div>
+    </div>`;
+}
+
+function renderTestimonialsAdmin(){
+  const pendingWrap = document.getElementById('pendingTestimonialsList');
+  const approvedWrap = document.getElementById('approvedTestimonialsList');
+  if(approvedWrap){
+    approvedWrap.innerHTML = (currentTestimonials || []).length
+      ? currentTestimonials.map((t, i) => testimonialAdminCard(t, i, 'approved')).join('')
+      : '<p class="small">No active testimonials yet.</p>';
+  }
+  if(pendingWrap){
+    pendingWrap.innerHTML = (currentPendingTestimonials || []).length
+      ? currentPendingTestimonials.map((t, i) => testimonialAdminCard(t, i, 'pending')).join('')
+      : '<p class="small">No pending testimonials.</p>';
+  }
+}
+
+window.updatePendingTestimonial = function(index, field, value){
+  currentPendingTestimonials[index][field] = value;
+}
+
+window.updateApprovedTestimonial = function(index, field, value){
+  currentTestimonials[index][field] = value;
+}
+
+window.approveTestimonial = async function(index){
+  const item = currentPendingTestimonials.splice(index, 1)[0];
+  if(item) currentTestimonials.unshift({ ...item, status: 'approved' });
+  renderTestimonialsAdmin();
+  await doSave();
+}
+
+window.denyPendingTestimonial = async function(index){
+  currentPendingTestimonials.splice(index, 1);
+  renderTestimonialsAdmin();
+  await doSave();
+}
+
+window.removeApprovedTestimonial = async function(index){
+  currentTestimonials.splice(index, 1);
+  renderTestimonialsAdmin();
+  await doSave();
+}
+
+function initHeroAndTestimonialsFromData(data){
+  currentHeroPhoto = data.heroPhoto || '';
+  currentTestimonials = (data.testimonials || []).filter(t => (t.status || 'approved') === 'approved');
+  currentPendingTestimonials = data.pendingTestimonials || (data.testimonials || []).filter(t => t.status === 'pending');
+  renderHeroPhotoAdmin();
+  renderTestimonialsAdmin();
+}
+
+function setupHeroPhotoHandlers(){
+  if(window.__heroHandlersReady) return;
+  window.__heroHandlersReady = true;
+
+  if(typeof setupDropZone === 'function') setupDropZone('heroDropZone', 'heroPhotoFile', 'hero photo');
+
+  document.getElementById('uploadHeroPhotoBtn')?.addEventListener('click', async () => {
+    const status = document.getElementById('heroPhotoMsg');
+    const file = document.getElementById('heroPhotoFile')?.files?.[0];
+    if(!file){
+      if(status) status.textContent = 'Choose a hero photo first.';
+      return;
+    }
+    try{
+      if(status) status.textContent = 'Preparing hero photo...';
+      currentHeroPhoto = await compressImageToDataUrl(file, status);
+      renderHeroPhotoAdmin();
+      if(status) status.textContent = 'Hero photo added. Saving changes...';
+      await doSave();
+      if(status) status.textContent = 'Hero photo uploaded and saved.';
+    } catch(error){
+      if(status) status.textContent = 'Hero upload failed: ' + error.message;
+    }
+  });
+
+  document.getElementById('downloadHeroPhotoBtn')?.addEventListener('click', () => {
+    if(!currentHeroPhoto) return;
+    const a = document.createElement('a');
+    a.href = currentHeroPhoto;
+    a.download = 'memorial-monuments-hero-photo.jpg';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  });
+
+  document.getElementById('removeHeroPhotoBtn')?.addEventListener('click', async () => {
+    const status = document.getElementById('heroPhotoMsg');
+    currentHeroPhoto = '';
+    renderHeroPhotoAdmin();
+    if(status) status.textContent = 'Hero photo removed. Saving changes...';
+    await doSave();
+    if(status) status.textContent = 'Hero photo removed and saved.';
+  });
+}
