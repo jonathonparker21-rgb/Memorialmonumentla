@@ -1,4 +1,4 @@
-<!-- VERSION: v1.6.9 -->
+<!-- VERSION: v1.7.0 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -38,7 +38,22 @@
           <a class="btn btn-secondary" href="about.html">Learn More</a>
         </div>
       </div>
-      <div class="hero-card hero-photo-box" id="heroPhotoBox"><img id="heroPhotoImage" alt="Memorial Monuments of Louisiana featured monument photo" /><div class="hero-placeholder">Monuments • Memorials • Craftsmanship</div></div>
+      <div class="hero-offices-wrap" id="heroOfficesWrap">
+        <div class="office-photo-card" id="officePhotoCardOak">
+          <div class="office-photo-media hero-photo-box" id="heroPhotoBoxOak">
+            <img id="heroPhotoImageOak" alt="Oak Grove office" />
+            <div class="hero-placeholder">Oak Grove Office</div>
+          </div>
+          <div class="office-photo-label" id="officePhotoLabelOak">Oak Grove Office</div>
+        </div>
+        <div class="office-photo-card" id="officePhotoCardSterlington">
+          <div class="office-photo-media hero-photo-box" id="heroPhotoBoxSterlington">
+            <img id="heroPhotoImageSterlington" alt="Sterlington office" />
+            <div class="hero-placeholder">Sterlington Office</div>
+          </div>
+          <div class="office-photo-label" id="officePhotoLabelSterlington">Sterlington Office</div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -153,7 +168,7 @@
 <footer>
   <div class="container footer-box">
     <div class="footer-brand"><img src="assets/images/site-logo.png" alt="Memorial Monuments of Louisiana logo" class="footer-logo-large" /><div><strong id="footerName">Memorial Monuments of Louisiana</strong><br><span id="footerTagline">Honoring Loved Ones With Care, Respect, and Craftsmanship</span></div></div>
-    <div>© <span id="year"></span> Memorial Monuments of Louisiana<br><span>Version: <span class="siteVersion">v1.6.9</span></span><br><a class="subtle-admin-link" href="admin/index.html">Owner access</a></div>
+    <div>© <span id="year"></span> Memorial Monuments of Louisiana<br><span>Version: <span class="siteVersion">v1.7.0</span></span><br><a class="subtle-admin-link" href="admin/index.html">Owner access</a></div>
   </div>
 </footer>
 
@@ -184,6 +199,6 @@ window.renderPage = (data) => {
   document.getElementById('servicesList').innerHTML = (data.services || []).map(s => `<li>${s}</li>`).join('');
 };
 </script>
-<script src="assets/js/main-v169.js?v=v1.6.9?v=v1.6.9?v=v1.6.9?v=v1.6.9?v=v1.6.9?v=v1.6.9?v=v1.6.9?v=v1.6.9?v=v1.6.9?v=v1.6.9?v=v1.6.9?v=v1.6.9?v=v1.6.9"></script>
+<script src="assets/js/main-v170.js?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0"></script>
 </body>
 </html>

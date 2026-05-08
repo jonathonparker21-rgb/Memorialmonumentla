@@ -1,6 +1,6 @@
-<!-- VERSION: v1.6.9 -->
+<!-- VERSION: v1.7.0 -->
 
-<!-- VERSION: v1.6.9 -->
+<!-- VERSION: v1.7.0 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -42,7 +42,7 @@
     <div class="admin-topbar">
       <div>
         <h1>Owner Control Panel</h1>
-        <p class="small">Version <span class="siteVersion">v1.6.9</span></p>
+        <p class="small">Version <span class="siteVersion">v1.7.0</span></p>
       </div>
       <div class="admin-actions">
         <button class="btn btn-primary" type="button" id="saveBtn">Save Changes</button>
@@ -55,7 +55,7 @@
       <h2>Website Text</h2>
       <div class="admin-form-grid">
         <div>
-          <label>Site Version</label><input id="version" placeholder="v1.6.9" />
+          <label>Site Version</label><input id="version" placeholder="v1.7.0" />
           <label>Business Name</label><input id="businessName" />
           <label>Tagline</label><input id="tagline" />
           <label>Hero Headline</label><input id="heroHeadline" />
@@ -69,28 +69,44 @@
       </div>
 
 <div class="admin-section">
-      <h2>Homepage Hero Photo</h2>
-      <p class="small">Upload, download, or remove the main photo shown on the homepage.</p>
-      <div class="admin-gallery-layout">
+      <h2>Homepage Office Photos</h2>
+      <p class="small">Add one hero photo for the Oak Grove office and one for the Sterlington office. Their names show below each photo on the homepage.</p>
+      <div class="admin-gallery-layout office-hero-admin-grid">
         <div class="gallery-uploader">
-          <label>Hero Photo</label>
-          <div id="heroDropZone" class="drop-zone">
-            <p>Drag &amp; drop the hero photo here</p>
+          <label>Oak Grove Office Photo</label>
+          <div id="heroDropZoneOak" class="drop-zone">
+            <p>Drag &amp; drop the Oak Grove office photo here</p>
             <span>or click to choose from your computer</span>
-            <input id="heroPhotoFile" type="file" accept="image/*,.heic,.heif" hidden />
+            <input id="heroPhotoFileOak" type="file" accept="image/*,.heic,.heif" hidden />
           </div>
           <div class="admin-actions">
-            <button class="btn btn-primary" type="button" id="uploadHeroPhotoBtn">Upload &amp; Save Hero Photo</button>
-            <button class="btn btn-secondary" type="button" id="downloadHeroPhotoBtn" style="display:none;">Download Current Hero Photo</button>
-            <button class="btn btn-secondary" type="button" id="removeHeroPhotoBtn" style="display:none;">Remove Hero Photo</button>
+            <button class="btn btn-primary" type="button" id="uploadHeroPhotoBtnOak">Upload &amp; Save Oak Grove Photo</button>
+            <button class="btn btn-secondary" type="button" id="downloadHeroPhotoBtnOak" style="display:none;">Download Current Photo</button>
+            <button class="btn btn-secondary" type="button" id="removeHeroPhotoBtnOak" style="display:none;">Remove Photo</button>
           </div>
-          <p id="heroPhotoMsg" class="small"></p>
+          <p id="heroPhotoMsgOak" class="small"></p>
+          <h3>Current Oak Grove Photo</h3>
+          <img id="heroPhotoPreviewOak" class="admin-hero-preview" alt="Current Oak Grove photo preview" style="display:none;" />
         </div>
-        <div>
-          <h3>Current Hero Photo</h3>
-          <img id="heroPhotoPreview" class="admin-hero-preview" alt="Current hero photo preview" style="display:none;" />
+
+        <div class="gallery-uploader">
+          <label>Sterlington Office Photo</label>
+          <div id="heroDropZoneSterlington" class="drop-zone">
+            <p>Drag &amp; drop the Sterlington office photo here</p>
+            <span>or click to choose from your computer</span>
+            <input id="heroPhotoFileSterlington" type="file" accept="image/*,.heic,.heif" hidden />
+          </div>
+          <div class="admin-actions">
+            <button class="btn btn-primary" type="button" id="uploadHeroPhotoBtnSterlington">Upload &amp; Save Sterlington Photo</button>
+            <button class="btn btn-secondary" type="button" id="downloadHeroPhotoBtnSterlington" style="display:none;">Download Current Photo</button>
+            <button class="btn btn-secondary" type="button" id="removeHeroPhotoBtnSterlington" style="display:none;">Remove Photo</button>
+          </div>
+          <p id="heroPhotoMsgSterlington" class="small"></p>
+          <h3>Current Sterlington Photo</h3>
+          <img id="heroPhotoPreviewSterlington" class="admin-hero-preview" alt="Current Sterlington photo preview" style="display:none;" />
         </div>
       </div>
+    </div>
 
 <div class="admin-section">
       <h2>Restoration Gallery</h2>
@@ -242,6 +258,6 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/heic2any/dist/heic2any.min.js"></script>
-<script src="admin-v168.js?v=v1.6.9?v=v1.6.9?v=v1.6.9?v=v1.6.9?v=v1.6.9?v=v1.6.9?v=v1.6.9?v=v1.6.9?v=v1.6.9?v=v1.6.9?v=v1.6.9?v=v1.6.9?v=v1.6.9?v=v1.6.9?v=v1.6.9?v=v1.6.9?v=v1.6.9?v=v1.6.9?v=v1.6.9"></script>
+<script src="admin-v170.js?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0"></script>
 </body>
 </html>

@@ -1,5 +1,5 @@
 {
-  "version": "v1.6.9",
+  "version": "v1.7.0",
   "businessName": "Memorial Monuments of Louisiana",
   "tagline": "Honoring Loved Ones With Care, Respect, and Craftsmanship",
   "heroHeadline": "Locally Owned. Family Focused. Crafted With Care.",
@@ -83,7 +83,7 @@
       "beforeImage": ""
     }
   ],
-  "buildTimestamp": "2026-05-08 17:17:34",
+  "buildTimestamp": "2026-05-08 19:00:58",
   "forceRefreshBuild": true,
   "heicUploadFix": true,
   "imageDisplayFix": true,
@@ -120,5 +120,8 @@
   "adminReorganized": true,
   "adminTopbarFix": true,
   "galleryZoomAdded": true,
-  "homepageGalleryEnlarge": true
+  "homepageGalleryEnlarge": true,
+  "dualOfficeHero": true,
+  "heroPhotoOakGrove": "",
+  "heroPhotoSterlington": ""
 }

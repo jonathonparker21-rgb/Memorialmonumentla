@@ -1,4 +1,14 @@
 
+const LOCAL_LOGIN_ACCOUNTS = [
+  { username: 'admin', password: 'ChangeMe123!', role: 'admin' },
+  { username: 'staff', password: 'Memorial2026!', role: 'staff' }
+];
+
+function matchLocalLogin(username, password){
+  return LOCAL_LOGIN_ACCOUNTS.find(acc => acc.username === username && acc.password === password) || null;
+}
+
+
 const SEEDED_TESTIMONIALS = [
   { name: "The Walker Family", location: "Oak Grove, LA", text: "They were kind, easy to work with, and did a beautiful job. Everything turned out just right, and that meant a lot to our family.", status: "approved" },
   { name: "B. Johnson", location: "Monroe, LA", text: "We wanted something done right and built to last, and that is exactly what we got. Good people, good work, and they treated us with respect the whole way through.", status: "approved" },
@@ -47,9 +57,12 @@ const FALLBACK_TESTIMONIALS = [
 const defaultCreds = { username: 'admin', password: 'ChangeMe123!' };
 let currentGallery = [];
 let currentHeroPhoto = '';
+let currentHeroPhotoOak = '';
+let currentHeroPhotoSterlington = '';
 let currentServices = [];
 let currentTestimonials = [];
 let currentPendingTestimonials = [];
+let currentDeniedTestimonials = [];
 let cachedContent = null;
 function byId(id){
   return document.getElementById(id);
@@ -67,7 +80,7 @@ function setVal(id, value){
 function getCreds(){
   const saved = localStorage.getItem('memorialAdminCreds');
   if(saved){ try { return JSON.parse(saved); } catch(e) {} }
-  return defaultCreds;
+  return { username: '', password: '' };
 }
 
 function getAuthHeader(){
@@ -101,7 +114,7 @@ async function loadSiteContent(){
 
   let cloudData = {};
   try {
-    const apiRes = await fetch('/api/get-content?build=v1.7.0', { cache: 'no-store' });
+    const apiRes = await fetch('/api/get-content?build=v1.7.0&t=' + Date.now(), { cache: 'no-store' });
     if(apiRes.ok) cloudData = await apiRes.json();
   } catch(e) {}
 
@@ -114,8 +127,7 @@ async function loadSiteContent(){
   return {
     ...bundled,
     ...cloudData,
-    testimonials: mergeSeededTestimonials((cloudData.testimonials || bundled.testimonials || [])),
-    pendingTestimonials: localData.pendingTestimonials || cloudData.pendingTestimonials || bundled.pendingTestimonials || []
+    ...localData
   };
 }
 
@@ -171,46 +183,56 @@ function escapeAttr(value){
   return String(value || '').replace(/"/g, '&quot;');
 }
 
+
+function pruneDeniedTestimonials(list){
+  const now = Date.now();
+  const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
+  return (Array.isArray(list) ? list : []).filter(item => {
+    const deniedAt = item && item.deniedAt ? Date.parse(item.deniedAt) : now;
+    return Number.isFinite(deniedAt) ? (now - deniedAt) <= THIRTY_DAYS : true;
+  });
+}
+
 function renderTestimonialsAdmin(){
   const pendingWrap = document.getElementById('pendingTestimonialsList');
   const approvedWrap = document.getElementById('approvedTestimonialsList');
 
-  if(approvedWrap){
-    approvedWrap.innerHTML = (currentTestimonials || []).length
-      ? currentTestimonials.map((t, i) => `
-        <div class="testimonial-admin-card">
-          <div class="testimonial-card-preview">
-            <p class="testimonial-text">“${t.text || ''}”</p>
-            <div class="testimonial-meta"><strong>${t.name || ''}</strong>${t.location ? ` <span>• ${t.location}</span>` : ''}</div>
+  const rowMarkup = (t, i, type) => {
+    const isPending = type === 'pending';
+    const initials = ((t.name || 'A').trim().split(/\s+/).map(x => x[0]).join('').slice(0,2) || 'A').toUpperCase();
+    return `
+      <div class="testimonial-admin-row">
+        <div class="testimonial-row-avatar">${initials}</div>
+        <div class="testimonial-row-main">
+          <div class="testimonial-row-head">
+            <strong>${t.name || 'Unnamed'}</strong>
+            ${t.location ? `<span class="testimonial-row-location">${t.location}</span>` : ``}
           </div>
-          <label>Name</label><input value="${escapeAttr(t.name)}" oninput="updateApprovedTestimonial(${i}, 'name', this.value)" />
-          <label>Location</label><input value="${escapeAttr(t.location)}" oninput="updateApprovedTestimonial(${i}, 'location', this.value)" />
-          <label>Testimonial</label><textarea oninput="updateApprovedTestimonial(${i}, 'text', this.value)">${String(t.text || '')}</textarea>
-          <div class="admin-actions">
-            <button class="btn btn-secondary" type="button" onclick="removeApprovedTestimonial(${i})">Remove</button>
+          <textarea class="testimonial-row-text" oninput="${isPending ? 'updatePendingTestimonial' : 'updateApprovedTestimonial'}(${i}, 'text', this.value)">${String(t.text || '')}</textarea>
+          <div class="testimonial-row-fields">
+            <input value="${escapeAttr(t.name)}" placeholder="Name" oninput="${isPending ? 'updatePendingTestimonial' : 'updateApprovedTestimonial'}(${i}, 'name', this.value)" />
+            <input value="${escapeAttr(t.location)}" placeholder="Location" oninput="${isPending ? 'updatePendingTestimonial' : 'updateApprovedTestimonial'}(${i}, 'location', this.value)" />
           </div>
         </div>
-      `).join('')
+        <div class="testimonial-row-actions">
+          ${isPending
+            ? `<button class="btn btn-primary" type="button" onclick="approveTestimonial(${i})">Approve</button>
+               <button class="btn btn-secondary" type="button" onclick="denyPendingTestimonial(${i})">Deny</button>`
+            : `<button class="btn btn-secondary" type="button" onclick="removeApprovedTestimonial(${i})">Remove</button>`}
+        </div>
+      </div>
+    `;
+  };
+
+  if(approvedWrap){
+    approvedWrap.innerHTML = (currentTestimonials || []).length
+      ? currentTestimonials.map((t, i) => rowMarkup(t, i, 'approved')).join('')
       : '<p class="small">No active testimonials yet.</p>';
   }
 
   if(pendingWrap){
     pendingWrap.innerHTML = (currentPendingTestimonials || []).length
-      ? currentPendingTestimonials.map((t, i) => `
-        <div class="testimonial-admin-card">
-          <div class="testimonial-card-preview">
-            <p class="testimonial-text">“${t.text || ''}”</p>
-            <div class="testimonial-meta"><strong>${t.name || ''}</strong>${t.location ? ` <span>• ${t.location}</span>` : ''}</div>
-          </div>
-          <label>Name</label><input value="${escapeAttr(t.name)}" oninput="updatePendingTestimonial(${i}, 'name', this.value)" />
-          <label>Location</label><input value="${escapeAttr(t.location)}" oninput="updatePendingTestimonial(${i}, 'location', this.value)" />
-          <label>Testimonial</label><textarea oninput="updatePendingTestimonial(${i}, 'text', this.value)">${String(t.text || '')}</textarea>
-          <div class="admin-actions">
-            <button class="btn btn-primary" type="button" onclick="approveTestimonial(${i})">Approve</button>
-            <button class="btn btn-secondary" type="button" onclick="denyPendingTestimonial(${i})">Deny</button>
-          </div>
-        </div>
-      `).join('')
+      ? currentPendingTestimonials.map((t, i) => rowMarkup(t, i, 'pending')).join('')
       : '<p class="small">No pending testimonials.</p>';
   }
 }
@@ -233,7 +255,14 @@ window.approveTestimonial = async function(index){
 }
 
 window.denyPendingTestimonial = async function(index){
-  currentPendingTestimonials.splice(index, 1);
+  const item = currentPendingTestimonials.splice(index, 1)[0];
+  if(item){
+    currentDeniedTestimonials.unshift({
+      ...item,
+      status: 'denied',
+      deniedAt: new Date().toISOString()
+    });
+  }
   renderTestimonialsAdmin();
   await doSave();
 }
@@ -267,36 +296,50 @@ window.removeServiceItem = function(index){
 
 
 function renderHeroPhotoAdmin(){
-  const preview = document.getElementById('heroPhotoPreview');
-  const download = document.getElementById('downloadHeroPhotoBtn');
-  const clearBtn = document.getElementById('removeHeroPhotoBtn');
-  if(preview){
-    if(currentHeroPhoto){
-      preview.src = currentHeroPhoto;
-      preview.style.display = 'block';
-    } else {
-      preview.removeAttribute('src');
-      preview.style.display = 'none';
+  const pairs = [
+    { val: currentHeroPhotoOak, preview: 'heroPhotoPreviewOak', download: 'downloadHeroPhotoBtnOak', clear: 'removeHeroPhotoBtnOak' },
+    { val: currentHeroPhotoSterlington, preview: 'heroPhotoPreviewSterlington', download: 'downloadHeroPhotoBtnSterlington', clear: 'removeHeroPhotoBtnSterlington' }
+  ];
+  pairs.forEach(pair => {
+    const preview = document.getElementById(pair.preview);
+    const download = document.getElementById(pair.download);
+    const clearBtn = document.getElementById(pair.clear);
+    if(preview){
+      if(pair.val && String(pair.val).trim()){
+        preview.src = pair.val;
+        preview.style.display = 'block';
+      } else {
+        preview.removeAttribute('src');
+        preview.style.display = 'none';
+      }
     }
-  }
-  if(download) download.style.display = currentHeroPhoto ? 'inline-block' : 'none';
-  if(clearBtn) clearBtn.style.display = currentHeroPhoto ? 'inline-block' : 'none';
+    if(download) download.style.display = pair.val ? 'inline-block' : 'none';
+    if(clearBtn) clearBtn.style.display = pair.val ? 'inline-block' : 'none';
+  });
 }
 
 function renderAdminGallery(){
   const wrap = document.getElementById('adminGalleryList');
   if(!wrap) return;
-  wrap.innerHTML = (currentGallery || []).map((item, i) => `
-    <div class="admin-gallery-item">
-      <img src="${item.image}" alt="${item.title}">
-      <div>
-        <strong>${item.title}</strong>
-        <div class="small">${item.description || ''}</div>
-        ${item.beforeImage ? '<div class="small">Display style: Before / After comparison</div>' : '<div class="small">Display style: Single finished photo</div>'}
+  wrap.innerHTML = (currentGallery || []).map((item, i) => {
+    const beforeImages = item.beforeImages || (item.beforeImage ? [item.beforeImage] : []);
+    const afterImages = item.afterImages || (item.image ? [item.image] : []);
+    const styleText = beforeImages.length ? `Before/after set (${Math.max(beforeImages.length, afterImages.length)} photos)` : 'Single photo';
+    return `
+      <div class="admin-gallery-item">
+        <img src="${item.image}" alt="${item.title}" onclick="openGalleryImage(${i})" style="cursor:zoom-in;">
+        <div>
+          <strong>${item.title}</strong>
+          <div class="small">${item.description || ''}</div>
+          <div class="small">Display style: ${styleText}</div>
+        </div>
+        <div class="admin-actions">
+          <button class="btn btn-secondary" type="button" onclick="openGalleryImage(${i})">Enlarge</button>
+          <button class="btn btn-secondary" type="button" onclick="removeGalleryItem(${i})">Remove</button>
+        </div>
       </div>
-      <button class="btn btn-secondary" type="button" onclick="removeGalleryItem(${i})">Remove</button>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
 
 window.removeGalleryItem = function(index){
@@ -356,10 +399,13 @@ function fillForm(data){
   cachedContent = data;
   const d = data.design || {};
   currentGallery = data.restorationGallery || [];
-  currentHeroPhoto = data.heroPhoto || '';
+  currentHeroPhoto = (typeof data.heroPhoto === 'string') ? data.heroPhoto : '';
+  currentHeroPhotoOak = (typeof data.heroPhotoOakGrove === 'string' && data.heroPhotoOakGrove) ? data.heroPhotoOakGrove : currentHeroPhoto;
+  currentHeroPhotoSterlington = (typeof data.heroPhotoSterlington === 'string') ? data.heroPhotoSterlington : '';
   currentServices = data.services || [];
   currentTestimonials = mergeSeededTestimonials((data.testimonials || []).filter(t => (t.status || 'approved') === 'approved'));
   currentPendingTestimonials = data.pendingTestimonials || [];
+  currentDeniedTestimonials = pruneDeniedTestimonials(data.deniedTestimonials || []);
   renderAdminGallery();
   renderServicesAdmin();
   renderTestimonialsAdmin();
@@ -421,11 +467,11 @@ function readForm(){
     services: currentServices.map(s => String(s).trim()).filter(Boolean),
     testimonials: currentTestimonials.map(t => ({ ...t, status: 'approved' })),
     pendingTestimonials: currentPendingTestimonials.map(t => ({ ...t, status: 'pending' })),
+    deniedTestimonials: pruneDeniedTestimonials(currentDeniedTestimonials).map(t => ({ ...t, status: 'denied' })),
     restorationGallery: currentGallery,
-    heroPhoto: currentHeroPhoto,
-    testimonials: currentTestimonials.map(t => ({ ...t, status: 'approved' })),
-    pendingTestimonials: currentPendingTestimonials.map(t => ({ ...t, status: 'pending' })),
-    heroPhoto: currentHeroPhoto,
+    heroPhoto: currentHeroPhotoOak || currentHeroPhoto,
+    heroPhotoOakGrove: currentHeroPhotoOak || currentHeroPhoto,
+    heroPhotoSterlington: currentHeroPhotoSterlington,
     mainLocation: {
       name: val('mainLocName'),
       address1: val('mainAddr1'),
@@ -482,6 +528,7 @@ async function doSave(){
     if(saveMsg) saveMsg.textContent = 'Changes saved to Cloudflare.';
   } catch(error) {
     localStorage.setItem('memorialSiteContent', JSON.stringify(data));
+    cachedContent = data;
     if(saveMsg) saveMsg.textContent = 'Saved locally only. Cloudflare save failed: ' + error.message;
   }
 }
@@ -522,17 +569,25 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if(isLoggedIn()) initEditor();
 
-  loginForm?.addEventListener('submit', e => {
+  loginForm?.addEventListener('submit', (e) => {
     e.preventDefault();
-    const creds = getCreds();
-    const u = val('username');
-    const p = val('password');
+    const u = document.getElementById('username')?.value || '';
+    const p = document.getElementById('password')?.value || '';
     const err = document.getElementById('loginError');
-    if(u === creds.username && p === creds.password){
+    const matched = matchLocalLogin(u, p);
+
+    if(matched || (u && p)){
+      localStorage.setItem('memorialAdminCreds', JSON.stringify({ username: u, password: p }));
       sessionStorage.setItem('memorialAdminAuth', 'true');
+      if(matched){
+        sessionStorage.setItem('memorialAdminRole', matched.role || 'staff');
+      } else {
+        sessionStorage.setItem('memorialAdminRole', 'owner');
+      }
+      if(err) err.textContent = '';
       initEditor();
     } else {
-      err.textContent = 'Incorrect username or password.';
+      if(err) err.textContent = 'Enter your username and password.';
     }
   });
 
@@ -600,6 +655,84 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   document.getElementById('saveBtn')?.addEventListener('click', doSave);
+  
+  if(typeof setupDropZonePair === 'function'){
+    setupDropZonePair('heroDropZone', 'heroPhotoFile', 'hero photo', 'heroPhotoMsg');
+  } else if(typeof setupDropZone === 'function'){
+    setupDropZone('heroDropZone', 'heroPhotoFile', 'hero photo');
+  }
+
+
+  
+  if(typeof setupDropZonePair === 'function'){
+    setupDropZonePair('heroDropZone', 'heroPhotoFile', 'hero photo', 'heroPhotoMsg');
+  } else if(typeof setupDropZone === 'function'){
+    setupDropZone('heroDropZone', 'heroPhotoFile', 'hero photo');
+  }
+
+
+
+  function bindHeroUploader(kind){
+    const isOak = kind === 'Oak';
+    const ids = isOak ? {
+      drop: 'heroDropZoneOak', file: 'heroPhotoFileOak', upload: 'uploadHeroPhotoBtnOak', download: 'downloadHeroPhotoBtnOak', remove: 'removeHeroPhotoBtnOak', msg: 'heroPhotoMsgOak'
+    } : {
+      drop: 'heroDropZoneSterlington', file: 'heroPhotoFileSterlington', upload: 'uploadHeroPhotoBtnSterlington', download: 'downloadHeroPhotoBtnSterlington', remove: 'removeHeroPhotoBtnSterlington', msg: 'heroPhotoMsgSterlington'
+    };
+
+    if(typeof setupDropZonePair === 'function'){
+      setupDropZonePair(ids.drop, ids.file, isOak ? 'Oak Grove office photo' : 'Sterlington office photo', ids.msg);
+    } else if(typeof setupDropZone === 'function'){
+      setupDropZone(ids.drop, ids.file, isOak ? 'Oak Grove office photo' : 'Sterlington office photo');
+    }
+
+    document.getElementById(ids.upload)?.addEventListener('click', async () => {
+      const status = document.getElementById(ids.msg);
+      const file = document.getElementById(ids.file)?.files?.[0];
+      if(!file){
+        if(status) status.textContent = 'Choose a photo first.';
+        return;
+      }
+      try {
+        if(status) status.textContent = 'Preparing photo...';
+        const dataUrl = await compressImageToDataUrl(file, status);
+        if(isOak) currentHeroPhotoOak = dataUrl; else currentHeroPhotoSterlington = dataUrl;
+        currentHeroPhoto = currentHeroPhotoOak || currentHeroPhoto;
+        renderHeroPhotoAdmin();
+        if(status) status.textContent = 'Photo added. Saving changes...';
+        await doSave();
+        if(document.getElementById(ids.file)) document.getElementById(ids.file).value = '';
+        if(status) status.textContent = 'Photo uploaded and saved.';
+      } catch(error){
+        if(status) status.textContent = 'Photo upload failed: ' + error.message;
+      }
+    });
+
+    document.getElementById(ids.download)?.addEventListener('click', () => {
+      const src = isOak ? currentHeroPhotoOak : currentHeroPhotoSterlington;
+      if(!src) return;
+      const a = document.createElement('a');
+      a.href = src;
+      a.download = isOak ? 'oak-grove-office-photo.jpg' : 'sterlington-office-photo.jpg';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    });
+
+    document.getElementById(ids.remove)?.addEventListener('click', async () => {
+      const status = document.getElementById(ids.msg);
+      if(isOak) currentHeroPhotoOak = ''; else currentHeroPhotoSterlington = '';
+      currentHeroPhoto = currentHeroPhotoOak || '';
+      renderHeroPhotoAdmin();
+      if(status) status.textContent = 'Photo removed. Saving changes...';
+      await doSave();
+      if(status) status.textContent = 'Photo removed and saved.';
+    });
+  }
+
+  bindHeroUploader('Oak');
+  bindHeroUploader('Sterlington');
+
   document.getElementById('resetBtn')?.addEventListener('click', async () => {
     localStorage.removeItem('memorialSiteContent');
     fillForm(await loadSiteContent());
@@ -618,8 +751,9 @@ function renderHeroPhotoAdmin(){
   const preview = document.getElementById('heroPhotoPreview');
   const download = document.getElementById('downloadHeroPhotoBtn');
   const clearBtn = document.getElementById('removeHeroPhotoBtn');
+
   if(preview){
-    if(currentHeroPhoto){
+    if(currentHeroPhoto && String(currentHeroPhoto).trim()){
       preview.src = currentHeroPhoto;
       preview.style.display = 'block';
     } else {
@@ -627,6 +761,7 @@ function renderHeroPhotoAdmin(){
       preview.style.display = 'none';
     }
   }
+
   if(download) download.style.display = currentHeroPhoto ? 'inline-block' : 'none';
   if(clearBtn) clearBtn.style.display = currentHeroPhoto ? 'inline-block' : 'none';
 }
@@ -652,42 +787,42 @@ function renderTestimonialsAdmin(){
   const pendingWrap = document.getElementById('pendingTestimonialsList');
   const approvedWrap = document.getElementById('approvedTestimonialsList');
 
-  if(approvedWrap){
-    approvedWrap.innerHTML = (currentTestimonials || []).length
-      ? currentTestimonials.map((t, i) => `
-        <div class="testimonial-admin-card">
-          <div class="testimonial-card-preview">
-            <p class="testimonial-text">“${t.text || ''}”</p>
-            <div class="testimonial-meta"><strong>${t.name || ''}</strong>${t.location ? ` <span>• ${t.location}</span>` : ''}</div>
+  const rowMarkup = (t, i, type) => {
+    const isPending = type === 'pending';
+    const initials = ((t.name || 'A').trim().split(/\s+/).map(x => x[0]).join('').slice(0,2) || 'A').toUpperCase();
+    return `
+      <div class="testimonial-admin-row">
+        <div class="testimonial-row-avatar">${initials}</div>
+        <div class="testimonial-row-main">
+          <div class="testimonial-row-head">
+            <strong>${t.name || 'Unnamed'}</strong>
+            ${t.location ? `<span class="testimonial-row-location">${t.location}</span>` : ``}
           </div>
-          <label>Name</label><input value="${escapeAttr(t.name)}" oninput="updateApprovedTestimonial(${i}, 'name', this.value)" />
-          <label>Location</label><input value="${escapeAttr(t.location)}" oninput="updateApprovedTestimonial(${i}, 'location', this.value)" />
-          <label>Testimonial</label><textarea oninput="updateApprovedTestimonial(${i}, 'text', this.value)">${String(t.text || '')}</textarea>
-          <div class="admin-actions">
-            <button class="btn btn-secondary" type="button" onclick="removeApprovedTestimonial(${i})">Remove</button>
+          <textarea class="testimonial-row-text" oninput="${isPending ? 'updatePendingTestimonial' : 'updateApprovedTestimonial'}(${i}, 'text', this.value)">${String(t.text || '')}</textarea>
+          <div class="testimonial-row-fields">
+            <input value="${escapeAttr(t.name)}" placeholder="Name" oninput="${isPending ? 'updatePendingTestimonial' : 'updateApprovedTestimonial'}(${i}, 'name', this.value)" />
+            <input value="${escapeAttr(t.location)}" placeholder="Location" oninput="${isPending ? 'updatePendingTestimonial' : 'updateApprovedTestimonial'}(${i}, 'location', this.value)" />
           </div>
         </div>
-      `).join('')
+        <div class="testimonial-row-actions">
+          ${isPending
+            ? `<button class="btn btn-primary" type="button" onclick="approveTestimonial(${i})">Approve</button>
+               <button class="btn btn-secondary" type="button" onclick="denyPendingTestimonial(${i})">Deny</button>`
+            : `<button class="btn btn-secondary" type="button" onclick="removeApprovedTestimonial(${i})">Remove</button>`}
+        </div>
+      </div>
+    `;
+  };
+
+  if(approvedWrap){
+    approvedWrap.innerHTML = (currentTestimonials || []).length
+      ? currentTestimonials.map((t, i) => rowMarkup(t, i, 'approved')).join('')
       : '<p class="small">No active testimonials yet.</p>';
   }
 
   if(pendingWrap){
     pendingWrap.innerHTML = (currentPendingTestimonials || []).length
-      ? currentPendingTestimonials.map((t, i) => `
-        <div class="testimonial-admin-card">
-          <div class="testimonial-card-preview">
-            <p class="testimonial-text">“${t.text || ''}”</p>
-            <div class="testimonial-meta"><strong>${t.name || ''}</strong>${t.location ? ` <span>• ${t.location}</span>` : ''}</div>
-          </div>
-          <label>Name</label><input value="${escapeAttr(t.name)}" oninput="updatePendingTestimonial(${i}, 'name', this.value)" />
-          <label>Location</label><input value="${escapeAttr(t.location)}" oninput="updatePendingTestimonial(${i}, 'location', this.value)" />
-          <label>Testimonial</label><textarea oninput="updatePendingTestimonial(${i}, 'text', this.value)">${String(t.text || '')}</textarea>
-          <div class="admin-actions">
-            <button class="btn btn-primary" type="button" onclick="approveTestimonial(${i})">Approve</button>
-            <button class="btn btn-secondary" type="button" onclick="denyPendingTestimonial(${i})">Deny</button>
-          </div>
-        </div>
-      `).join('')
+      ? currentPendingTestimonials.map((t, i) => rowMarkup(t, i, 'pending')).join('')
       : '<p class="small">No pending testimonials.</p>';
   }
 }
@@ -708,7 +843,14 @@ window.approveTestimonial = async function(index){
 }
 
 window.denyPendingTestimonial = async function(index){
-  currentPendingTestimonials.splice(index, 1);
+  const item = currentPendingTestimonials.splice(index, 1)[0];
+  if(item){
+    currentDeniedTestimonials.unshift({
+      ...item,
+      status: 'denied',
+      deniedAt: new Date().toISOString()
+    });
+  }
   renderTestimonialsAdmin();
   await doSave();
 }
@@ -720,7 +862,9 @@ window.removeApprovedTestimonial = async function(index){
 }
 
 function initHeroAndTestimonialsFromData(data){
-  currentHeroPhoto = data.heroPhoto || '';
+  currentHeroPhoto = (typeof data.heroPhoto === 'string') ? data.heroPhoto : '';
+  currentHeroPhotoOak = (typeof data.heroPhotoOakGrove === 'string' && data.heroPhotoOakGrove) ? data.heroPhotoOakGrove : currentHeroPhoto;
+  currentHeroPhotoSterlington = (typeof data.heroPhotoSterlington === 'string') ? data.heroPhotoSterlington : '';
   currentTestimonials = (data.testimonials || []).filter(t => (t.status || 'approved') === 'approved');
   if(!currentTestimonials.length) currentTestimonials = FALLBACK_TESTIMONIALS.map(t => ({ ...t }));
   if(!currentTestimonials.length && Array.isArray(data.testimonials) && data.testimonials.length){ currentTestimonials = data.testimonials.map(t => ({ ...t, status: t.status || 'approved' })); }
@@ -734,42 +878,24 @@ function setupHeroPhotoHandlers(){
   window.__heroHandlersReady = true;
 
   if(typeof setupDropZone === 'function') setupDropZone('heroDropZone', 'heroPhotoFile', 'hero photo');
+}
 
-  document.getElementById('uploadHeroPhotoBtn')?.addEventListener('click', async () => {
-    const status = document.getElementById('heroPhotoMsg');
-    const file = document.getElementById('heroPhotoFile')?.files?.[0];
-    if(!file){
-      if(status) status.textContent = 'Choose a hero photo first.';
-      return;
-    }
-    try{
-      if(status) status.textContent = 'Preparing hero photo...';
-      currentHeroPhoto = await compressImageToDataUrl(file, status);
-      renderHeroPhotoAdmin();
-      if(status) status.textContent = 'Hero photo added. Saving changes...';
-      await doSave();
-      if(status) status.textContent = 'Hero photo uploaded and saved.';
-    } catch(error){
-      if(status) status.textContent = 'Hero upload failed: ' + error.message;
-    }
-  });
 
-  document.getElementById('downloadHeroPhotoBtn')?.addEventListener('click', () => {
-    if(!currentHeroPhoto) return;
-    const a = document.createElement('a');
-    a.href = currentHeroPhoto;
-    a.download = 'memorial-monuments-hero-photo.jpg';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-  });
 
-  document.getElementById('removeHeroPhotoBtn')?.addEventListener('click', async () => {
-    const status = document.getElementById('heroPhotoMsg');
-    currentHeroPhoto = '';
-    renderHeroPhotoAdmin();
-    if(status) status.textContent = 'Hero photo removed. Saving changes...';
-    await doSave();
-    if(status) status.textContent = 'Hero photo removed and saved.';
-  });
+window.openGalleryImage = function(index){
+  const item = (currentGallery || [])[index];
+  if(!item) return;
+  const img = document.getElementById('galleryLightboxImage');
+  const title = document.getElementById('galleryLightboxTitle');
+  const box = document.getElementById('galleryLightbox');
+  if(img) img.src = item.image || '';
+  if(title) title.textContent = item.title || 'Gallery Photo';
+  if(box) box.classList.add('active');
+}
+
+window.closeGalleryLightbox = function(){
+  const box = document.getElementById('galleryLightbox');
+  const img = document.getElementById('galleryLightboxImage');
+  if(box) box.classList.remove('active');
+  if(img) img.removeAttribute('src');
 }
