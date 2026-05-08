@@ -50,13 +50,13 @@ function pruneDeniedTestimonials(list){
 async function loadSiteContent(){
   let bundled = {};
   try {
-    const bundledRes = await fetch('../site-content.json?v=v1.7.0', { cache: 'no-store' });
+    const bundledRes = await fetch('../site-content.json?v=v1.7.1', { cache: 'no-store' });
     if(bundledRes.ok) bundled = await bundledRes.json();
   } catch(e) {}
 
   let cloudData = {};
   try {
-    const apiRes = await fetch('/api/get-content?build=v1.7.0', { cache: 'no-store' });
+    const apiRes = await fetch('/api/get-content?build=v1.7.1', { cache: 'no-store' });
     if(apiRes.ok) cloudData = await apiRes.json();
   } catch(e) {}
 

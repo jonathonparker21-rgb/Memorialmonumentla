@@ -1,21 +1,71 @@
 
 function renderHeroPhoto(data){
-  const heroPhotoEl = document.getElementById('heroPhotoImage');
-  const heroPhotoBox = document.getElementById('heroPhotoBox');
-  if(!heroPhotoEl || !heroPhotoBox) return;
+  const oakImg = document.getElementById('heroPhotoImageOak');
+  const oakBox = document.getElementById('heroPhotoBoxOak');
+  const oakLabel = document.getElementById('officePhotoLabelOak');
+  const stImg = document.getElementById('heroPhotoImageSterlington');
+  const stBox = document.getElementById('heroPhotoBoxSterlington');
+  const stLabel = document.getElementById('officePhotoLabelSterlington');
 
-  const hero = (data && typeof data.heroPhoto === 'string') ? data.heroPhoto.trim() : '';
+  const oakSrc = (data && typeof data.heroPhotoOakGrove === 'string' && data.heroPhotoOakGrove.trim())
+    ? data.heroPhotoOakGrove.trim()
+    : ((data && typeof data.heroPhoto === 'string') ? data.heroPhoto.trim() : '');
+  const stSrc = (data && typeof data.heroPhotoSterlington === 'string') ? data.heroPhotoSterlington.trim() : '';
 
-  if(hero){
-    heroPhotoEl.src = hero;
-    heroPhotoEl.style.display = 'block';
-    heroPhotoBox.classList.add('has-photo');
-  } else {
-    heroPhotoEl.removeAttribute('src');
-    heroPhotoEl.style.display = 'none';
-    heroPhotoBox.classList.remove('has-photo');
+  const oakName = 'Oak Grove Office';
+  const stName = 'Sterlington Office';
+
+  window.currentOfficeHeroPhotos = {
+    oak: { src: oakSrc, title: oakName },
+    sterlington: { src: stSrc, title: stName }
+  };
+
+  if(oakLabel) oakLabel.textContent = oakName;
+  if(stLabel) stLabel.textContent = stName;
+
+  function applyImage(src, imgEl, boxEl){
+    if(!imgEl || !boxEl) return;
+    if(src){
+      imgEl.src = src;
+      imgEl.style.display = 'block';
+      boxEl.classList.add('has-photo');
+    } else {
+      imgEl.removeAttribute('src');
+      imgEl.style.display = 'none';
+      boxEl.classList.remove('has-photo');
+    }
   }
+
+  applyImage(oakSrc, oakImg, oakBox);
+  applyImage(stSrc, stImg, stBox);
 }
+
+
+
+window.currentOfficeHeroPhotos = window.currentOfficeHeroPhotos || {};
+
+window.openOfficeHeroLightbox = function(which){
+  const item = (window.currentOfficeHeroPhotos || {})[which];
+  if(!item || !item.src) return;
+
+  const box = document.getElementById('officeHeroLightbox');
+  const img = document.getElementById('officeHeroLightboxImage');
+  const title = document.getElementById('officeHeroLightboxTitle');
+
+  if(img) img.src = item.src;
+  if(title) title.textContent = item.title || 'Office Photo';
+  if(box) box.classList.add('active');
+  document.body.classList.add('modal-open');
+};
+
+window.closeOfficeHeroLightbox = function(){
+  const box = document.getElementById('officeHeroLightbox');
+  const img = document.getElementById('officeHeroLightboxImage');
+
+  if(box) box.classList.remove('active');
+  document.body.classList.remove('modal-open');
+  if(img) img.removeAttribute('src');
+};
 
 
 const REBUILT_TESTIMONIAL_SAMPLES = [
@@ -84,15 +134,9 @@ async function loadContent(){
   const bundled = await loadBundledContent();
 
   try {
-    const apiRes = await fetch('/api/get-content?build=v1.7.1', { cache: 'no-store' });
+    const apiRes = await fetch('/api/get-content?build=v1.7.1&t=' + Date.now(), { cache: 'no-store' });
     if (apiRes.ok) {
       const apiData = await apiRes.json();
-
-      // If Cloudflare KV still has an older saved copy, do not let it override this build.
-      if(apiData.version && isOlderVersion(apiData.version, bundled.version)){
-        return bundled;
-      }
-
       return { ...bundled, ...apiData, version: apiData.version || bundled.version };
     }
   } catch (e) {}
@@ -162,39 +206,42 @@ function renderTestimonialsPage(data){
 
 
 
-function galleryCard(item){
+function galleryCard(item, index){
   const afterImg = item.image || '';
   const beforeImg = item.beforeImage || '';
+  const safeTitle = item.title || 'Restoration Work';
 
   if(!afterImg) return '';
 
   if(beforeImg){
     return `<article class="restoration-card restoration-card-ba">
-      <div class="ba-wrap pro-ba-wrap" data-ba-wrap>
-        <img class="ba-img ba-after" src="${afterImg}" alt="${item.title} after" loading="lazy">
+      <div class="ba-wrap pro-ba-wrap" data-ba-wrap onclick="openRestorationLightbox(${index})" style="cursor:zoom-in;">
+        <img class="ba-img ba-after" src="${afterImg}" alt="${safeTitle} after" loading="lazy">
         <div class="ba-before-layer" style="width:50%;">
-          <img class="ba-img ba-before" src="${beforeImg}" alt="${item.title} before" loading="lazy">
+          <img class="ba-img ba-before" src="${beforeImg}" alt="${safeTitle} before" loading="lazy">
         </div>
         <div class="ba-divider"></div>
         <div class="ba-label ba-label-before">Before</div>
         <div class="ba-label ba-label-after">After</div>
-        <input class="ba-slider" type="range" min="0" max="100" value="50" aria-label="Before and after comparison">
+        <input class="ba-slider" type="range" min="0" max="100" value="50" aria-label="Before and after comparison" onclick="event.stopPropagation()">
       </div>
       <div class="restoration-copy">
-        <h3>${item.title}</h3>
+        <h3>${safeTitle}</h3>
         <p>${item.description || ''}</p>
+        <button class="btn btn-secondary restoration-enlarge-btn" type="button" onclick="openRestorationLightbox(${index})">View Larger</button>
       </div>
     </article>`;
   }
 
   return `<article class="restoration-card restoration-card-single">
-    <div class="single-restoration-media">
-      <img src="${afterImg}" alt="${item.title}" loading="lazy" onerror="this.closest('.restoration-card').remove();">
+    <div class="single-restoration-media" onclick="openRestorationLightbox(${index})" style="cursor:zoom-in;">
+      <img src="${afterImg}" alt="${safeTitle}" loading="lazy" onerror="this.closest('.restoration-card').remove();">
       <div class="single-photo-badge">Completed Work</div>
     </div>
     <div class="restoration-copy">
-      <h3>${item.title}</h3>
+      <h3>${safeTitle}</h3>
       <p>${item.description || ''}</p>
+      <button class="btn btn-secondary restoration-enlarge-btn" type="button" onclick="openRestorationLightbox(${index})">View Larger</button>
     </div>
   </article>`;
 }
@@ -220,8 +267,75 @@ function setupBeforeAfterSliders(){
 function renderRestorationGallery(data){
   const track = document.getElementById('restorationTrack');
   if(!track) return;
-  track.innerHTML = (data.restorationGallery || []).map(galleryCard).join('');
+  window.currentRestorationGallery = data.restorationGallery || [];
+  track.innerHTML = (data.restorationGallery || []).map((item, index) => galleryCard(item, index)).join('');
 }
+
+window.currentRestorationGallery = window.currentRestorationGallery || [];
+
+window.openRestorationLightbox = function(index){
+  const items = window.currentRestorationGallery || [];
+  const item = items[index];
+  if(!item) return;
+
+  const box = document.getElementById('restorationLightbox');
+  const title = document.getElementById('restorationLightboxTitle');
+  const desc = document.getElementById('restorationLightboxDescription');
+  const singleWrap = document.getElementById('restorationLightboxSingle');
+  const singleImg = document.getElementById('restorationLightboxSingleImage');
+  const baWrap = document.getElementById('restorationLightboxBA');
+  const baBeforeLayer = document.getElementById('restorationLightboxBeforeLayer');
+  const baBeforeImg = document.getElementById('restorationLightboxBeforeImage');
+  const baAfterImg = document.getElementById('restorationLightboxAfterImage');
+  const baDivider = document.getElementById('restorationLightboxDivider');
+  const baSlider = document.getElementById('restorationLightboxSlider');
+
+  if(!box) return;
+
+  const afterImg = item.image || '';
+  const beforeImg = item.beforeImage || '';
+
+  if(title) title.textContent = item.title || 'Restoration Work';
+  if(desc) desc.textContent = item.description || '';
+
+  if(beforeImg){
+    if(singleWrap) singleWrap.style.display = 'none';
+    if(baWrap) baWrap.style.display = 'block';
+    if(baAfterImg) baAfterImg.src = afterImg;
+    if(baBeforeImg) baBeforeImg.src = beforeImg;
+    if(baBeforeLayer) baBeforeLayer.style.width = '50%';
+    if(baDivider) baDivider.style.left = '50%';
+    if(baSlider){
+      baSlider.value = '50';
+      baSlider.oninput = () => {
+        if(baBeforeLayer) baBeforeLayer.style.width = `${baSlider.value}%`;
+        if(baDivider) baDivider.style.left = `${baSlider.value}%`;
+      };
+    }
+  } else {
+    if(baWrap) baWrap.style.display = 'none';
+    if(singleWrap) singleWrap.style.display = 'block';
+    if(singleImg) singleImg.src = afterImg;
+  }
+
+  box.classList.add('active');
+  document.body.classList.add('modal-open');
+};
+
+window.closeRestorationLightbox = function(){
+  const box = document.getElementById('restorationLightbox');
+  const singleImg = document.getElementById('restorationLightboxSingleImage');
+  const baBeforeImg = document.getElementById('restorationLightboxBeforeImage');
+  const baAfterImg = document.getElementById('restorationLightboxAfterImage');
+
+  if(box) box.classList.remove('active');
+  document.body.classList.remove('modal-open');
+  if(singleImg) singleImg.removeAttribute('src');
+  if(baBeforeImg) baBeforeImg.removeAttribute('src');
+  if(baAfterImg) baAfterImg.removeAttribute('src');
+};
+
+
 function setupReviewForm(data){
   const form = document.getElementById('reviewForm');
   if(!form) return;
@@ -259,9 +373,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   if(data.version && versionEls.length){ versionEls.forEach(el => { el.textContent = data.version; }); }
   if(window.renderPage) window.renderPage(data);
   renderHeroPhoto(data);
-  const heroPhotoEl = document.getElementById('heroPhotoImage');
-  const heroPhotoBox = document.getElementById('heroPhotoBox');
-  if(heroPhotoEl && heroPhotoBox && data.heroPhoto){ heroPhotoEl.src = data.heroPhoto; heroPhotoBox.classList.add('has-photo'); }
   renderHomeTestimonials(data);
   renderTestimonialsPage(data);
   renderRestorationGallery(data);

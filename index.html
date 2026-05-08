@@ -1,4 +1,4 @@
-<!-- VERSION: v1.7.0 -->
+<!-- VERSION: v1.7.1 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -39,14 +39,14 @@
         </div>
       </div>
       <div class="hero-offices-wrap" id="heroOfficesWrap">
-        <div class="office-photo-card" id="officePhotoCardOak">
+        <div class="office-photo-card clickable-office-card" id="officePhotoCardOak" onclick="openOfficeHeroLightbox('oak')">
           <div class="office-photo-media hero-photo-box" id="heroPhotoBoxOak">
             <img id="heroPhotoImageOak" alt="Oak Grove office" />
             <div class="hero-placeholder">Oak Grove Office</div>
           </div>
           <div class="office-photo-label" id="officePhotoLabelOak">Oak Grove Office</div>
         </div>
-        <div class="office-photo-card" id="officePhotoCardSterlington">
+        <div class="office-photo-card clickable-office-card" id="officePhotoCardSterlington" onclick="openOfficeHeroLightbox('sterlington')">
           <div class="office-photo-media hero-photo-box" id="heroPhotoBoxSterlington">
             <img id="heroPhotoImageSterlington" alt="Sterlington office" />
             <div class="hero-placeholder">Sterlington Office</div>
@@ -162,13 +162,29 @@
   </div>
 </div>
 
+
+<div class="site-lightbox" id="officeHeroLightbox" onclick="closeOfficeHeroLightbox()">
+  <div class="site-lightbox-inner office-hero-lightbox-inner" onclick="event.stopPropagation()">
+    <div class="site-lightbox-head">
+      <div>
+        <h3 id="officeHeroLightboxTitle">Office Photo</h3>
+        <p class="small">Tap or click outside the image to close.</p>
+      </div>
+      <button class="btn btn-secondary" type="button" onclick="closeOfficeHeroLightbox()">Close</button>
+    </div>
+    <div class="site-lightbox-single">
+      <img id="officeHeroLightboxImage" alt="Office location photo">
+    </div>
+  </div>
+</div>
+
 </main>
 
 
 <footer>
   <div class="container footer-box">
     <div class="footer-brand"><img src="assets/images/site-logo.png" alt="Memorial Monuments of Louisiana logo" class="footer-logo-large" /><div><strong id="footerName">Memorial Monuments of Louisiana</strong><br><span id="footerTagline">Honoring Loved Ones With Care, Respect, and Craftsmanship</span></div></div>
-    <div>© <span id="year"></span> Memorial Monuments of Louisiana<br><span>Version: <span class="siteVersion">v1.7.0</span></span><br><a class="subtle-admin-link" href="admin/index.html">Owner access</a></div>
+    <div>© <span id="year"></span> Memorial Monuments of Louisiana<br><span>Version: <span class="siteVersion">v1.7.1</span></span><br><a class="subtle-admin-link" href="admin/index.html">Owner access</a></div>
   </div>
 </footer>
 
@@ -199,6 +215,6 @@ window.renderPage = (data) => {
   document.getElementById('servicesList').innerHTML = (data.services || []).map(s => `<li>${s}</li>`).join('');
 };
 </script>
-<script src="assets/js/main-v170.js?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0?v=v1.7.0"></script>
+<script src="assets/js/main-v171.js?v=v1.7.1?v=v1.7.1?v=v1.7.1?v=v1.7.1?v=v1.7.1?v=v1.7.1?v=v1.7.1?v=v1.7.1?v=v1.7.1?v=v1.7.1?v=v1.7.1?v=v1.7.1?v=v1.7.1?v=v1.7.1?v=v1.7.1?v=v1.7.1?v=v1.7.1"></script>
 </body>
 </html>
