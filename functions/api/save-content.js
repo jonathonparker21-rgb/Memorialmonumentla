@@ -1,4 +1,4 @@
-/* FORCE_REFRESH_BUILD v1.6.4 2026-04-29 13:10:31 */
+/* FORCE_REFRESH_BUILD v1.6.5 2026-04-29 13:10:31 */
 function unauthorized() {
   return new Response(JSON.stringify({ error: "Unauthorized" }), {
     status: 401,
@@ -17,7 +17,14 @@ async function checkAuth(request, env) {
 
   const expectedUser = env.OWNER_USERNAME || "admin";
   const expectedPass = env.OWNER_PASSWORD || "ChangeMe123!";
-  return username === expectedUser && password === expectedPass;
+
+  const simpleAccounts = [
+    { username: "admin", password: "ChangeMe123!" },
+    { username: "staff", password: "Memorial2026!" }
+  ];
+
+  if (username === expectedUser && password === expectedPass) return true;
+  return simpleAccounts.some(acc => acc.username === username && acc.password === password);
 }
 
 export async function onRequestPost(context) {

@@ -1,3 +1,64 @@
+
+function renderHeroPhoto(data){
+  const heroPhotoEl = document.getElementById('heroPhotoImage');
+  const heroPhotoBox = document.getElementById('heroPhotoBox');
+  if(!heroPhotoEl || !heroPhotoBox) return;
+
+  const hero = (data && typeof data.heroPhoto === 'string') ? data.heroPhoto.trim() : '';
+
+  if(hero){
+    heroPhotoEl.src = hero;
+    heroPhotoEl.style.display = 'block';
+    heroPhotoBox.classList.add('has-photo');
+  } else {
+    heroPhotoEl.removeAttribute('src');
+    heroPhotoEl.style.display = 'none';
+    heroPhotoBox.classList.remove('has-photo');
+  }
+}
+
+
+const REBUILT_TESTIMONIAL_SAMPLES = [
+  { name: "The Walker Family", location: "Oak Grove, LA", text: "They were kind, easy to work with, and did a beautiful job. Everything turned out just right, and that meant a lot to our family.", status: "approved" },
+  { name: "B. Johnson", location: "Monroe, LA", text: "We wanted something done right and built to last, and that is exactly what we got. Good people, good work, and they treated us with respect the whole way through.", status: "approved" },
+  { name: "The Thomas Family", location: "North Louisiana", text: "They helped us through the process without making it feel overwhelming. If you want folks that will treat you right and take pride in what they do, I would recommend them.", status: "approved" }
+];
+
+function mergeApprovedSamples(list){
+  const current = Array.isArray(list) ? [...list] : [];
+  const keys = new Set(current.map(t => `${t.name || ''}|${t.text || ''}`));
+  REBUILT_TESTIMONIAL_SAMPLES.forEach(t => {
+    const key = `${t.name || ''}|${t.text || ''}`;
+    if(!keys.has(key)){
+      current.push({ ...t, status: 'approved' });
+      keys.add(key);
+    }
+  });
+  return current;
+}
+
+function mergeContentWithLocal(data){
+  const local = localStorage.getItem('memorialSiteContent');
+  if(!local) return data;
+  try{
+    const localData = JSON.parse(local);
+    return {
+      ...data,
+      ...localData,
+      testimonials: mergeApprovedSamples(localData.testimonials || data.testimonials || []),
+      pendingTestimonials: localData.pendingTestimonials || data.pendingTestimonials || []
+    };
+  } catch(e){
+    return data;
+  }
+}
+
+
+const FALLBACK_TESTIMONIALS = [
+  { name: "The Walker Family", location: "Oak Grove, LA", text: "They were kind, easy to work with, and did a beautiful job. Everything turned out just right, and that meant a lot to our family.", status: "approved" },
+  { name: "B. Johnson", location: "Monroe, LA", text: "We wanted something done right and built to last, and that is exactly what we got. Good people, good work, and they treated us with respect the whole way through.", status: "approved" },
+  { name: "The Thomas Family", location: "North Louisiana", text: "They helped us through the process without making it feel overwhelming. If you want folks that will treat you right and take pride in what they do, I would recommend them.", status: "approved" }
+];
 /* FORCE_REFRESH_BUILD v1.6.5 2026-04-29 13:10:31 */
 const BUILD_VERSION = 'v1.6.5';
 
@@ -23,15 +84,9 @@ async function loadContent(){
   const bundled = await loadBundledContent();
 
   try {
-    const apiRes = await fetch('/api/get-content?build=v1.6.5', { cache: 'no-store' });
+    const apiRes = await fetch('/api/get-content?build=v1.6.5&t=' + Date.now(), { cache: 'no-store' });
     if (apiRes.ok) {
       const apiData = await apiRes.json();
-
-      // If Cloudflare KV still has an older saved copy, do not let it override this build.
-      if(apiData.version && isOlderVersion(apiData.version, bundled.version)){
-        return bundled;
-      }
-
       return { ...bundled, ...apiData, version: apiData.version || bundled.version };
     }
   } catch (e) {}
@@ -81,14 +136,19 @@ function testimonialCard(t){
 function renderHomeTestimonials(data){
   const track = document.getElementById('testimonialTrack');
   if(!track) return;
-  const items = (data.testimonials || []).filter(t => (t.status || 'approved') === 'approved');
+  const items = mergeApprovedSamples((data.testimonials || []).filter(t => (t.status || 'approved') === 'approved'));
   track.innerHTML = items.concat(items).map(testimonialCard).join('');
 }
 function renderTestimonialsPage(data){
   const wrap = document.getElementById('allTestimonials');
   if(!wrap) return;
-  wrap.innerHTML = (data.testimonials || []).map(testimonialCard).join('');
+  const items = mergeApprovedSamples((data.testimonials || []).filter(t => (t.status || 'approved') === 'approved'));
+  wrap.innerHTML = items.map(testimonialCard).join('');
 }
+
+
+
+
 
 
 
@@ -100,17 +160,16 @@ function galleryCard(item){
   const afterImg = item.image || '';
   const beforeImg = item.beforeImage || '';
 
-  if(!afterImg || afterImg.includes('/api/image') || afterImg.includes('restoration%2F')){
-    return '';
-  }
+  if(!afterImg) return '';
 
-  if(beforeImg && !beforeImg.includes('/api/image') && !beforeImg.includes('restoration%2F')){
-    return `<article class="restoration-card before-after-card">
-      <div class="ba-wrap" data-ba-wrap>
+  if(beforeImg){
+    return `<article class="restoration-card restoration-card-ba">
+      <div class="ba-wrap pro-ba-wrap" data-ba-wrap>
         <img class="ba-img ba-after" src="${afterImg}" alt="${item.title} after" loading="lazy">
         <div class="ba-before-layer" style="width:50%;">
           <img class="ba-img ba-before" src="${beforeImg}" alt="${item.title} before" loading="lazy">
         </div>
+        <div class="ba-divider"></div>
         <div class="ba-label ba-label-before">Before</div>
         <div class="ba-label ba-label-after">After</div>
         <input class="ba-slider" type="range" min="0" max="100" value="50" aria-label="Before and after comparison">
@@ -122,8 +181,11 @@ function galleryCard(item){
     </article>`;
   }
 
-  return `<article class="restoration-card">
-    <img src="${afterImg}" alt="${item.title}" loading="lazy" onerror="this.closest('.restoration-card').remove();">
+  return `<article class="restoration-card restoration-card-single">
+    <div class="single-restoration-media">
+      <img src="${afterImg}" alt="${item.title}" loading="lazy" onerror="this.closest('.restoration-card').remove();">
+      <div class="single-photo-badge">Completed Work</div>
+    </div>
     <div class="restoration-copy">
       <h3>${item.title}</h3>
       <p>${item.description || ''}</p>
@@ -135,11 +197,17 @@ function setupBeforeAfterSliders(){
   document.querySelectorAll('[data-ba-wrap]').forEach(wrap => {
     const slider = wrap.querySelector('.ba-slider');
     const beforeLayer = wrap.querySelector('.ba-before-layer');
+    const divider = wrap.querySelector('.ba-divider');
     if(!slider || !beforeLayer || slider.dataset.ready === 'true') return;
     slider.dataset.ready = 'true';
-    slider.addEventListener('input', () => {
+
+    const update = () => {
       beforeLayer.style.width = `${slider.value}%`;
-    });
+      if(divider) divider.style.left = `${slider.value}%`;
+    };
+
+    slider.addEventListener('input', update);
+    update();
   });
 }
 
@@ -157,12 +225,15 @@ function setupReviewForm(data){
     const location = form.querySelector('[name="review_location"]').value.trim();
     const text = form.querySelector('[name="review_text"]').value.trim();
     if(!name || !text) return;
+
     const local = localStorage.getItem('memorialSiteContent');
     let current = data;
     if(local){ try { current = JSON.parse(local); } catch(e) {} }
-    current.testimonials = current.testimonials || [];
-    current.pendingTestimonials = current.pendingTestimonials || [];
+
+    current.testimonials = mergeApprovedSamples(current.testimonials || data.testimonials || []);
+    current.pendingTestimonials = current.pendingTestimonials || data.pendingTestimonials || [];
     current.pendingTestimonials.unshift({ name, location, text, status: 'pending' });
+
     localStorage.setItem('memorialSiteContent', JSON.stringify(current));
     renderTestimonialsPage(current);
     renderHomeTestimonials(current);
@@ -175,18 +246,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupYear();
   setupChat();
   setupNav();
-  const data = await loadContent();
+  let data = await loadContent();
+  data = mergeContentWithLocal(data);
   applyDesign(data.design || {});
   const versionEls = document.querySelectorAll('.siteVersion');
   if(data.version && versionEls.length){ versionEls.forEach(el => { el.textContent = data.version; }); }
   if(window.renderPage) window.renderPage(data);
-  const heroPhotoEl = document.getElementById('heroPhotoImage');
-  const heroPhotoBox = document.getElementById('heroPhotoBox');
-  if(heroPhotoEl && heroPhotoBox && data.heroPhoto){ heroPhotoEl.src = data.heroPhoto; heroPhotoBox.classList.add('has-photo'); }
+  renderHeroPhoto(data);
   renderHomeTestimonials(data);
   renderTestimonialsPage(data);
   renderRestorationGallery(data);
-  setupBeforeAfterSliders();
   setupBeforeAfterSliders();
   setupReviewForm(data);
 });
