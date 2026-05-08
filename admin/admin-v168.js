@@ -315,17 +315,25 @@ function renderHeroPhotoAdmin(){
 function renderAdminGallery(){
   const wrap = document.getElementById('adminGalleryList');
   if(!wrap) return;
-  wrap.innerHTML = (currentGallery || []).map((item, i) => `
-    <div class="admin-gallery-item">
-      <img src="${item.image}" alt="${item.title}">
-      <div>
-        <strong>${item.title}</strong>
-        <div class="small">${item.description || ''}</div>
-        ${item.beforeImage ? '<div class="small">Display style: Before / After comparison</div>' : '<div class="small">Display style: Single finished photo</div>'}
+  wrap.innerHTML = (currentGallery || []).map((item, i) => {
+    const beforeImages = item.beforeImages || (item.beforeImage ? [item.beforeImage] : []);
+    const afterImages = item.afterImages || (item.image ? [item.image] : []);
+    const styleText = beforeImages.length ? `Before/after set (${Math.max(beforeImages.length, afterImages.length)} photos)` : 'Single photo';
+    return `
+      <div class="admin-gallery-item">
+        <img src="${item.image}" alt="${item.title}" onclick="openGalleryImage(${i})" style="cursor:zoom-in;">
+        <div>
+          <strong>${item.title}</strong>
+          <div class="small">${item.description || ''}</div>
+          <div class="small">Display style: ${styleText}</div>
+        </div>
+        <div class="admin-actions">
+          <button class="btn btn-secondary" type="button" onclick="openGalleryImage(${i})">Enlarge</button>
+          <button class="btn btn-secondary" type="button" onclick="removeGalleryItem(${i})">Remove</button>
+        </div>
       </div>
-      <button class="btn btn-secondary" type="button" onclick="removeGalleryItem(${i})">Remove</button>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
 
 window.removeGalleryItem = function(index){
@@ -841,4 +849,24 @@ function setupHeroPhotoHandlers(){
   window.__heroHandlersReady = true;
 
   if(typeof setupDropZone === 'function') setupDropZone('heroDropZone', 'heroPhotoFile', 'hero photo');
+}
+
+
+
+window.openGalleryImage = function(index){
+  const item = (currentGallery || [])[index];
+  if(!item) return;
+  const img = document.getElementById('galleryLightboxImage');
+  const title = document.getElementById('galleryLightboxTitle');
+  const box = document.getElementById('galleryLightbox');
+  if(img) img.src = item.image || '';
+  if(title) title.textContent = item.title || 'Gallery Photo';
+  if(box) box.classList.add('active');
+}
+
+window.closeGalleryLightbox = function(){
+  const box = document.getElementById('galleryLightbox');
+  const img = document.getElementById('galleryLightboxImage');
+  if(box) box.classList.remove('active');
+  if(img) img.removeAttribute('src');
 }

@@ -1,6 +1,6 @@
-<!-- VERSION: v1.6.7 -->
+<!-- VERSION: v1.6.8 -->
 
-<!-- VERSION: v1.6.7 -->
+<!-- VERSION: v1.6.8 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -42,7 +42,7 @@
     <div class="admin-topbar">
       <div>
         <h1>Owner Control Panel</h1>
-        <p class="small">Version <span class="siteVersion">v1.6.7</span></p>
+        <p class="small">Version <span class="siteVersion">v1.6.8</span></p>
       </div>
       <div class="admin-actions">
         <button class="btn btn-primary" type="button" id="saveBtn">Save Changes</button>
@@ -55,7 +55,7 @@
       <h2>Website Text</h2>
       <div class="admin-form-grid">
         <div>
-          <label>Site Version</label><input id="version" placeholder="v1.6.7" />
+          <label>Site Version</label><input id="version" placeholder="v1.6.8" />
           <label>Business Name</label><input id="businessName" />
           <label>Tagline</label><input id="tagline" />
           <label>Hero Headline</label><input id="heroHeadline" />
@@ -228,9 +228,20 @@
 
 <div class="admin-bottom-actions"><p id="saveMsg"></p></div>
   </section>
+
+<div class="admin-lightbox" id="galleryLightbox" onclick="closeGalleryLightbox()">
+  <div class="admin-lightbox-inner" onclick="event.stopPropagation()">
+    <div class="admin-lightbox-head">
+      <strong id="galleryLightboxTitle">Gallery Photo</strong>
+      <button class="btn btn-secondary" type="button" onclick="closeGalleryLightbox()">Close</button>
+    </div>
+    <img id="galleryLightboxImage" alt="Enlarged gallery image" />
+  </div>
+</div>
+
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/heic2any/dist/heic2any.min.js"></script>
-<script src="admin-v165.js?v=v1.6.7?v=v1.6.7?v=v1.6.7?v=v1.6.7?v=v1.6.7?v=v1.6.7?v=v1.6.7?v=v1.6.7?v=v1.6.7?v=v1.6.7?v=v1.6.7?v=v1.6.7?v=v1.6.7?v=v1.6.7?v=v1.6.7?v=v1.6.7"></script>
+<script src="admin-v168.js?v=v1.6.8?v=v1.6.8?v=v1.6.8?v=v1.6.8?v=v1.6.8?v=v1.6.8?v=v1.6.8?v=v1.6.8?v=v1.6.8?v=v1.6.8?v=v1.6.8?v=v1.6.8?v=v1.6.8?v=v1.6.8?v=v1.6.8?v=v1.6.8?v=v1.6.8?v=v1.6.8"></script>
 </body>
 </html>

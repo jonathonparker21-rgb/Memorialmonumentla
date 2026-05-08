@@ -1,3 +1,3 @@
-v1.6.7
-2026-05-08 16:53:20
-Admin top header bar restored.
+v1.6.8
+2026-05-08 17:06:54
+Gallery moved below uploads and enlarge viewer added.
