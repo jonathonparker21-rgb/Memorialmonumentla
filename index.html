@@ -1,4 +1,4 @@
-<!-- VERSION: v1.6.8 -->
+<!-- VERSION: v1.6.9 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -117,13 +117,43 @@
     </div>
   </section>
 
+
+<div class="site-lightbox" id="restorationLightbox" onclick="closeRestorationLightbox()">
+  <div class="site-lightbox-inner" onclick="event.stopPropagation()">
+    <div class="site-lightbox-head">
+      <div>
+        <h3 id="restorationLightboxTitle">Restoration Work</h3>
+        <p id="restorationLightboxDescription" class="small"></p>
+      </div>
+      <button class="btn btn-secondary" type="button" onclick="closeRestorationLightbox()">Close</button>
+    </div>
+
+    <div id="restorationLightboxSingle" class="site-lightbox-single" style="display:none;">
+      <img id="restorationLightboxSingleImage" alt="Enlarged restoration image">
+    </div>
+
+    <div id="restorationLightboxBA" class="site-lightbox-ba" style="display:none;">
+      <div class="ba-wrap pro-ba-wrap site-lightbox-ba-wrap">
+        <img class="ba-img ba-after" id="restorationLightboxAfterImage" alt="After image">
+        <div class="ba-before-layer" id="restorationLightboxBeforeLayer" style="width:50%;">
+          <img class="ba-img ba-before" id="restorationLightboxBeforeImage" alt="Before image">
+        </div>
+        <div class="ba-divider" id="restorationLightboxDivider"></div>
+        <div class="ba-label ba-label-before">Before</div>
+        <div class="ba-label ba-label-after">After</div>
+        <input class="ba-slider" id="restorationLightboxSlider" type="range" min="0" max="100" value="50" aria-label="Before and after comparison">
+      </div>
+    </div>
+  </div>
+</div>
+
 </main>
 
 
 <footer>
   <div class="container footer-box">
     <div class="footer-brand"><img src="assets/images/site-logo.png" alt="Memorial Monuments of Louisiana logo" class="footer-logo-large" /><div><strong id="footerName">Memorial Monuments of Louisiana</strong><br><span id="footerTagline">Honoring Loved Ones With Care, Respect, and Craftsmanship</span></div></div>
-    <div>© <span id="year"></span> Memorial Monuments of Louisiana<br><span>Version: <span class="siteVersion">v1.6.8</span></span><br><a class="subtle-admin-link" href="admin/index.html">Owner access</a></div>
+    <div>© <span id="year"></span> Memorial Monuments of Louisiana<br><span>Version: <span class="siteVersion">v1.6.9</span></span><br><a class="subtle-admin-link" href="admin/index.html">Owner access</a></div>
   </div>
 </footer>
 
@@ -154,6 +184,6 @@ window.renderPage = (data) => {
   document.getElementById('servicesList').innerHTML = (data.services || []).map(s => `<li>${s}</li>`).join('');
 };
 </script>
-<script src="assets/js/main-v165.js?v=v1.6.8?v=v1.6.8?v=v1.6.8?v=v1.6.8?v=v1.6.8?v=v1.6.8?v=v1.6.8?v=v1.6.8?v=v1.6.8?v=v1.6.8?v=v1.6.8"></script>
+<script src="assets/js/main-v169.js?v=v1.6.9?v=v1.6.9?v=v1.6.9?v=v1.6.9?v=v1.6.9?v=v1.6.9?v=v1.6.9?v=v1.6.9?v=v1.6.9?v=v1.6.9?v=v1.6.9?v=v1.6.9?v=v1.6.9"></script>
 </body>
 </html>

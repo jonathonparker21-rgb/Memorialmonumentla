@@ -106,13 +106,13 @@ async function loadSiteContent(){
   let bundled = {};
 
   try {
-    const bundledRes = await fetch('../site-content.json?v=v1.6.8', { cache: 'no-store' });
+    const bundledRes = await fetch('../site-content.json?v=v1.6.9', { cache: 'no-store' });
     if(bundledRes.ok) bundled = await bundledRes.json();
   } catch(e) {}
 
   let cloudData = {};
   try {
-    const apiRes = await fetch('/api/get-content?build=v1.6.8&t=' + Date.now(), { cache: 'no-store' });
+    const apiRes = await fetch('/api/get-content?build=v1.6.9&t=' + Date.now(), { cache: 'no-store' });
     if(apiRes.ok) cloudData = await apiRes.json();
   } catch(e) {}
 
@@ -405,7 +405,7 @@ function fillForm(data){
 
 
   const map = {
-    version: data.version || 'v1.6.8',
+    version: data.version || 'v1.6.9',
     businessName: data.businessName || '',
     tagline: data.tagline || '',
     heroHeadline: data.heroHeadline || '',
@@ -448,7 +448,7 @@ function val(id){
 function readForm(){
   return {
     ...(cachedContent || {}),
-    version: val('version') || 'v1.6.8',
+    version: val('version') || 'v1.6.9',
     businessName: val('businessName'),
     tagline: val('tagline'),
     heroHeadline: val('heroHeadline'),
@@ -719,7 +719,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 
-/* v1.6.8 forced hero + testimonial admin fix */
+/* v1.6.9 forced hero + testimonial admin fix */
 function renderHeroPhotoAdmin(){
   const preview = document.getElementById('heroPhotoPreview');
   const download = document.getElementById('downloadHeroPhotoBtn');
