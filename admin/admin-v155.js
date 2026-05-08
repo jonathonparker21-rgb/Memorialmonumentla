@@ -1,4 +1,24 @@
 
+const SEEDED_TESTIMONIALS = [
+  { name: "The Walker Family", location: "Oak Grove, LA", text: "They were kind, easy to work with, and did a beautiful job. Everything turned out just right, and that meant a lot to our family.", status: "approved" },
+  { name: "B. Johnson", location: "Monroe, LA", text: "We wanted something done right and built to last, and that is exactly what we got. Good people, good work, and they treated us with respect the whole way through.", status: "approved" },
+  { name: "The Thomas Family", location: "North Louisiana", text: "They helped us through the process without making it feel overwhelming. If you want folks that will treat you right and take pride in what they do, I would recommend them.", status: "approved" }
+];
+
+function mergeSeededTestimonials(list){
+  const current = Array.isArray(list) ? [...list] : [];
+  const keys = new Set(current.map(t => `${t.name || ''}|${t.text || ''}`));
+  SEEDED_TESTIMONIALS.forEach(t => {
+    const key = `${t.name || ''}|${t.text || ''}`;
+    if(!keys.has(key)){
+      current.push({ ...t });
+      keys.add(key);
+    }
+  });
+  return current;
+}
+
+
 const REBUILT_TESTIMONIAL_SAMPLES = [
   { name: "The Walker Family", location: "Oak Grove, LA", text: "They were kind, easy to work with, and did a beautiful job. Everything turned out just right, and that meant a lot to our family.", status: "approved" },
   { name: "B. Johnson", location: "Monroe, LA", text: "We wanted something done right and built to last, and that is exactly what we got. Good people, good work, and they treated us with respect the whole way through.", status: "approved" },
@@ -91,14 +111,12 @@ async function loadSiteContent(){
     try { localData = JSON.parse(local); } catch(e) {}
   }
 
-  const merged = {
+  return {
     ...bundled,
     ...cloudData,
-    testimonials: mergeApprovedSamples((cloudData.testimonials || bundled.testimonials || [])),
+    testimonials: mergeSeededTestimonials((cloudData.testimonials || bundled.testimonials || [])),
     pendingTestimonials: localData.pendingTestimonials || cloudData.pendingTestimonials || bundled.pendingTestimonials || []
   };
-
-  return merged;
 }
 
 async function checkDiagnostics(){
@@ -340,12 +358,13 @@ function fillForm(data){
   currentGallery = data.restorationGallery || [];
   currentHeroPhoto = data.heroPhoto || '';
   currentServices = data.services || [];
-  currentTestimonials = (data.testimonials || []).filter(t => (t.status || 'approved') === 'approved');
-  if(!currentTestimonials.length) currentTestimonials = FALLBACK_TESTIMONIALS.map(t => ({ ...t }));
-  if(!currentTestimonials.length && Array.isArray(data.testimonials) && data.testimonials.length){ currentTestimonials = data.testimonials.map(t => ({ ...t, status: t.status || 'approved' })); }
-  currentPendingTestimonials = data.pendingTestimonials || (data.testimonials || []).filter(t => t.status === 'pending');
+  currentTestimonials = mergeSeededTestimonials((data.testimonials || []).filter(t => (t.status || 'approved') === 'approved'));
+  currentPendingTestimonials = data.pendingTestimonials || [];
   renderAdminGallery();
   renderServicesAdmin();
+  renderTestimonialsAdmin();
+  if(typeof renderHeroPhotoAdmin === 'function') renderHeroPhotoAdmin();
+
 
   const map = {
     version: data.version || 'v1.5.5',
