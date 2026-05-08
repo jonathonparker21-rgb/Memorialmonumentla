@@ -50,6 +50,7 @@ let currentHeroPhoto = '';
 let currentServices = [];
 let currentTestimonials = [];
 let currentPendingTestimonials = [];
+let currentDeniedTestimonials = [];
 let cachedContent = null;
 function byId(id){
   return document.getElementById(id);
@@ -171,46 +172,56 @@ function escapeAttr(value){
   return String(value || '').replace(/"/g, '&quot;');
 }
 
+
+function pruneDeniedTestimonials(list){
+  const now = Date.now();
+  const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
+  return (Array.isArray(list) ? list : []).filter(item => {
+    const deniedAt = item && item.deniedAt ? Date.parse(item.deniedAt) : now;
+    return Number.isFinite(deniedAt) ? (now - deniedAt) <= THIRTY_DAYS : true;
+  });
+}
+
 function renderTestimonialsAdmin(){
   const pendingWrap = document.getElementById('pendingTestimonialsList');
   const approvedWrap = document.getElementById('approvedTestimonialsList');
 
-  if(approvedWrap){
-    approvedWrap.innerHTML = (currentTestimonials || []).length
-      ? currentTestimonials.map((t, i) => `
-        <div class="testimonial-admin-card">
-          <div class="testimonial-card-preview">
-            <p class="testimonial-text">“${t.text || ''}”</p>
-            <div class="testimonial-meta"><strong>${t.name || ''}</strong>${t.location ? ` <span>• ${t.location}</span>` : ''}</div>
+  const rowMarkup = (t, i, type) => {
+    const isPending = type === 'pending';
+    const initials = ((t.name || 'A').trim().split(/\s+/).map(x => x[0]).join('').slice(0,2) || 'A').toUpperCase();
+    return `
+      <div class="testimonial-admin-row">
+        <div class="testimonial-row-avatar">${initials}</div>
+        <div class="testimonial-row-main">
+          <div class="testimonial-row-head">
+            <strong>${t.name || 'Unnamed'}</strong>
+            ${t.location ? `<span class="testimonial-row-location">${t.location}</span>` : ``}
           </div>
-          <label>Name</label><input value="${escapeAttr(t.name)}" oninput="updateApprovedTestimonial(${i}, 'name', this.value)" />
-          <label>Location</label><input value="${escapeAttr(t.location)}" oninput="updateApprovedTestimonial(${i}, 'location', this.value)" />
-          <label>Testimonial</label><textarea oninput="updateApprovedTestimonial(${i}, 'text', this.value)">${String(t.text || '')}</textarea>
-          <div class="admin-actions">
-            <button class="btn btn-secondary" type="button" onclick="removeApprovedTestimonial(${i})">Remove</button>
+          <textarea class="testimonial-row-text" oninput="${isPending ? 'updatePendingTestimonial' : 'updateApprovedTestimonial'}(${i}, 'text', this.value)">${String(t.text || '')}</textarea>
+          <div class="testimonial-row-fields">
+            <input value="${escapeAttr(t.name)}" placeholder="Name" oninput="${isPending ? 'updatePendingTestimonial' : 'updateApprovedTestimonial'}(${i}, 'name', this.value)" />
+            <input value="${escapeAttr(t.location)}" placeholder="Location" oninput="${isPending ? 'updatePendingTestimonial' : 'updateApprovedTestimonial'}(${i}, 'location', this.value)" />
           </div>
         </div>
-      `).join('')
+        <div class="testimonial-row-actions">
+          ${isPending
+            ? `<button class="btn btn-primary" type="button" onclick="approveTestimonial(${i})">Approve</button>
+               <button class="btn btn-secondary" type="button" onclick="denyPendingTestimonial(${i})">Deny</button>`
+            : `<button class="btn btn-secondary" type="button" onclick="removeApprovedTestimonial(${i})">Remove</button>`}
+        </div>
+      </div>
+    `;
+  };
+
+  if(approvedWrap){
+    approvedWrap.innerHTML = (currentTestimonials || []).length
+      ? currentTestimonials.map((t, i) => rowMarkup(t, i, 'approved')).join('')
       : '<p class="small">No active testimonials yet.</p>';
   }
 
   if(pendingWrap){
     pendingWrap.innerHTML = (currentPendingTestimonials || []).length
-      ? currentPendingTestimonials.map((t, i) => `
-        <div class="testimonial-admin-card">
-          <div class="testimonial-card-preview">
-            <p class="testimonial-text">“${t.text || ''}”</p>
-            <div class="testimonial-meta"><strong>${t.name || ''}</strong>${t.location ? ` <span>• ${t.location}</span>` : ''}</div>
-          </div>
-          <label>Name</label><input value="${escapeAttr(t.name)}" oninput="updatePendingTestimonial(${i}, 'name', this.value)" />
-          <label>Location</label><input value="${escapeAttr(t.location)}" oninput="updatePendingTestimonial(${i}, 'location', this.value)" />
-          <label>Testimonial</label><textarea oninput="updatePendingTestimonial(${i}, 'text', this.value)">${String(t.text || '')}</textarea>
-          <div class="admin-actions">
-            <button class="btn btn-primary" type="button" onclick="approveTestimonial(${i})">Approve</button>
-            <button class="btn btn-secondary" type="button" onclick="denyPendingTestimonial(${i})">Deny</button>
-          </div>
-        </div>
-      `).join('')
+      ? currentPendingTestimonials.map((t, i) => rowMarkup(t, i, 'pending')).join('')
       : '<p class="small">No pending testimonials.</p>';
   }
 }
@@ -233,7 +244,14 @@ window.approveTestimonial = async function(index){
 }
 
 window.denyPendingTestimonial = async function(index){
-  currentPendingTestimonials.splice(index, 1);
+  const item = currentPendingTestimonials.splice(index, 1)[0];
+  if(item){
+    currentDeniedTestimonials.unshift({
+      ...item,
+      status: 'denied',
+      deniedAt: new Date().toISOString()
+    });
+  }
   renderTestimonialsAdmin();
   await doSave();
 }
@@ -360,6 +378,7 @@ function fillForm(data){
   currentServices = data.services || [];
   currentTestimonials = mergeSeededTestimonials((data.testimonials || []).filter(t => (t.status || 'approved') === 'approved'));
   currentPendingTestimonials = data.pendingTestimonials || [];
+  currentDeniedTestimonials = pruneDeniedTestimonials(data.deniedTestimonials || []);
   renderAdminGallery();
   renderServicesAdmin();
   renderTestimonialsAdmin();
@@ -421,10 +440,12 @@ function readForm(){
     services: currentServices.map(s => String(s).trim()).filter(Boolean),
     testimonials: currentTestimonials.map(t => ({ ...t, status: 'approved' })),
     pendingTestimonials: currentPendingTestimonials.map(t => ({ ...t, status: 'pending' })),
+    deniedTestimonials: pruneDeniedTestimonials(currentDeniedTestimonials).map(t => ({ ...t, status: 'denied' })),
     restorationGallery: currentGallery,
     heroPhoto: currentHeroPhoto,
     testimonials: currentTestimonials.map(t => ({ ...t, status: 'approved' })),
     pendingTestimonials: currentPendingTestimonials.map(t => ({ ...t, status: 'pending' })),
+    deniedTestimonials: pruneDeniedTestimonials(currentDeniedTestimonials).map(t => ({ ...t, status: 'denied' })),
     heroPhoto: currentHeroPhoto,
     mainLocation: {
       name: val('mainLocName'),
@@ -652,42 +673,42 @@ function renderTestimonialsAdmin(){
   const pendingWrap = document.getElementById('pendingTestimonialsList');
   const approvedWrap = document.getElementById('approvedTestimonialsList');
 
-  if(approvedWrap){
-    approvedWrap.innerHTML = (currentTestimonials || []).length
-      ? currentTestimonials.map((t, i) => `
-        <div class="testimonial-admin-card">
-          <div class="testimonial-card-preview">
-            <p class="testimonial-text">“${t.text || ''}”</p>
-            <div class="testimonial-meta"><strong>${t.name || ''}</strong>${t.location ? ` <span>• ${t.location}</span>` : ''}</div>
+  const rowMarkup = (t, i, type) => {
+    const isPending = type === 'pending';
+    const initials = ((t.name || 'A').trim().split(/\s+/).map(x => x[0]).join('').slice(0,2) || 'A').toUpperCase();
+    return `
+      <div class="testimonial-admin-row">
+        <div class="testimonial-row-avatar">${initials}</div>
+        <div class="testimonial-row-main">
+          <div class="testimonial-row-head">
+            <strong>${t.name || 'Unnamed'}</strong>
+            ${t.location ? `<span class="testimonial-row-location">${t.location}</span>` : ``}
           </div>
-          <label>Name</label><input value="${escapeAttr(t.name)}" oninput="updateApprovedTestimonial(${i}, 'name', this.value)" />
-          <label>Location</label><input value="${escapeAttr(t.location)}" oninput="updateApprovedTestimonial(${i}, 'location', this.value)" />
-          <label>Testimonial</label><textarea oninput="updateApprovedTestimonial(${i}, 'text', this.value)">${String(t.text || '')}</textarea>
-          <div class="admin-actions">
-            <button class="btn btn-secondary" type="button" onclick="removeApprovedTestimonial(${i})">Remove</button>
+          <textarea class="testimonial-row-text" oninput="${isPending ? 'updatePendingTestimonial' : 'updateApprovedTestimonial'}(${i}, 'text', this.value)">${String(t.text || '')}</textarea>
+          <div class="testimonial-row-fields">
+            <input value="${escapeAttr(t.name)}" placeholder="Name" oninput="${isPending ? 'updatePendingTestimonial' : 'updateApprovedTestimonial'}(${i}, 'name', this.value)" />
+            <input value="${escapeAttr(t.location)}" placeholder="Location" oninput="${isPending ? 'updatePendingTestimonial' : 'updateApprovedTestimonial'}(${i}, 'location', this.value)" />
           </div>
         </div>
-      `).join('')
+        <div class="testimonial-row-actions">
+          ${isPending
+            ? `<button class="btn btn-primary" type="button" onclick="approveTestimonial(${i})">Approve</button>
+               <button class="btn btn-secondary" type="button" onclick="denyPendingTestimonial(${i})">Deny</button>`
+            : `<button class="btn btn-secondary" type="button" onclick="removeApprovedTestimonial(${i})">Remove</button>`}
+        </div>
+      </div>
+    `;
+  };
+
+  if(approvedWrap){
+    approvedWrap.innerHTML = (currentTestimonials || []).length
+      ? currentTestimonials.map((t, i) => rowMarkup(t, i, 'approved')).join('')
       : '<p class="small">No active testimonials yet.</p>';
   }
 
   if(pendingWrap){
     pendingWrap.innerHTML = (currentPendingTestimonials || []).length
-      ? currentPendingTestimonials.map((t, i) => `
-        <div class="testimonial-admin-card">
-          <div class="testimonial-card-preview">
-            <p class="testimonial-text">“${t.text || ''}”</p>
-            <div class="testimonial-meta"><strong>${t.name || ''}</strong>${t.location ? ` <span>• ${t.location}</span>` : ''}</div>
-          </div>
-          <label>Name</label><input value="${escapeAttr(t.name)}" oninput="updatePendingTestimonial(${i}, 'name', this.value)" />
-          <label>Location</label><input value="${escapeAttr(t.location)}" oninput="updatePendingTestimonial(${i}, 'location', this.value)" />
-          <label>Testimonial</label><textarea oninput="updatePendingTestimonial(${i}, 'text', this.value)">${String(t.text || '')}</textarea>
-          <div class="admin-actions">
-            <button class="btn btn-primary" type="button" onclick="approveTestimonial(${i})">Approve</button>
-            <button class="btn btn-secondary" type="button" onclick="denyPendingTestimonial(${i})">Deny</button>
-          </div>
-        </div>
-      `).join('')
+      ? currentPendingTestimonials.map((t, i) => rowMarkup(t, i, 'pending')).join('')
       : '<p class="small">No pending testimonials.</p>';
   }
 }
@@ -708,7 +729,14 @@ window.approveTestimonial = async function(index){
 }
 
 window.denyPendingTestimonial = async function(index){
-  currentPendingTestimonials.splice(index, 1);
+  const item = currentPendingTestimonials.splice(index, 1)[0];
+  if(item){
+    currentDeniedTestimonials.unshift({
+      ...item,
+      status: 'denied',
+      deniedAt: new Date().toISOString()
+    });
+  }
   renderTestimonialsAdmin();
   await doSave();
 }

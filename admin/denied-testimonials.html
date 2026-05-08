@@ -1,0 +1,66 @@
+<!-- VERSION: v1.5.9 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Denied Testimonials | Memorial Monuments of Louisiana</title>
+  <link rel="stylesheet" href="../assets/css/styles.css" />
+</head>
+<body class="admin-page">
+<header>
+  <div class="container nav">
+    <a href="../index.html" class="logo-wrap">
+      <img src="../assets/images/site-logo.png" alt="Memorial Monuments of Louisiana logo" class="brand-logo-large" />
+    </a>
+    <nav>
+      <ul>
+        <li><a href="index.html">Back to Admin</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main class="admin-shell">
+  <section class="admin-editor">
+    <div class="admin-topbar">
+      <div>
+        <h1>Denied Testimonials</h1>
+        <p class="small">Version <span class="siteVersion">v1.5.9</span></p>
+      </div>
+      <div class="admin-actions">
+        <a class="btn btn-secondary" href="index.html">Back to Main Admin</a>
+      </div>
+    </div>
+
+    <div class="admin-section">
+      <h2>Stored For 30 Days</h2>
+      <p class="small">Denied testimonials are kept here for up to 30 days, then removed automatically.</p>
+      <div class="admin-section">
+        <h2>Admin Access</h2>
+        <p class="small">Enter the same owner username and password you saved in Cloudflare Pages Variables. These are used for Save, Restore, Approve, and Delete actions.</p>
+        <div class="admin-form-grid">
+          <div>
+            <label>Owner Username</label>
+            <input id="ownerUsername" type="text" autocomplete="username" />
+          </div>
+          <div>
+            <label>Owner Password</label>
+            <input id="ownerPassword" type="password" autocomplete="current-password" />
+          </div>
+        </div>
+        <div class="admin-actions">
+          <button class="btn btn-primary" type="button" id="saveCredentialsBtn">Save Credentials In Browser</button>
+        </div>
+        <p id="authMsg" class="small"></p>
+      </div>
+
+      <div class="testimonial-card-grid" id="deniedTestimonialsList"></div>
+      <p id="saveMsg" class="small"></p>
+    </div>
+  </section>
+</main>
+
+<script src="denied-v159.js?v=v1.5.9?v=v1.5.9"></script>
+</body>
+</html>
