@@ -1,4 +1,24 @@
 
+const REBUILT_TESTIMONIAL_SAMPLES = [
+  { name: "The Walker Family", location: "Oak Grove, LA", text: "They were kind, easy to work with, and did a beautiful job. Everything turned out just right, and that meant a lot to our family.", status: "approved" },
+  { name: "B. Johnson", location: "Monroe, LA", text: "We wanted something done right and built to last, and that is exactly what we got. Good people, good work, and they treated us with respect the whole way through.", status: "approved" },
+  { name: "The Thomas Family", location: "North Louisiana", text: "They helped us through the process without making it feel overwhelming. If you want folks that will treat you right and take pride in what they do, I would recommend them.", status: "approved" }
+];
+
+function mergeApprovedSamples(list){
+  const current = Array.isArray(list) ? [...list] : [];
+  const keys = new Set(current.map(t => `${t.name || ''}|${t.text || ''}`));
+  REBUILT_TESTIMONIAL_SAMPLES.forEach(t => {
+    const key = `${t.name || ''}|${t.text || ''}`;
+    if(!keys.has(key)){
+      current.push({ ...t, status: 'approved' });
+      keys.add(key);
+    }
+  });
+  return current;
+}
+
+
 const FALLBACK_TESTIMONIALS = [
   { name: "The Walker Family", location: "Oak Grove, LA", text: "They were kind, easy to work with, and did a beautiful job. Everything turned out just right, and that meant a lot to our family.", status: "approved" },
   { name: "B. Johnson", location: "Monroe, LA", text: "We wanted something done right and built to last, and that is exactly what we got. Good people, good work, and they treated us with respect the whole way through.", status: "approved" },
@@ -52,25 +72,33 @@ function isOlderAdminVersion(a, b){
 }
 
 async function loadSiteContent(){
-  try {
-    const res = await fetch('/api/get-content?build=v1.5.3', { cache: 'no-store' });
-    if(res.ok){
-      const data = await res.json();
-      const bundledRes = await fetch('../site-content.json?v=v1.5.3', { cache: 'no-store' });
-      const bundled = await bundledRes.json();
-      if(data.version && isOlderAdminVersion(data.version, bundled.version)) return bundled;
-      return { ...bundled, ...data, version: data.version || bundled.version };
-    }
-  } catch(e) {}
+  let bundled = {};
 
   try {
-    const res = await fetch('../site-content.json?v=v1.5.3', { cache: 'no-store' });
-    return await res.json();
+    const bundledRes = await fetch('../site-content.json?v=v1.5.3', { cache: 'no-store' });
+    if(bundledRes.ok) bundled = await bundledRes.json();
   } catch(e) {}
 
+  let cloudData = {};
+  try {
+    const apiRes = await fetch('/api/get-content?build=v1.5.3', { cache: 'no-store' });
+    if(apiRes.ok) cloudData = await apiRes.json();
+  } catch(e) {}
+
+  let localData = {};
   const local = localStorage.getItem('memorialSiteContent');
-  if(local){ try { return JSON.parse(local); } catch(e) {} }
-  return {};
+  if(local){
+    try { localData = JSON.parse(local); } catch(e) {}
+  }
+
+  const merged = {
+    ...bundled,
+    ...cloudData,
+    testimonials: mergeApprovedSamples((cloudData.testimonials || bundled.testimonials || [])),
+    pendingTestimonials: localData.pendingTestimonials || cloudData.pendingTestimonials || bundled.pendingTestimonials || []
+  };
+
+  return merged;
 }
 
 async function checkDiagnostics(){
@@ -129,31 +157,43 @@ function renderTestimonialsAdmin(){
   const pendingWrap = document.getElementById('pendingTestimonialsList');
   const approvedWrap = document.getElementById('approvedTestimonialsList');
 
-  if(pendingWrap){
-    pendingWrap.innerHTML = (currentPendingTestimonials || []).map((t, i) => `
-      <div class="testimonial-admin-item">
-        <label>Name</label><input value="${escapeAttr(t.name)}" oninput="updatePendingTestimonial(${i}, 'name', this.value)" />
-        <label>Location</label><input value="${escapeAttr(t.location)}" oninput="updatePendingTestimonial(${i}, 'location', this.value)" />
-        <label>Testimonial</label><textarea oninput="updatePendingTestimonial(${i}, 'text', this.value)">${String(t.text || '')}</textarea>
-        <div class="admin-actions">
-          <button class="btn btn-primary" type="button" onclick="approveTestimonial(${i})">Approve</button>
-          <button class="btn btn-secondary" type="button" onclick="denyPendingTestimonial(${i})">Deny</button>
+  if(approvedWrap){
+    approvedWrap.innerHTML = (currentTestimonials || []).length
+      ? currentTestimonials.map((t, i) => `
+        <div class="testimonial-admin-card">
+          <div class="testimonial-card-preview">
+            <p class="testimonial-text">“${t.text || ''}”</p>
+            <div class="testimonial-meta"><strong>${t.name || ''}</strong>${t.location ? ` <span>• ${t.location}</span>` : ''}</div>
+          </div>
+          <label>Name</label><input value="${escapeAttr(t.name)}" oninput="updateApprovedTestimonial(${i}, 'name', this.value)" />
+          <label>Location</label><input value="${escapeAttr(t.location)}" oninput="updateApprovedTestimonial(${i}, 'location', this.value)" />
+          <label>Testimonial</label><textarea oninput="updateApprovedTestimonial(${i}, 'text', this.value)">${String(t.text || '')}</textarea>
+          <div class="admin-actions">
+            <button class="btn btn-secondary" type="button" onclick="removeApprovedTestimonial(${i})">Remove</button>
+          </div>
         </div>
-      </div>
-    `).join('') || '<p class="small">No pending testimonials.</p>';
+      `).join('')
+      : '<p class="small">No active testimonials yet.</p>';
   }
 
-  if(approvedWrap){
-    approvedWrap.innerHTML = (currentTestimonials || []).map((t, i) => `
-      <div class="testimonial-admin-item">
-        <label>Name</label><input value="${escapeAttr(t.name)}" oninput="updateApprovedTestimonial(${i}, 'name', this.value)" />
-        <label>Location</label><input value="${escapeAttr(t.location)}" oninput="updateApprovedTestimonial(${i}, 'location', this.value)" />
-        <label>Testimonial</label><textarea oninput="updateApprovedTestimonial(${i}, 'text', this.value)">${String(t.text || '')}</textarea>
-        <div class="admin-actions">
-          <button class="btn btn-secondary" type="button" onclick="removeApprovedTestimonial(${i})">Remove</button>
+  if(pendingWrap){
+    pendingWrap.innerHTML = (currentPendingTestimonials || []).length
+      ? currentPendingTestimonials.map((t, i) => `
+        <div class="testimonial-admin-card">
+          <div class="testimonial-card-preview">
+            <p class="testimonial-text">“${t.text || ''}”</p>
+            <div class="testimonial-meta"><strong>${t.name || ''}</strong>${t.location ? ` <span>• ${t.location}</span>` : ''}</div>
+          </div>
+          <label>Name</label><input value="${escapeAttr(t.name)}" oninput="updatePendingTestimonial(${i}, 'name', this.value)" />
+          <label>Location</label><input value="${escapeAttr(t.location)}" oninput="updatePendingTestimonial(${i}, 'location', this.value)" />
+          <label>Testimonial</label><textarea oninput="updatePendingTestimonial(${i}, 'text', this.value)">${String(t.text || '')}</textarea>
+          <div class="admin-actions">
+            <button class="btn btn-primary" type="button" onclick="approveTestimonial(${i})">Approve</button>
+            <button class="btn btn-secondary" type="button" onclick="denyPendingTestimonial(${i})">Deny</button>
+          </div>
         </div>
-      </div>
-    `).join('') || '<p class="small">No approved testimonials yet.</p>';
+      `).join('')
+      : '<p class="small">No pending testimonials.</p>';
   }
 }
 
@@ -592,14 +632,43 @@ function testimonialAdminCard(t, i, type){
 function renderTestimonialsAdmin(){
   const pendingWrap = document.getElementById('pendingTestimonialsList');
   const approvedWrap = document.getElementById('approvedTestimonialsList');
+
   if(approvedWrap){
     approvedWrap.innerHTML = (currentTestimonials || []).length
-      ? currentTestimonials.map((t, i) => testimonialAdminCard(t, i, 'approved')).join('')
+      ? currentTestimonials.map((t, i) => `
+        <div class="testimonial-admin-card">
+          <div class="testimonial-card-preview">
+            <p class="testimonial-text">“${t.text || ''}”</p>
+            <div class="testimonial-meta"><strong>${t.name || ''}</strong>${t.location ? ` <span>• ${t.location}</span>` : ''}</div>
+          </div>
+          <label>Name</label><input value="${escapeAttr(t.name)}" oninput="updateApprovedTestimonial(${i}, 'name', this.value)" />
+          <label>Location</label><input value="${escapeAttr(t.location)}" oninput="updateApprovedTestimonial(${i}, 'location', this.value)" />
+          <label>Testimonial</label><textarea oninput="updateApprovedTestimonial(${i}, 'text', this.value)">${String(t.text || '')}</textarea>
+          <div class="admin-actions">
+            <button class="btn btn-secondary" type="button" onclick="removeApprovedTestimonial(${i})">Remove</button>
+          </div>
+        </div>
+      `).join('')
       : '<p class="small">No active testimonials yet.</p>';
   }
+
   if(pendingWrap){
     pendingWrap.innerHTML = (currentPendingTestimonials || []).length
-      ? currentPendingTestimonials.map((t, i) => testimonialAdminCard(t, i, 'pending')).join('')
+      ? currentPendingTestimonials.map((t, i) => `
+        <div class="testimonial-admin-card">
+          <div class="testimonial-card-preview">
+            <p class="testimonial-text">“${t.text || ''}”</p>
+            <div class="testimonial-meta"><strong>${t.name || ''}</strong>${t.location ? ` <span>• ${t.location}</span>` : ''}</div>
+          </div>
+          <label>Name</label><input value="${escapeAttr(t.name)}" oninput="updatePendingTestimonial(${i}, 'name', this.value)" />
+          <label>Location</label><input value="${escapeAttr(t.location)}" oninput="updatePendingTestimonial(${i}, 'location', this.value)" />
+          <label>Testimonial</label><textarea oninput="updatePendingTestimonial(${i}, 'text', this.value)">${String(t.text || '')}</textarea>
+          <div class="admin-actions">
+            <button class="btn btn-primary" type="button" onclick="approveTestimonial(${i})">Approve</button>
+            <button class="btn btn-secondary" type="button" onclick="denyPendingTestimonial(${i})">Deny</button>
+          </div>
+        </div>
+      `).join('')
       : '<p class="small">No pending testimonials.</p>';
   }
 }
