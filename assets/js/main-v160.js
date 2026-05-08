@@ -1,4 +1,22 @@
 
+function renderHeroPhoto(data){
+  const heroPhotoEl = document.getElementById('heroPhotoImage');
+  const heroPhotoBox = document.getElementById('heroPhotoBox');
+  if(!heroPhotoEl || !heroPhotoBox) return;
+
+  const hero = data && data.heroPhoto ? data.heroPhoto : '';
+  if(hero){
+    heroPhotoEl.src = hero;
+    heroPhotoEl.style.display = 'block';
+    heroPhotoBox.classList.add('has-photo');
+  } else {
+    heroPhotoEl.removeAttribute('src');
+    heroPhotoEl.style.display = 'none';
+    heroPhotoBox.classList.remove('has-photo');
+  }
+}
+
+
 const REBUILT_TESTIMONIAL_SAMPLES = [
   { name: "The Walker Family", location: "Oak Grove, LA", text: "They were kind, easy to work with, and did a beautiful job. Everything turned out just right, and that meant a lot to our family.", status: "approved" },
   { name: "B. Johnson", location: "Monroe, LA", text: "We wanted something done right and built to last, and that is exactly what we got. Good people, good work, and they treated us with respect the whole way through.", status: "approved" },
@@ -239,6 +257,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const versionEls = document.querySelectorAll('.siteVersion');
   if(data.version && versionEls.length){ versionEls.forEach(el => { el.textContent = data.version; }); }
   if(window.renderPage) window.renderPage(data);
+  renderHeroPhoto(data);
   const heroPhotoEl = document.getElementById('heroPhotoImage');
   const heroPhotoBox = document.getElementById('heroPhotoBox');
   if(heroPhotoEl && heroPhotoBox && data.heroPhoto){ heroPhotoEl.src = data.heroPhoto; heroPhotoBox.classList.add('has-photo'); }

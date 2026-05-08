@@ -1,7 +1,7 @@
 # Memorial Monuments of Louisiana
 
 ## Current package
-Version: v1.5.9
+Version: v1.6.0
 
 This build includes:
 - working clean admin base from the v1.5.x reset
@@ -15,10 +15,11 @@ This build includes:
 - testimonial admin rows styled to match the Current Restoration Items area
 - denied testimonials moved to a separate admin page
 - denied testimonials stored for up to 30 days
-- denied testimonial actions:
-  - Restore to Pending
-  - Approve
-  - Delete
+- homepage hero image manager fixed:
+  - upload
+  - preview
+  - remove
+  - homepage display
 - admin title updated to **Owner Control Panel**
 
 ## Recent version notes
@@ -29,6 +30,7 @@ This build includes:
 - v1.5.6: compact testimonial styling and admin title update
 - v1.5.7: testimonial rows restyled to match Current Restoration Items
 - v1.5.9: separate denied testimonials page with 30-day retention
+- v1.6.0: hero image upload/remove/homepage display fix
 
 ## Deployment note
 After uploading a new build to Cloudflare Pages, do a full refresh of the admin page.

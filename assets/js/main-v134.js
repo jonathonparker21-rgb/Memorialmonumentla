@@ -1,5 +1,5 @@
-/* FORCE_REFRESH_BUILD v1.5.9 2026-04-29 13:10:31 */
-const BUILD_VERSION = 'v1.5.9';
+/* FORCE_REFRESH_BUILD v1.6.0 2026-04-29 13:10:31 */
+const BUILD_VERSION = 'v1.6.0';
 
 function versionNumber(v){
   return String(v || 'v0.0.0').replace(/^v/, '').split('.').map(n => parseInt(n, 10) || 0);
@@ -15,7 +15,7 @@ function isOlderVersion(a, b){
 }
 
 async function loadBundledContent(){
-  const res = await fetch('site-content.json?v=v1.5.9', { cache: 'no-store' });
+  const res = await fetch('site-content.json?v=v1.6.0', { cache: 'no-store' });
   return await res.json();
 }
 
@@ -23,7 +23,7 @@ async function loadContent(){
   const bundled = await loadBundledContent();
 
   try {
-    const apiRes = await fetch('/api/get-content?build=v1.5.9', { cache: 'no-store' });
+    const apiRes = await fetch('/api/get-content?build=v1.6.0', { cache: 'no-store' });
     if (apiRes.ok) {
       const apiData = await apiRes.json();
 

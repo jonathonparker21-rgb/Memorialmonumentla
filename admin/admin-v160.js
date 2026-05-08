@@ -1,4 +1,24 @@
 
+const SEEDED_TESTIMONIALS = [
+  { name: "The Walker Family", location: "Oak Grove, LA", text: "They were kind, easy to work with, and did a beautiful job. Everything turned out just right, and that meant a lot to our family.", status: "approved" },
+  { name: "B. Johnson", location: "Monroe, LA", text: "We wanted something done right and built to last, and that is exactly what we got. Good people, good work, and they treated us with respect the whole way through.", status: "approved" },
+  { name: "The Thomas Family", location: "North Louisiana", text: "They helped us through the process without making it feel overwhelming. If you want folks that will treat you right and take pride in what they do, I would recommend them.", status: "approved" }
+];
+
+function mergeSeededTestimonials(list){
+  const current = Array.isArray(list) ? [...list] : [];
+  const keys = new Set(current.map(t => `${t.name || ''}|${t.text || ''}`));
+  SEEDED_TESTIMONIALS.forEach(t => {
+    const key = `${t.name || ''}|${t.text || ''}`;
+    if(!keys.has(key)){
+      current.push({ ...t });
+      keys.add(key);
+    }
+  });
+  return current;
+}
+
+
 const REBUILT_TESTIMONIAL_SAMPLES = [
   { name: "The Walker Family", location: "Oak Grove, LA", text: "They were kind, easy to work with, and did a beautiful job. Everything turned out just right, and that meant a lot to our family.", status: "approved" },
   { name: "B. Johnson", location: "Monroe, LA", text: "We wanted something done right and built to last, and that is exactly what we got. Good people, good work, and they treated us with respect the whole way through.", status: "approved" },
@@ -30,6 +50,7 @@ let currentHeroPhoto = '';
 let currentServices = [];
 let currentTestimonials = [];
 let currentPendingTestimonials = [];
+let currentDeniedTestimonials = [];
 let cachedContent = null;
 function byId(id){
   return document.getElementById(id);
@@ -91,14 +112,12 @@ async function loadSiteContent(){
     try { localData = JSON.parse(local); } catch(e) {}
   }
 
-  const merged = {
+  return {
     ...bundled,
     ...cloudData,
-    testimonials: mergeApprovedSamples((cloudData.testimonials || bundled.testimonials || [])),
+    testimonials: mergeSeededTestimonials((cloudData.testimonials || bundled.testimonials || [])),
     pendingTestimonials: localData.pendingTestimonials || cloudData.pendingTestimonials || bundled.pendingTestimonials || []
   };
-
-  return merged;
 }
 
 async function checkDiagnostics(){
@@ -153,46 +172,56 @@ function escapeAttr(value){
   return String(value || '').replace(/"/g, '&quot;');
 }
 
+
+function pruneDeniedTestimonials(list){
+  const now = Date.now();
+  const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
+  return (Array.isArray(list) ? list : []).filter(item => {
+    const deniedAt = item && item.deniedAt ? Date.parse(item.deniedAt) : now;
+    return Number.isFinite(deniedAt) ? (now - deniedAt) <= THIRTY_DAYS : true;
+  });
+}
+
 function renderTestimonialsAdmin(){
   const pendingWrap = document.getElementById('pendingTestimonialsList');
   const approvedWrap = document.getElementById('approvedTestimonialsList');
 
-  if(approvedWrap){
-    approvedWrap.innerHTML = (currentTestimonials || []).length
-      ? currentTestimonials.map((t, i) => `
-        <div class="testimonial-admin-card">
-          <div class="testimonial-card-preview">
-            <p class="testimonial-text">“${t.text || ''}”</p>
-            <div class="testimonial-meta"><strong>${t.name || ''}</strong>${t.location ? ` <span>• ${t.location}</span>` : ''}</div>
+  const rowMarkup = (t, i, type) => {
+    const isPending = type === 'pending';
+    const initials = ((t.name || 'A').trim().split(/\s+/).map(x => x[0]).join('').slice(0,2) || 'A').toUpperCase();
+    return `
+      <div class="testimonial-admin-row">
+        <div class="testimonial-row-avatar">${initials}</div>
+        <div class="testimonial-row-main">
+          <div class="testimonial-row-head">
+            <strong>${t.name || 'Unnamed'}</strong>
+            ${t.location ? `<span class="testimonial-row-location">${t.location}</span>` : ``}
           </div>
-          <label>Name</label><input value="${escapeAttr(t.name)}" oninput="updateApprovedTestimonial(${i}, 'name', this.value)" />
-          <label>Location</label><input value="${escapeAttr(t.location)}" oninput="updateApprovedTestimonial(${i}, 'location', this.value)" />
-          <label>Testimonial</label><textarea oninput="updateApprovedTestimonial(${i}, 'text', this.value)">${String(t.text || '')}</textarea>
-          <div class="admin-actions">
-            <button class="btn btn-secondary" type="button" onclick="removeApprovedTestimonial(${i})">Remove</button>
+          <textarea class="testimonial-row-text" oninput="${isPending ? 'updatePendingTestimonial' : 'updateApprovedTestimonial'}(${i}, 'text', this.value)">${String(t.text || '')}</textarea>
+          <div class="testimonial-row-fields">
+            <input value="${escapeAttr(t.name)}" placeholder="Name" oninput="${isPending ? 'updatePendingTestimonial' : 'updateApprovedTestimonial'}(${i}, 'name', this.value)" />
+            <input value="${escapeAttr(t.location)}" placeholder="Location" oninput="${isPending ? 'updatePendingTestimonial' : 'updateApprovedTestimonial'}(${i}, 'location', this.value)" />
           </div>
         </div>
-      `).join('')
+        <div class="testimonial-row-actions">
+          ${isPending
+            ? `<button class="btn btn-primary" type="button" onclick="approveTestimonial(${i})">Approve</button>
+               <button class="btn btn-secondary" type="button" onclick="denyPendingTestimonial(${i})">Deny</button>`
+            : `<button class="btn btn-secondary" type="button" onclick="removeApprovedTestimonial(${i})">Remove</button>`}
+        </div>
+      </div>
+    `;
+  };
+
+  if(approvedWrap){
+    approvedWrap.innerHTML = (currentTestimonials || []).length
+      ? currentTestimonials.map((t, i) => rowMarkup(t, i, 'approved')).join('')
       : '<p class="small">No active testimonials yet.</p>';
   }
 
   if(pendingWrap){
     pendingWrap.innerHTML = (currentPendingTestimonials || []).length
-      ? currentPendingTestimonials.map((t, i) => `
-        <div class="testimonial-admin-card">
-          <div class="testimonial-card-preview">
-            <p class="testimonial-text">“${t.text || ''}”</p>
-            <div class="testimonial-meta"><strong>${t.name || ''}</strong>${t.location ? ` <span>• ${t.location}</span>` : ''}</div>
-          </div>
-          <label>Name</label><input value="${escapeAttr(t.name)}" oninput="updatePendingTestimonial(${i}, 'name', this.value)" />
-          <label>Location</label><input value="${escapeAttr(t.location)}" oninput="updatePendingTestimonial(${i}, 'location', this.value)" />
-          <label>Testimonial</label><textarea oninput="updatePendingTestimonial(${i}, 'text', this.value)">${String(t.text || '')}</textarea>
-          <div class="admin-actions">
-            <button class="btn btn-primary" type="button" onclick="approveTestimonial(${i})">Approve</button>
-            <button class="btn btn-secondary" type="button" onclick="denyPendingTestimonial(${i})">Deny</button>
-          </div>
-        </div>
-      `).join('')
+      ? currentPendingTestimonials.map((t, i) => rowMarkup(t, i, 'pending')).join('')
       : '<p class="small">No pending testimonials.</p>';
   }
 }
@@ -215,7 +244,14 @@ window.approveTestimonial = async function(index){
 }
 
 window.denyPendingTestimonial = async function(index){
-  currentPendingTestimonials.splice(index, 1);
+  const item = currentPendingTestimonials.splice(index, 1)[0];
+  if(item){
+    currentDeniedTestimonials.unshift({
+      ...item,
+      status: 'denied',
+      deniedAt: new Date().toISOString()
+    });
+  }
   renderTestimonialsAdmin();
   await doSave();
 }
@@ -340,12 +376,14 @@ function fillForm(data){
   currentGallery = data.restorationGallery || [];
   currentHeroPhoto = data.heroPhoto || '';
   currentServices = data.services || [];
-  currentTestimonials = (data.testimonials || []).filter(t => (t.status || 'approved') === 'approved');
-  if(!currentTestimonials.length) currentTestimonials = FALLBACK_TESTIMONIALS.map(t => ({ ...t }));
-  if(!currentTestimonials.length && Array.isArray(data.testimonials) && data.testimonials.length){ currentTestimonials = data.testimonials.map(t => ({ ...t, status: t.status || 'approved' })); }
-  currentPendingTestimonials = data.pendingTestimonials || (data.testimonials || []).filter(t => t.status === 'pending');
+  currentTestimonials = mergeSeededTestimonials((data.testimonials || []).filter(t => (t.status || 'approved') === 'approved'));
+  currentPendingTestimonials = data.pendingTestimonials || [];
+  currentDeniedTestimonials = pruneDeniedTestimonials(data.deniedTestimonials || []);
   renderAdminGallery();
   renderServicesAdmin();
+  renderTestimonialsAdmin();
+  if(typeof renderHeroPhotoAdmin === 'function') renderHeroPhotoAdmin();
+
 
   const map = {
     version: data.version || 'v1.6.0',
@@ -402,10 +440,12 @@ function readForm(){
     services: currentServices.map(s => String(s).trim()).filter(Boolean),
     testimonials: currentTestimonials.map(t => ({ ...t, status: 'approved' })),
     pendingTestimonials: currentPendingTestimonials.map(t => ({ ...t, status: 'pending' })),
+    deniedTestimonials: pruneDeniedTestimonials(currentDeniedTestimonials).map(t => ({ ...t, status: 'denied' })),
     restorationGallery: currentGallery,
     heroPhoto: currentHeroPhoto,
     testimonials: currentTestimonials.map(t => ({ ...t, status: 'approved' })),
     pendingTestimonials: currentPendingTestimonials.map(t => ({ ...t, status: 'pending' })),
+    deniedTestimonials: pruneDeniedTestimonials(currentDeniedTestimonials).map(t => ({ ...t, status: 'denied' })),
     heroPhoto: currentHeroPhoto,
     mainLocation: {
       name: val('mainLocName'),
@@ -581,6 +621,55 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   document.getElementById('saveBtn')?.addEventListener('click', doSave);
+  
+  if(typeof setupDropZonePair === 'function'){
+    setupDropZonePair('heroDropZone', 'heroPhotoFile', 'hero photo', 'heroPhotoMsg');
+  } else if(typeof setupDropZone === 'function'){
+    setupDropZone('heroDropZone', 'heroPhotoFile', 'hero photo');
+  }
+
+  document.getElementById('uploadHeroPhotoBtn')?.addEventListener('click', async () => {
+    const status = document.getElementById('heroPhotoMsg');
+    const file = document.getElementById('heroPhotoFile')?.files?.[0];
+
+    if(!file){
+      if(status) status.textContent = 'Choose a hero photo first.';
+      return;
+    }
+
+    try{
+      if(status) status.textContent = 'Preparing hero photo...';
+      currentHeroPhoto = await compressImageToDataUrl(file, status);
+      renderHeroPhotoAdmin();
+      if(status) status.textContent = 'Hero photo added. Saving changes...';
+      await doSave();
+      if(document.getElementById('heroPhotoFile')) document.getElementById('heroPhotoFile').value = '';
+      if(status) status.textContent = 'Hero photo uploaded and saved.';
+    } catch(error){
+      if(status) status.textContent = 'Hero upload failed: ' + error.message;
+    }
+  });
+
+  document.getElementById('downloadHeroPhotoBtn')?.addEventListener('click', () => {
+    if(!currentHeroPhoto) return;
+    const a = document.createElement('a');
+    a.href = currentHeroPhoto;
+    a.download = 'memorial-monuments-hero-photo.jpg';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  });
+
+  document.getElementById('removeHeroPhotoBtn')?.addEventListener('click', async () => {
+    const status = document.getElementById('heroPhotoMsg');
+    currentHeroPhoto = '';
+    renderHeroPhotoAdmin();
+    if(status) status.textContent = 'Hero photo removed. Saving changes...';
+    await doSave();
+    if(status) status.textContent = 'Hero photo removed and saved.';
+  });
+
+
   document.getElementById('resetBtn')?.addEventListener('click', async () => {
     localStorage.removeItem('memorialSiteContent');
     fillForm(await loadSiteContent());
@@ -633,42 +722,42 @@ function renderTestimonialsAdmin(){
   const pendingWrap = document.getElementById('pendingTestimonialsList');
   const approvedWrap = document.getElementById('approvedTestimonialsList');
 
-  if(approvedWrap){
-    approvedWrap.innerHTML = (currentTestimonials || []).length
-      ? currentTestimonials.map((t, i) => `
-        <div class="testimonial-admin-card">
-          <div class="testimonial-card-preview">
-            <p class="testimonial-text">“${t.text || ''}”</p>
-            <div class="testimonial-meta"><strong>${t.name || ''}</strong>${t.location ? ` <span>• ${t.location}</span>` : ''}</div>
+  const rowMarkup = (t, i, type) => {
+    const isPending = type === 'pending';
+    const initials = ((t.name || 'A').trim().split(/\s+/).map(x => x[0]).join('').slice(0,2) || 'A').toUpperCase();
+    return `
+      <div class="testimonial-admin-row">
+        <div class="testimonial-row-avatar">${initials}</div>
+        <div class="testimonial-row-main">
+          <div class="testimonial-row-head">
+            <strong>${t.name || 'Unnamed'}</strong>
+            ${t.location ? `<span class="testimonial-row-location">${t.location}</span>` : ``}
           </div>
-          <label>Name</label><input value="${escapeAttr(t.name)}" oninput="updateApprovedTestimonial(${i}, 'name', this.value)" />
-          <label>Location</label><input value="${escapeAttr(t.location)}" oninput="updateApprovedTestimonial(${i}, 'location', this.value)" />
-          <label>Testimonial</label><textarea oninput="updateApprovedTestimonial(${i}, 'text', this.value)">${String(t.text || '')}</textarea>
-          <div class="admin-actions">
-            <button class="btn btn-secondary" type="button" onclick="removeApprovedTestimonial(${i})">Remove</button>
+          <textarea class="testimonial-row-text" oninput="${isPending ? 'updatePendingTestimonial' : 'updateApprovedTestimonial'}(${i}, 'text', this.value)">${String(t.text || '')}</textarea>
+          <div class="testimonial-row-fields">
+            <input value="${escapeAttr(t.name)}" placeholder="Name" oninput="${isPending ? 'updatePendingTestimonial' : 'updateApprovedTestimonial'}(${i}, 'name', this.value)" />
+            <input value="${escapeAttr(t.location)}" placeholder="Location" oninput="${isPending ? 'updatePendingTestimonial' : 'updateApprovedTestimonial'}(${i}, 'location', this.value)" />
           </div>
         </div>
-      `).join('')
+        <div class="testimonial-row-actions">
+          ${isPending
+            ? `<button class="btn btn-primary" type="button" onclick="approveTestimonial(${i})">Approve</button>
+               <button class="btn btn-secondary" type="button" onclick="denyPendingTestimonial(${i})">Deny</button>`
+            : `<button class="btn btn-secondary" type="button" onclick="removeApprovedTestimonial(${i})">Remove</button>`}
+        </div>
+      </div>
+    `;
+  };
+
+  if(approvedWrap){
+    approvedWrap.innerHTML = (currentTestimonials || []).length
+      ? currentTestimonials.map((t, i) => rowMarkup(t, i, 'approved')).join('')
       : '<p class="small">No active testimonials yet.</p>';
   }
 
   if(pendingWrap){
     pendingWrap.innerHTML = (currentPendingTestimonials || []).length
-      ? currentPendingTestimonials.map((t, i) => `
-        <div class="testimonial-admin-card">
-          <div class="testimonial-card-preview">
-            <p class="testimonial-text">“${t.text || ''}”</p>
-            <div class="testimonial-meta"><strong>${t.name || ''}</strong>${t.location ? ` <span>• ${t.location}</span>` : ''}</div>
-          </div>
-          <label>Name</label><input value="${escapeAttr(t.name)}" oninput="updatePendingTestimonial(${i}, 'name', this.value)" />
-          <label>Location</label><input value="${escapeAttr(t.location)}" oninput="updatePendingTestimonial(${i}, 'location', this.value)" />
-          <label>Testimonial</label><textarea oninput="updatePendingTestimonial(${i}, 'text', this.value)">${String(t.text || '')}</textarea>
-          <div class="admin-actions">
-            <button class="btn btn-primary" type="button" onclick="approveTestimonial(${i})">Approve</button>
-            <button class="btn btn-secondary" type="button" onclick="denyPendingTestimonial(${i})">Deny</button>
-          </div>
-        </div>
-      `).join('')
+      ? currentPendingTestimonials.map((t, i) => rowMarkup(t, i, 'pending')).join('')
       : '<p class="small">No pending testimonials.</p>';
   }
 }
@@ -689,7 +778,14 @@ window.approveTestimonial = async function(index){
 }
 
 window.denyPendingTestimonial = async function(index){
-  currentPendingTestimonials.splice(index, 1);
+  const item = currentPendingTestimonials.splice(index, 1)[0];
+  if(item){
+    currentDeniedTestimonials.unshift({
+      ...item,
+      status: 'denied',
+      deniedAt: new Date().toISOString()
+    });
+  }
   renderTestimonialsAdmin();
   await doSave();
 }
@@ -715,42 +811,4 @@ function setupHeroPhotoHandlers(){
   window.__heroHandlersReady = true;
 
   if(typeof setupDropZone === 'function') setupDropZone('heroDropZone', 'heroPhotoFile', 'hero photo');
-
-  document.getElementById('uploadHeroPhotoBtn')?.addEventListener('click', async () => {
-    const status = document.getElementById('heroPhotoMsg');
-    const file = document.getElementById('heroPhotoFile')?.files?.[0];
-    if(!file){
-      if(status) status.textContent = 'Choose a hero photo first.';
-      return;
-    }
-    try{
-      if(status) status.textContent = 'Preparing hero photo...';
-      currentHeroPhoto = await compressImageToDataUrl(file, status);
-      renderHeroPhotoAdmin();
-      if(status) status.textContent = 'Hero photo added. Saving changes...';
-      await doSave();
-      if(status) status.textContent = 'Hero photo uploaded and saved.';
-    } catch(error){
-      if(status) status.textContent = 'Hero upload failed: ' + error.message;
-    }
-  });
-
-  document.getElementById('downloadHeroPhotoBtn')?.addEventListener('click', () => {
-    if(!currentHeroPhoto) return;
-    const a = document.createElement('a');
-    a.href = currentHeroPhoto;
-    a.download = 'memorial-monuments-hero-photo.jpg';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-  });
-
-  document.getElementById('removeHeroPhotoBtn')?.addEventListener('click', async () => {
-    const status = document.getElementById('heroPhotoMsg');
-    currentHeroPhoto = '';
-    renderHeroPhotoAdmin();
-    if(status) status.textContent = 'Hero photo removed. Saving changes...';
-    await doSave();
-    if(status) status.textContent = 'Hero photo removed and saved.';
-  });
 }
