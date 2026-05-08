@@ -1,4 +1,4 @@
-/* FORCE_REFRESH_BUILD v1.6.0 2026-04-29 13:10:31 */
+/* FORCE_REFRESH_BUILD v1.6.3 2026-04-29 13:10:31 */
 
 :root{
   --bg:#f7f2eb;
@@ -85,7 +85,7 @@ label{display:block;font-weight:700;margin:.75rem 0 .35rem}
 
 
 
-/* v1.6.0 combined logo header */
+/* v1.6.3 combined logo header */
 header{
   padding: 2px 0 !important;
   overflow: visible;
@@ -131,7 +131,7 @@ nav ul{
 }
 
 
-/* v1.6.0 mobile nav + testimonials */
+/* v1.6.3 mobile nav + testimonials */
 .mobile-nav-toggle{
   display:none;
   padding:.55rem .9rem;
@@ -203,7 +203,7 @@ nav ul{
 }
 
 
-/* v1.6.0 testimonials page + homepage scroller */
+/* v1.6.3 testimonials page + homepage scroller */
 .testimonial-marquee{
   overflow:hidden;
   position:relative;
@@ -243,7 +243,7 @@ nav ul{
 }
 
 
-/* v1.6.0 logo-matched theme */
+/* v1.6.3 logo-matched theme */
 :root{
   --bg:#12080a;
   --surface:#1a1012;
@@ -346,7 +346,7 @@ footer{
 }
 
 
-/* v1.6.0 restoration gallery */
+/* v1.6.3 restoration gallery */
 .restoration-scroller{
   overflow-x:auto;
   padding-bottom:.35rem;
@@ -409,7 +409,7 @@ footer{
   }
 }
 
-/* v1.6.0 production admin improvements */
+/* v1.6.3 production admin improvements */
 .admin-wrap{
   grid-template-columns: 300px minmax(0, 1fr) !important;
   gap: 1.5rem !important;
@@ -445,7 +445,7 @@ input, textarea, select{
   }
 }
 
-/* v1.6.0 drag and drop upload */
+/* v1.6.3 drag and drop upload */
 .drop-zone{
   border:2px dashed rgba(200,78,34,.5);
   border-radius:16px;
@@ -473,7 +473,7 @@ input, textarea, select{
 }
 
 
-/* v1.6.0 admin full-width responsive fix */
+/* v1.6.3 admin full-width responsive fix */
 .admin-wrap{
   width:min(100% - 24px, 1760px) !important;
   max-width:1760px !important;
@@ -560,7 +560,7 @@ input, textarea, select{
 }
 
 
-/* v1.6.0 rebuilt admin layout */
+/* v1.6.3 rebuilt admin layout */
 body.admin-page{
   min-height:100vh;
 }
@@ -674,14 +674,14 @@ body.admin-page{
 }
 
 
-/* v1.6.0 heic note */
+/* v1.6.3 heic note */
 .drop-zone span::after{
   content:" • HEIC supported";
   opacity:.85;
 }
 
 
-/* v1.6.0 image display fix */
+/* v1.6.3 image display fix */
 .image-error-note{
   display:none;
   color:#ffb4a5 !important;
@@ -694,7 +694,7 @@ body.admin-page{
 }
 
 
-/* v1.6.0 r2 query image route */
+/* v1.6.3 r2 query image route */
 .image-error-note{
   display:none;
   color:#ffb4a5 !important;
@@ -704,7 +704,7 @@ body.admin-page{
 }
 
 
-/* v1.6.0 embedded gallery fix */
+/* v1.6.3 embedded gallery fix */
 .image-error-note{
   display:none;
   color:#ffb4a5 !important;
@@ -714,13 +714,13 @@ body.admin-page{
 }
 
 
-/* v1.6.0 cache-bust gallery fix */
+/* v1.6.3 cache-bust gallery fix */
 .restoration-card.image-missing{
   display:none !important;
 }
 
 
-/* v1.6.0 before/after + unlimited services */
+/* v1.6.3 before/after + unlimited services */
 .before-after-card .restoration-copy{
   min-height:112px;
 }
@@ -797,7 +797,7 @@ body.admin-page{
 }
 
 
-/* v1.6.0 hero photo manager */
+/* v1.6.3 hero photo manager */
 .hero-photo-box{
   position:relative;
   min-height:360px;
@@ -825,7 +825,7 @@ body.admin-page{
 }
 
 
-/* v1.6.0 testimonial admin + color reset */
+/* v1.6.3 testimonial admin + color reset */
 .small-admin-btn{
   margin-bottom:1rem;
   padding:.55rem .85rem !important;
@@ -856,7 +856,7 @@ body.admin-page{
 }
 
 
-/* v1.6.0 force hero/testimonial admin sections */
+/* v1.6.3 force hero/testimonial admin sections */
 .testimonial-card-grid{
   display:grid;
   grid-template-columns:repeat(2, minmax(0, 1fr));
@@ -909,7 +909,7 @@ body.admin-page{
 }
 
 
-/* v1.6.0 customer-facing services polish */
+/* v1.6.3 customer-facing services polish */
 .services-showcase{
   background:
     radial-gradient(circle at top left, rgba(200,78,34,.16), rgba(0,0,0,0) 38%),
@@ -952,7 +952,7 @@ body.admin-page{
 }
 
 
-/* v1.6.0 unique bottom section */
+/* v1.6.3 unique bottom section */
 .section-intro{
   max-width:920px;
   margin:0 0 2rem;
@@ -962,7 +962,7 @@ body.admin-page{
 }
 
 
-/* v1.6.0 professional restoration gallery */
+/* v1.6.3 professional restoration gallery */
 .restoration-card-single .single-restoration-media,
 .restoration-card-ba .pro-ba-wrap {
   position: relative;
@@ -1049,7 +1049,7 @@ body.admin-page{
 }
 
 
-/* v1.6.0 separate before/after uploads + testimonial cards */
+/* v1.6.3 separate before/after uploads + testimonial cards */
 .testimonial-admin-card textarea {
   min-height: 100px !important;
 }
@@ -1069,7 +1069,7 @@ body.admin-page{
 }
 
 
-/* v1.6.0 compact testimonial admin */
+/* v1.6.3 compact testimonial admin */
 .testimonial-card-grid {
   display:grid !important;
   grid-template-columns:repeat(2, minmax(0, 1fr)) !important;
@@ -1135,7 +1135,7 @@ body.admin-page{
 }
 
 
-/* v1.6.0 */
+/* v1.6.3 */
 .testimonial-card-grid {
   display:grid !important;
   grid-template-columns:1fr !important;
@@ -1245,13 +1245,13 @@ body.admin-page{
 }
 
 
-/* v1.6.0 denied testimonials page */
+/* v1.6.3 denied testimonials page */
 .testimonial-row-actions .btn {
   min-width: 132px;
 }
 
 
-/* v1.6.0 */
+/* v1.6.3 */
 .hero-photo-box {
   position: relative;
   min-height: 360px;
@@ -1276,4 +1276,61 @@ body.admin-page{
   border-radius: 18px;
   border: 1px solid rgba(200,78,34,.25);
   box-shadow: var(--shadow);
+}
+
+
+/* v1.6.3 login card styling fix */
+.admin-login-card form input,
+.admin-login-card form textarea,
+.admin-login-card form select {
+  background: rgba(34, 16, 18, 0.96) !important;
+  color: #f3e8dc !important;
+  border: 1px solid rgba(200, 78, 34, 0.26) !important;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+}
+
+.admin-login-card form input::placeholder,
+.admin-login-card form textarea::placeholder {
+  color: #bfa79d !important;
+  opacity: 1 !important;
+}
+
+.admin-login-card label,
+.admin-login-card h2,
+.admin-login-card strong {
+  color: #f3e8dc !important;
+}
+
+.admin-login-card .small,
+.admin-login-card p {
+  color: #dcc7ba !important;
+}
+
+.admin-login-card .notice {
+  background: linear-gradient(180deg, rgba(40,20,22,0.98), rgba(26,12,14,0.98)) !important;
+  border: 1px solid rgba(200, 78, 34, 0.24) !important;
+  color: #ead8cd !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+.admin-login-card .code {
+  background: rgba(86, 36, 22, 0.48) !important;
+  color: #f7d4bf !important;
+  border: 1px solid rgba(200, 78, 34, 0.24) !important;
+  padding: .22rem .5rem !important;
+  border-radius: 8px !important;
+}
+
+.admin-login-card #loginError {
+  color: #ffb9a7 !important;
+}
+
+.admin-login-card {
+  color: #f3e8dc !important;
+}
+
+
+/* v1.6.3 login cleanup */
+.admin-login-card .notice {
+  display: none !important;
 }

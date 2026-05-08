@@ -1,5 +1,5 @@
 {
-  "version": "v1.6.0",
+  "version": "v1.6.3",
   "businessName": "Memorial Monuments of Louisiana",
   "tagline": "Honoring Loved Ones With Care, Respect, and Craftsmanship",
   "heroHeadline": "Locally Owned. Family Focused. Crafted With Care.",
@@ -83,7 +83,7 @@
       "beforeImage": ""
     }
   ],
-  "buildTimestamp": "2026-05-08 15:51:17",
+  "buildTimestamp": "2026-05-08 16:16:33",
   "forceRefreshBuild": true,
   "heicUploadFix": true,
   "imageDisplayFix": true,
@@ -112,5 +112,7 @@
   "readmeCleanup": true,
   "deniedTestimonialsPage": true,
   "deniedTestimonials": [],
-  "heroImageFix": true
+  "heroImageFix": true,
+  "loginStyleFix": true,
+  "dualLoginCleanup": true
 }

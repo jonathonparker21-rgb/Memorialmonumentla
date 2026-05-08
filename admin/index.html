@@ -1,10 +1,10 @@
-<!-- VERSION: v1.6.0 -->
+<!-- VERSION: v1.6.3 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Owner Control Panel | Memorial Monuments of Louisiana</title>
+  <title>Admin Login | Memorial Monuments of Louisiana</title>
   <link rel="stylesheet" href="../assets/css/styles.css" />
 </head>
 <body class="admin-page">
@@ -23,8 +23,8 @@
 
 <main class="admin-shell">
   <aside class="admin-login-card" id="loginBox">
-    <h2>Owner Login</h2>
-    <p class="small">Login with the owner username and password set in Cloudflare.</p>
+    <h2>Admin Login</h2>
+    <p class="small">Authorized users only. Sign in with your assigned username and password.</p>
     <form id="loginForm">
       <label>Username</label>
       <input id="username" type="text" required />
@@ -33,19 +33,14 @@
       <button class="btn btn-primary" type="submit">Login</button>
       <p id="loginError" style="color:#ffb4a5;font-weight:700;"></p>
     </form>
-    <div class="notice">
-      <strong>Fallback login</strong><br>
-      Username: <span class="code">admin</span><br>
-      Password: <span class="code">ChangeMe123!</span><br><br>
-      Set <span class="code">OWNER_USERNAME</span> and <span class="code">OWNER_PASSWORD</span> in Cloudflare.
-    </div>
+    <p class="small">Use your assigned account. Credentials are no longer displayed on this page.</p>
   </aside>
 
   <section id="editor" class="admin-editor" style="display:none;">
     <div class="admin-topbar">
       <div>
         <h1>Owner Control Panel</h1>
-        <p class="small">Version <span class="siteVersion">v1.6.0</span></p>
+        <p class="small">Version <span class="siteVersion">v1.6.3</span></p>
       </div>
       <div class="admin-actions">
         <button class="btn btn-primary" type="button" id="saveBtn">Save Changes</button>
@@ -63,7 +58,7 @@
       <h2>Website Text</h2>
       <div class="admin-form-grid">
         <div>
-          <label>Site Version</label><input id="version" placeholder="v1.6.0" />
+          <label>Site Version</label><input id="version" placeholder="v1.6.3" />
           <label>Business Name</label><input id="businessName" />
           <label>Tagline</label><input id="tagline" />
           <label>Hero Headline</label><input id="heroHeadline" />
@@ -227,6 +222,6 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/heic2any/dist/heic2any.min.js"></script>
-<script src="admin-v160.js?v=v1.6.0?v=v1.6.0?v=v1.6.0?v=v1.6.0?v=v1.6.0?v=v1.6.0?v=v1.6.0?v=v1.6.0?v=v1.6.0"></script>
+<script src="admin-v162.js?v=v1.6.3?v=v1.6.3?v=v1.6.3?v=v1.6.3?v=v1.6.3?v=v1.6.3?v=v1.6.3?v=v1.6.3?v=v1.6.3?v=v1.6.3?v=v1.6.3"></script>
 </body>
 </html>

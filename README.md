@@ -1,36 +1,24 @@
 # Memorial Monuments of Louisiana
 
 ## Current package
-Version: v1.6.0
+Version: v1.6.3
 
 This build includes:
-- working clean admin base from the v1.5.x reset
-- separate restoration upload sections for:
-  - Single Photo
-  - Before / After Set
-- multi-photo before/after support
-- testimonial system rebuilt on the clean base
-- sample testimonials visible in admin
-- pending testimonials visible in admin after local test submissions
-- testimonial admin rows styled to match the Current Restoration Items area
-- denied testimonials moved to a separate admin page
-- denied testimonials stored for up to 30 days
-- homepage hero image manager fixed:
-  - upload
-  - preview
-  - remove
-  - homepage display
-- admin title updated to **Owner Control Panel**
+- current working admin base
+- denied testimonials page
+- hero photo manager fix
+- login page no longer displays any credentials
+- two simple current logins supported in the existing setup:
+  - one admin account
+  - one shared staff account
+- current login page text updated so it does not reveal credentials
 
 ## Recent version notes
-- v1.5.1: clean rebase from the earlier stable admin structure
-- v1.5.3: testimonial system rebuilt on the clean base
-- v1.5.4: fixed broken repeated script query strings
-- v1.5.5: fixed testimonial render call in admin
-- v1.5.6: compact testimonial styling and admin title update
-- v1.5.7: testimonial rows restyled to match Current Restoration Items
-- v1.5.9: separate denied testimonials page with 30-day retention
-- v1.6.0: hero image upload/remove/homepage display fix
+- v1.6.3: separate denied testimonials page with 30-day retention
+- v1.6.3: hero image upload/remove/homepage display fix
+- v1.6.3: login card and fallback login styling cleanup
+- v1.6.3: removed displayed credentials and added second simple login
+- v1.6.3: repackaged in the same version theme style
 
 ## Deployment note
 After uploading a new build to Cloudflare Pages, do a full refresh of the admin page.
