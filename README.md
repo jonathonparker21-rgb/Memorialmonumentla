@@ -1,7 +1,7 @@
 # Memorial Monuments of Louisiana
 
 ## Current package
-Version: v1.6.6
+Version: v1.6.7
 
 This build includes:
 - current working admin base
@@ -9,6 +9,7 @@ This build includes:
 - hero photo manager fixed
 - homepage hero script fixed
 - admin sections reorganized into a more natural order
+- admin top header bar restored to the top of the page
 
 ## Admin order in this version
 1. Website Text
@@ -26,6 +27,7 @@ This build includes:
 - v1.6.4: hero image sync fix
 - v1.6.5: fixed homepage hero script and save auth mismatch
 - v1.6.6: reorganized admin section order
+- v1.6.7: restored admin top header bar to the top
 
 ## Deployment note
 After uploading a new build to Cloudflare Pages, do a full refresh of the admin page.

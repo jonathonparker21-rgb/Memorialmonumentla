@@ -1,9 +1,61 @@
-<!-- VERSION: v1.6.6 -->
+<!-- VERSION: v1.6.7 -->
+
+<!-- VERSION: v1.6.7 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login | Memorial Monuments of Louisiana</title>
+  <link rel="stylesheet" href="../assets/css/styles.css" />
+</head>
+<body class="admin-page">
+<header>
+  <div class="container nav">
+    <a href="../index.html" class="logo-wrap">
+      <img src="../assets/images/site-logo.png" alt="Memorial Monuments of Louisiana logo" class="brand-logo-large" />
+    </a>
+    <nav>
+      <ul>
+        <li><a href="../index.html">View Site</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main class="admin-shell">
+  <aside class="admin-login-card" id="loginBox">
+    <h2>Admin Login</h2>
+    <p class="small">Authorized users only. Sign in with your assigned username and password.</p>
+    <form id="loginForm">
+      <label>Username</label>
+      <input id="username" type="text" required />
+      <label>Password</label>
+      <input id="password" type="password" required />
+      <button class="btn btn-primary" type="submit">Login</button>
+      <p id="loginError" style="color:#ffb4a5;font-weight:700;"></p>
+    </form>
+    <p class="small">Use your assigned account. Credentials are no longer displayed on this page.</p>
+  </aside>
+
+  <section id="editor" class="admin-editor" style="display:none;">
+    <div class="admin-topbar">
+      <div>
+        <h1>Owner Control Panel</h1>
+        <p class="small">Version <span class="siteVersion">v1.6.7</span></p>
+      </div>
+      <div class="admin-actions">
+        <button class="btn btn-primary" type="button" id="saveBtn">Save Changes</button>
+        <button class="btn btn-secondary" type="button" id="resetBtn">Reset</button>
+        <button class="btn btn-secondary" type="button" id="logoutBtn">Logout</button>
+      </div>
+    </div>
+
 <div class="admin-section">
       <h2>Website Text</h2>
       <div class="admin-form-grid">
         <div>
-          <label>Site Version</label><input id="version" placeholder="v1.6.6" />
+          <label>Site Version</label><input id="version" placeholder="v1.6.7" />
           <label>Business Name</label><input id="businessName" />
           <label>Tagline</label><input id="tagline" />
           <label>Hero Headline</label><input id="heroHeadline" />
@@ -116,58 +168,9 @@
         <div><label>Section Title Size</label><input id="sectionTitleSize" placeholder="2.8rem" /></div>
         <div><label>Body Text Size</label><input id="bodyTextSize" placeholder="1.08rem" /></div>
         <div><label>Navigation Text Size</label><input id="navTextSize" placeholder="1rem" /></div>
-      </div><!-- VERSION: v1.6.6 -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Login | Memorial Monuments of Louisiana</title>
-  <link rel="stylesheet" href="../assets/css/styles.css" />
-</head>
-<body class="admin-page">
-<header>
-  <div class="container nav">
-    <a href="../index.html" class="logo-wrap">
-      <img src="../assets/images/site-logo.png" alt="Memorial Monuments of Louisiana logo" class="brand-logo-large" />
-    </a>
-    <nav>
-      <ul>
-        <li><a href="../index.html">View Site</a></li>
-      </ul>
-    </nav>
-  </div>
-</header>
-
-<main class="admin-shell">
-  <aside class="admin-login-card" id="loginBox">
-    <h2>Admin Login</h2>
-    <p class="small">Authorized users only. Sign in with your assigned username and password.</p>
-    <form id="loginForm">
-      <label>Username</label>
-      <input id="username" type="text" required />
-      <label>Password</label>
-      <input id="password" type="password" required />
-      <button class="btn btn-primary" type="submit">Login</button>
-      <p id="loginError" style="color:#ffb4a5;font-weight:700;"></p>
-    </form>
-    <p class="small">Use your assigned account. Credentials are no longer displayed on this page.</p>
-  </aside>
-
-  <section id="editor" class="admin-editor" style="display:none;">
-    <div class="admin-topbar">
-      <div>
-        <h1>Owner Control Panel</h1>
-        <p class="small">Version <span class="siteVersion">v1.6.6</span></p>
       </div>
-      <div class="admin-actions">
-        <button class="btn btn-primary" type="button" id="saveBtn">Save Changes</button>
-        <button class="btn btn-secondary" type="button" id="resetBtn">Reset</button>
-        <button class="btn btn-secondary" type="button" id="logoutBtn">Logout</button>
-      </div>
-    </div>
 
-    <div class="admin-status-card" id="diagnosticsBox">
+<div class="admin-status-card" id="diagnosticsBox">
       <strong>Upload status:</strong>
       <span id="diagnosticsText">Checking Cloudflare bindings...</span>
     </div>
@@ -212,15 +215,12 @@
       </div>
     </div>
 
-    
-    <!-- TESTIMONIALS_SECTION_PLACEHOLDER -->
+<!-- TESTIMONIALS_SECTION_PLACEHOLDER -->
 
-
-    <!-- HERO_PHOTO_SECTION_PLACEHOLDER -->
+<!-- HERO_PHOTO_SECTION_PLACEHOLDER -->
     </div>
 
-
-    <!-- RESTORATION_GALLERY_SECTION_PLACEHOLDER -->
+<!-- RESTORATION_GALLERY_SECTION_PLACEHOLDER -->
 
       <h3>Current Restoration Items</h3>
       <div class="admin-gallery-list" id="adminGalleryList"></div>
@@ -231,6 +231,6 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/heic2any/dist/heic2any.min.js"></script>
-<script src="admin-v165.js?v=v1.6.6?v=v1.6.6?v=v1.6.6?v=v1.6.6?v=v1.6.6?v=v1.6.6?v=v1.6.6?v=v1.6.6?v=v1.6.6?v=v1.6.6?v=v1.6.6?v=v1.6.6?v=v1.6.6?v=v1.6.6?v=v1.6.6"></script>
+<script src="admin-v165.js?v=v1.6.7?v=v1.6.7?v=v1.6.7?v=v1.6.7?v=v1.6.7?v=v1.6.7?v=v1.6.7?v=v1.6.7?v=v1.6.7?v=v1.6.7?v=v1.6.7?v=v1.6.7?v=v1.6.7?v=v1.6.7?v=v1.6.7?v=v1.6.7"></script>
 </body>
 </html>
