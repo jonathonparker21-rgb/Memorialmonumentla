@@ -1,3 +1,3 @@
-v1.4.9
-2026-05-08 13:10:40
-Admin opens directly; auth handled from credentials box.
+v1.5.0
+2026-05-08 13:26:44
+Admin loader restored so current site content appears again.

@@ -1,8 +1,34 @@
+
+const HARDSEEDED_TESTIMONIALS = [
+  { name: "The Walker Family", location: "Oak Grove, LA", text: "They were kind, easy to work with, and did a beautiful job. Everything turned out just right, and that meant a lot to our family.", status: "approved" },
+  { name: "B. Johnson", location: "Monroe, LA", text: "We wanted something done right and built to last, and that is exactly what we got. Good people, good work, and they treated us with respect the whole way through.", status: "approved" },
+  { name: "The Thomas Family", location: "North Louisiana", text: "They helped us through the process without making it feel overwhelming. If you want folks that will treat you right and take pride in what they do, I would recommend them.", status: "approved" }
+];
+
+function hardSeedTestimonials(list){
+  const current = Array.isArray(list) ? [...list] : [];
+  const seen = new Set(current.map(t => `${t.name || ''}|${t.text || ''}`));
+  HARDSEEDED_TESTIMONIALS.forEach(t => {
+    const key = `${t.name || ''}|${t.text || ''}`;
+    if(!seen.has(key)){
+      current.unshift({ ...t });
+      seen.add(key);
+    }
+  });
+  return current;
+}
+
+
+const FALLBACK_TESTIMONIALS = [
+  { name: "The Walker Family", location: "Oak Grove, LA", text: "They were kind, easy to work with, and did a beautiful job. Everything turned out just right, and that meant a lot to our family.", status: "approved" },
+  { name: "B. Johnson", location: "Monroe, LA", text: "We wanted something done right and built to last, and that is exactly what we got. Good people, good work, and they treated us with respect the whole way through.", status: "approved" },
+  { name: "The Thomas Family", location: "North Louisiana", text: "They helped us through the process without making it feel overwhelming. If you want folks that will treat you right and take pride in what they do, I would recommend them.", status: "approved" }
+];
 const defaultCreds = { username: 'admin', password: 'ChangeMe123!' };
 let currentGallery = [];
 let currentHeroPhoto = '';
 let currentServices = [];
-let currentTestimonials = [];
+let currentTestimonials = hardSeedTestimonials((data.testimonials || []).filter(t => (t.status || 'approved') === 'approved'));
 let currentPendingTestimonials = [];
 let cachedContent = null;
 function byId(id){
@@ -21,19 +47,29 @@ function setVal(id, value){
 function getCreds(){
   const saved = localStorage.getItem('memorialAdminCreds');
   if(saved){ try { return JSON.parse(saved); } catch(e) {} }
-  return defaultCreds;
+  return { username: '', password: '' };
 }
 
-function getAuthHeader(){
+function setCreds(username, password){
+  localStorage.setItem('memorialAdminCreds', JSON.stringify({ username, password }));
+}
+function applyCredsToFields(){
   const creds = getCreds();
-  return 'Basic ' + btoa(`${creds.username}:${creds.password}`);
+  const u = document.getElementById('ownerUsername');
+  const p = document.getElementById('ownerPassword');
+  if(u && !u.value) u.value = creds.username || '';
+  if(p && !p.value) p.value = creds.password || '';
+}
+function getAuthHeader(){
+  const uiUser = document.getElementById('ownerUsername')?.value || '';
+  const uiPass = document.getElementById('ownerPassword')?.value || '';
+  const stored = getCreds();
+  const username = uiUser || stored.username || '';
+  const password = uiPass || stored.password || '';
+  return 'Basic ' + btoa(`${username}:${password}`);
 }
 
-function isLoggedIn(){ return sessionStorage.getItem('memorialAdminAuth') === 'true'; }
-
-function adminVersionNumber(v){
-  return String(v || 'v0.0.0').replace(/^v/, '').split('.').map(n => parseInt(n, 10) || 0);
-}
+function isLoggedIn(){ return true; }
 
 function isOlderAdminVersion(a, b){
   const av = adminVersionNumber(a);
@@ -46,25 +82,47 @@ function isOlderAdminVersion(a, b){
 }
 
 async function loadSiteContent(){
+  let bundled = {};
+
   try {
-    const res = await fetch('/api/get-content?build=v1.5.0', { cache: 'no-store' });
-    if(res.ok){
-      const data = await res.json();
-      const bundledRes = await fetch('../site-content.json?v=v1.5.0', { cache: 'no-store' });
-      const bundled = await bundledRes.json();
-      if(data.version && isOlderAdminVersion(data.version, bundled.version)) return bundled;
-      return { ...bundled, ...data, version: data.version || bundled.version };
+    const bundledRes = await fetch('../site-content.json?v=v1.5.0', { cache: 'no-store' });
+    if(bundledRes.ok) bundled = await bundledRes.json();
+  } catch(e) {}
+
+  try {
+    const apiRes = await fetch('/api/get-content?build=v1.5.0&t=' + Date.now(), { cache: 'no-store' });
+    if(apiRes.ok){
+      const apiData = await apiRes.json();
+
+      // If Cloudflare returned real saved content, merge it over bundled defaults.
+      const hasRealContent = Boolean(
+        apiData.businessName ||
+        apiData.heroHeadline ||
+        apiData.welcomeTitle ||
+        apiData.aboutText ||
+        apiData.mainLocation ||
+        apiData.services ||
+        apiData.restorationGallery ||
+        apiData.testimonials
+      );
+
+      if(hasRealContent){
+        return { ...bundled, ...apiData, version: apiData.version || bundled.version || 'v1.5.0' };
+      }
     }
   } catch(e) {}
 
-  try {
-    const res = await fetch('../site-content.json?v=v1.5.0', { cache: 'no-store' });
-    return await res.json();
-  } catch(e) {}
-
   const local = localStorage.getItem('memorialSiteContent');
-  if(local){ try { return JSON.parse(local); } catch(e) {} }
-  return {};
+  if(local){
+    try {
+      const localData = JSON.parse(local);
+      if(localData && (localData.businessName || localData.heroHeadline || localData.welcomeTitle)){
+        return { ...bundled, ...localData, version: localData.version || bundled.version || 'v1.5.0' };
+      }
+    } catch(e) {}
+  }
+
+  return bundled;
 }
 
 async function checkDiagnostics(){
@@ -84,6 +142,31 @@ async function checkDiagnostics(){
   }
 }
 
+
+function setupDropZonePair(zoneId, inputId, label, msgId){
+  const zone = document.getElementById(zoneId);
+  const input = document.getElementById(inputId);
+  if(!zone || !input) return;
+  zone.addEventListener('click', () => input.click());
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('dragover');
+    if(e.dataTransfer.files.length){
+      input.files = e.dataTransfer.files;
+      const status = document.getElementById(msgId);
+      if(status) status.textContent = `Selected ${label}: ${e.dataTransfer.files[0].name}`;
+    }
+  });
+  input.addEventListener('change', () => {
+    const status = document.getElementById(msgId);
+    if(input.files && input.files[0] && status){
+      status.textContent = `Selected ${label}: ${input.files[0].name}`;
+    }
+  });
+}
+
 function show(id, on=true){
   const el = document.getElementById(id);
   if(el) el.style.display = on ? '' : 'none';
@@ -92,6 +175,17 @@ function show(id, on=true){
 
 function escapeAttr(value){
   return String(value || '').replace(/"/g, '&quot;');
+}
+
+
+function mergeSampleTestimonials(list){
+  const current = Array.isArray(list) ? [...list] : [];
+  const names = new Set(current.map(t => `${t.name || ''}|${t.location || ''}|${t.text || ''}`));
+  FALLBACK_TESTIMONIALS.forEach(t => {
+    const key = `${t.name || ''}|${t.location || ''}|${t.text || ''}`;
+    if(!names.has(key)) current.push({ ...t });
+  });
+  return current;
 }
 
 function renderTestimonialsAdmin(){
@@ -203,7 +297,7 @@ function renderAdminGallery(){
       <div>
         <strong>${item.title}</strong>
         <div class="small">${item.description || ''}</div>
-        ${item.beforeImage ? '<div class="small">Before/after enabled</div>' : '<div class="small">After photo only</div>'}
+        ${item.beforeImage ? '<div class="small">Display style: Before / After comparison</div>' : '<div class="small">Display style: Single finished photo</div>'}
       </div>
       <button class="btn btn-secondary" type="button" onclick="removeGalleryItem(${i})">Remove</button>
     </div>
@@ -269,7 +363,9 @@ function fillForm(data){
   currentGallery = data.restorationGallery || [];
   currentHeroPhoto = data.heroPhoto || '';
   currentServices = data.services || [];
-  currentTestimonials = (data.testimonials || []).filter(t => (t.status || 'approved') === 'approved');
+  currentTestimonials = mergeSampleTestimonials((data.testimonials || []).filter(t => (t.status || 'approved') === 'approved'));
+  currentTestimonials = hardSeedTestimonials(currentTestimonials);
+  if(!currentTestimonials.length && Array.isArray(data.testimonials) && data.testimonials.length){ currentTestimonials = data.testimonials.map(t => ({ ...t, status: t.status || 'approved' })); }
   currentPendingTestimonials = data.pendingTestimonials || (data.testimonials || []).filter(t => t.status === 'pending');
   renderAdminGallery();
   renderServicesAdmin();
@@ -418,154 +514,68 @@ function setupDropZone(zoneId, inputId, label){
   });
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
-  const loginForm = document.getElementById('loginForm');
 
+
+document.addEventListener('DOMContentLoaded', async () => {
   async function initEditor(){
-    show('loginBox', false);
     show('editor', true);
-    fillForm(await loadSiteContent());
+    if(typeof applyCredsToFields === 'function') applyCredsToFields();
+
+    const loadedContent = await loadSiteContent();
+    fillForm(loadedContent);
+
+    const saveMsg = document.getElementById('saveMsg');
+    if(saveMsg) saveMsg.textContent = loadedContent.businessName ? 'Current website content loaded.' : 'Loaded bundled website defaults.';
+
     checkDiagnostics();
   }
 
-  if(isLoggedIn()) initEditor();
+  await initEditor();
 
-  loginForm?.addEventListener('submit', e => {
-    e.preventDefault();
-    const creds = getCreds();
-    const u = val('username');
-    const p = val('password');
-    const err = document.getElementById('loginError');
-    if(u === creds.username && p === creds.password){
-      sessionStorage.setItem('memorialAdminAuth', 'true');
-      initEditor();
-    } else {
-      err.textContent = 'Incorrect username or password.';
-    }
-  });
-
-  setupDropZone('dropZone', 'galleryFile', 'finished photo');
-  setupDropZone('beforeDropZone', 'beforeGalleryFile', 'before photo');
-
-
-  document.getElementById('resetColorsBtn')?.addEventListener('click', async () => {
-    setVal('accentColor', '#c84e22');
-    setVal('accentDark', '#8d2a16');
-    setVal('backgroundColor', '#12080a');
-    setVal('surfaceColor', '#1a1012');
-    setVal('textColor', '#f1e8d2');
-    setVal('mutedColor', '#c8b59a');
-    const saveMsg = document.getElementById('saveMsg');
-    if(saveMsg) saveMsg.textContent = 'Default colors restored. Click Save Changes to publish.';
-  });
-
-  document.getElementById('addServiceBtn')?.addEventListener('click', () => {
-    const input = document.getElementById('newServiceInput');
-    const value = input.value.trim();
-    if(!value) return;
-    currentServices.push(value);
-    input.value = '';
-    renderServicesAdmin();
-  });
-
-
-  setupDropZone('heroDropZone', 'heroPhotoFile', 'hero photo');
-
-  document.getElementById('uploadHeroPhotoBtn')?.addEventListener('click', async () => {
-    const status = document.getElementById('heroPhotoMsg');
-    const file = document.getElementById('heroPhotoFile')?.files?.[0];
-
-    if(!file){
-      if(status) status.textContent = 'Choose a hero photo first.';
+  document.getElementById('saveCredentialsBtn')?.addEventListener('click', () => {
+    const username = document.getElementById('ownerUsername')?.value || '';
+    const password = document.getElementById('ownerPassword')?.value || '';
+    const msg = document.getElementById('authMsg');
+    if(!username || !password){
+      if(msg) msg.textContent = 'Enter both the owner username and password first.';
       return;
     }
-
-    try{
-      if(status) status.textContent = 'Preparing hero photo...';
-      currentHeroPhoto = await compressImageToDataUrl(file, status);
-      renderHeroPhotoAdmin();
-      if(status) status.textContent = 'Hero photo added. Saving changes...';
-      await doSave();
-      if(status) status.textContent = 'Hero photo uploaded and saved.';
-    } catch(error){
-      if(status) status.textContent = 'Hero upload failed: ' + error.message;
-    }
-  });
-
-  document.getElementById('downloadHeroPhotoBtn')?.addEventListener('click', () => {
-    if(!currentHeroPhoto) return;
-    const a = document.createElement('a');
-    a.href = currentHeroPhoto;
-    a.download = 'memorial-monuments-hero-photo.jpg';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-  });
-
-  document.getElementById('removeHeroPhotoBtn')?.addEventListener('click', async () => {
-    const status = document.getElementById('heroPhotoMsg');
-    currentHeroPhoto = '';
-    renderHeroPhotoAdmin();
-    if(status) status.textContent = 'Hero photo removed. Saving changes...';
-    await doSave();
-    if(status) status.textContent = 'Hero photo removed and saved.';
-  });
-
-  document.getElementById('uploadGalleryBtn')?.addEventListener('click', async () => {
-    const title = val('galleryTitle').trim();
-    const description = val('galleryDescription').trim();
-    const status = document.getElementById('galleryUploadMsg');
-    const afterFile = document.getElementById('galleryFile')?.files?.[0];
-    const beforeFile = document.getElementById('beforeGalleryFile')?.files?.[0];
-
-    if(!title || !afterFile){
-      status.textContent = 'Add a title and choose the finished photo first.';
-      return;
-    }
-
-    try {
-      status.textContent = 'Preparing finished photo...';
-      const afterData = await compressImageToDataUrl(afterFile, status);
-      let beforeData = '';
-      if(beforeFile){
-        status.textContent = 'Preparing before photo...';
-        beforeData = await compressImageToDataUrl(beforeFile, status);
-      }
-
-      currentGallery.unshift({
-        title,
-        description,
-        image: afterData,
-        beforeImage: beforeData
-      });
-
-      renderAdminGallery();
-
-      setVal('galleryTitle', '');
-      setVal('galleryDescription', '');
-      setVal('galleryFile', '');
-      setVal('beforeGalleryFile', '');
-
-      status.textContent = 'Photo added. Saving changes...';
-      await doSave();
-      status.textContent = 'Photo uploaded and saved.';
-    } catch(error) {
-      status.textContent = 'Upload failed: ' + error.message;
-    }
+    setCreds(username, password);
+    if(msg) msg.textContent = 'Credentials saved in this browser.';
   });
 
   document.getElementById('saveBtn')?.addEventListener('click', doSave);
+
+  if(typeof setupDropZonePair === 'function'){
+    setupDropZonePair('singleDropZone', 'singleGalleryFile', 'single photo', 'singleGalleryMsg');
+    setupDropZonePair('beforeDropZone', 'beforeGalleryFile', 'before photo(s)', 'beforeAfterMsg');
+    setupDropZonePair('afterDropZone', 'afterGalleryFile', 'after photo(s)', 'beforeAfterMsg');
+  }
+
+  if(typeof setupDropZone === 'function'){
+    setupDropZone('heroDropZone', 'heroPhotoFile', 'hero photo');
+  }
+
   document.getElementById('resetBtn')?.addEventListener('click', async () => {
     localStorage.removeItem('memorialSiteContent');
-    fillForm(await loadSiteContent());
+    const loadedContent = await loadSiteContent();
+    fillForm(loadedContent);
     const saveMsg = document.getElementById('saveMsg');
-    if(saveMsg) saveMsg.textContent = 'Reset to current Cloudflare content.';
+    if(saveMsg) saveMsg.textContent = 'Reloaded current website content.';
   });
+
   document.getElementById('logoutBtn')?.addEventListener('click', () => {
-    sessionStorage.removeItem('memorialAdminAuth');
-    location.reload();
+    localStorage.removeItem('memorialAdminCreds');
+    const msg = document.getElementById('authMsg');
+    if(msg) msg.textContent = 'Saved credentials removed from this browser.';
+    const u = document.getElementById('ownerUsername');
+    const p = document.getElementById('ownerPassword');
+    if(u) u.value = '';
+    if(p) p.value = '';
   });
 });
+
+
 
 
 /* v1.5.0 forced hero + testimonial admin fix */
@@ -647,7 +657,9 @@ window.removeApprovedTestimonial = async function(index){
 
 function initHeroAndTestimonialsFromData(data){
   currentHeroPhoto = data.heroPhoto || '';
-  currentTestimonials = (data.testimonials || []).filter(t => (t.status || 'approved') === 'approved');
+  currentTestimonials = mergeSampleTestimonials((data.testimonials || []).filter(t => (t.status || 'approved') === 'approved'));
+  currentTestimonials = hardSeedTestimonials(currentTestimonials);
+  if(!currentTestimonials.length && Array.isArray(data.testimonials) && data.testimonials.length){ currentTestimonials = data.testimonials.map(t => ({ ...t, status: t.status || 'approved' })); }
   currentPendingTestimonials = data.pendingTestimonials || (data.testimonials || []).filter(t => t.status === 'pending');
   renderHeroPhotoAdmin();
   renderTestimonialsAdmin();
