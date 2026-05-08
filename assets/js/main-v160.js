@@ -58,8 +58,8 @@ const FALLBACK_TESTIMONIALS = [
   { name: "B. Johnson", location: "Monroe, LA", text: "We wanted something done right and built to last, and that is exactly what we got. Good people, good work, and they treated us with respect the whole way through.", status: "approved" },
   { name: "The Thomas Family", location: "North Louisiana", text: "They helped us through the process without making it feel overwhelming. If you want folks that will treat you right and take pride in what they do, I would recommend them.", status: "approved" }
 ];
-/* FORCE_REFRESH_BUILD v1.6.3 2026-04-29 13:10:31 */
-const BUILD_VERSION = 'v1.6.3';
+/* FORCE_REFRESH_BUILD v1.6.4 2026-04-29 13:10:31 */
+const BUILD_VERSION = 'v1.6.4';
 
 function versionNumber(v){
   return String(v || 'v0.0.0').replace(/^v/, '').split('.').map(n => parseInt(n, 10) || 0);
@@ -75,7 +75,7 @@ function isOlderVersion(a, b){
 }
 
 async function loadBundledContent(){
-  const res = await fetch('site-content.json?v=v1.6.3', { cache: 'no-store' });
+  const res = await fetch('site-content.json?v=v1.6.4', { cache: 'no-store' });
   return await res.json();
 }
 
@@ -83,7 +83,7 @@ async function loadContent(){
   const bundled = await loadBundledContent();
 
   try {
-    const apiRes = await fetch('/api/get-content?build=v1.6.3', { cache: 'no-store' });
+    const apiRes = await fetch('/api/get-content?build=v1.6.4', { cache: 'no-store' });
     if (apiRes.ok) {
       const apiData = await apiRes.json();
 
