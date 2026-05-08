@@ -125,12 +125,12 @@ function isLoggedIn(){ return sessionStorage.getItem('memorialAdminAuth') === 't
 
 async function loadSiteContent(){
   try {
-    const res = await fetch('/api/get-content?build=v1.5.3', { cache: 'no-store' });
+    const res = await fetch('/api/get-content?build=v1.5.4', { cache: 'no-store' });
     if (res.ok) {
       const data = await res.json();
 
-      // If KV is stale, fall back to bundled content so old v1.5.3 data does not override this build.
-      const bundledRes = await fetch('../site-content.json?v=v1.5.3', { cache: 'no-store' });
+      // If KV is stale, fall back to bundled content so old v1.5.4 data does not override this build.
+      const bundledRes = await fetch('../site-content.json?v=v1.5.4', { cache: 'no-store' });
       const bundled = await bundledRes.json();
 
       if(data.version && isOlderAdminVersion(data.version, bundled.version)){
@@ -142,7 +142,7 @@ async function loadSiteContent(){
   } catch (e) {}
 
   try {
-    const res = await fetch('../site-content.json?v=v1.5.3', { cache: 'no-store' });
+    const res = await fetch('../site-content.json?v=v1.5.4', { cache: 'no-store' });
     return await res.json();
   } catch (e) {}
 
@@ -234,7 +234,7 @@ function fillForm(data){
   renderAdminGallery();
 
   const map = {
-    version: data.version || 'v1.5.3',
+    version: data.version || 'v1.5.4',
     businessName: data.businessName || '',
     tagline: data.tagline || '',
     heroHeadline: data.heroHeadline || '',
@@ -281,7 +281,7 @@ function fillForm(data){
 function readForm(){
   return {
     ...(cachedContent || {}),
-    version: document.getElementById('version').value || 'v1.5.3' || 'v1.5.3',
+    version: document.getElementById('version').value || 'v1.5.4' || 'v1.5.4',
     businessName: document.getElementById('businessName').value,
     tagline: document.getElementById('tagline').value,
     heroHeadline: document.getElementById('heroHeadline').value,
