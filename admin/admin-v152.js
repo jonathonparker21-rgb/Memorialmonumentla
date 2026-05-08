@@ -1,3 +1,29 @@
+
+const SEEDED_TESTIMONIALS = [
+  { name: "The Walker Family", location: "Oak Grove, LA", text: "They were kind, easy to work with, and did a beautiful job. Everything turned out just right, and that meant a lot to our family.", status: "approved" },
+  { name: "B. Johnson", location: "Monroe, LA", text: "We wanted something done right and built to last, and that is exactly what we got. Good people, good work, and they treated us with respect the whole way through.", status: "approved" },
+  { name: "The Thomas Family", location: "North Louisiana", text: "They helped us through the process without making it feel overwhelming. If you want folks that will treat you right and take pride in what they do, I would recommend them.", status: "approved" }
+];
+
+function mergeSeededTestimonials(list){
+  const current = Array.isArray(list) ? [...list] : [];
+  const keys = new Set(current.map(t => `${t.name || ''}|${t.text || ''}`));
+  SEEDED_TESTIMONIALS.forEach(t => {
+    const key = `${t.name || ''}|${t.text || ''}`;
+    if(!keys.has(key)){
+      current.push({ ...t });
+      keys.add(key);
+    }
+  });
+  return current;
+}
+
+
+const FALLBACK_TESTIMONIALS = [
+  { name: "The Walker Family", location: "Oak Grove, LA", text: "They were kind, easy to work with, and did a beautiful job. Everything turned out just right, and that meant a lot to our family.", status: "approved" },
+  { name: "B. Johnson", location: "Monroe, LA", text: "We wanted something done right and built to last, and that is exactly what we got. Good people, good work, and they treated us with respect the whole way through.", status: "approved" },
+  { name: "The Thomas Family", location: "North Louisiana", text: "They helped us through the process without making it feel overwhelming. If you want folks that will treat you right and take pride in what they do, I would recommend them.", status: "approved" }
+];
 const defaultCreds = { username: 'admin', password: 'ChangeMe123!' };
 let currentGallery = [];
 let currentHeroPhoto = '';
@@ -82,6 +108,31 @@ async function checkDiagnostics(){
   } catch(error) {
     out.textContent = 'Diagnostics endpoint not available. Functions may not be deployed.';
   }
+}
+
+
+function setupDropZonePair(zoneId, inputId, label, msgId){
+  const zone = document.getElementById(zoneId);
+  const input = document.getElementById(inputId);
+  if(!zone || !input) return;
+  zone.addEventListener('click', () => input.click());
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('dragover');
+    if(e.dataTransfer.files.length){
+      input.files = e.dataTransfer.files;
+      const status = document.getElementById(msgId);
+      if(status) status.textContent = `Selected ${label}: ${e.dataTransfer.files[0].name}`;
+    }
+  });
+  input.addEventListener('change', () => {
+    const status = document.getElementById(msgId);
+    if(input.files && input.files[0] && status){
+      status.textContent = `Selected ${label}: ${input.files[0].name}`;
+    }
+  });
 }
 
 function show(id, on=true){
@@ -203,7 +254,7 @@ function renderAdminGallery(){
       <div>
         <strong>${item.title}</strong>
         <div class="small">${item.description || ''}</div>
-        ${item.beforeImage ? '<div class="small">Before/after enabled</div>' : '<div class="small">After photo only</div>'}
+        ${item.beforeImage ? '<div class="small">Display style: Before / After comparison</div>' : '<div class="small">Display style: Single finished photo</div>'}
       </div>
       <button class="btn btn-secondary" type="button" onclick="removeGalleryItem(${i})">Remove</button>
     </div>
@@ -213,6 +264,8 @@ function renderAdminGallery(){
 window.removeGalleryItem = function(index){
   currentGallery.splice(index, 1);
   renderAdminGallery();
+  initHeroAndTestimonialsFromData(data);
+  setupHeroPhotoHandlers();
   renderHeroPhotoAdmin();
 }
 
@@ -267,7 +320,9 @@ function fillForm(data){
   currentGallery = data.restorationGallery || [];
   currentHeroPhoto = data.heroPhoto || '';
   currentServices = data.services || [];
-  currentTestimonials = (data.testimonials || []).filter(t => (t.status || 'approved') === 'approved');
+  currentTestimonials = mergeSeededTestimonials((data.testimonials || []).filter(t => (t.status || 'approved') === 'approved'));
+  if(!currentTestimonials.length) currentTestimonials = FALLBACK_TESTIMONIALS.map(t => ({ ...t }));
+  if(!currentTestimonials.length && Array.isArray(data.testimonials) && data.testimonials.length){ currentTestimonials = data.testimonials.map(t => ({ ...t, status: t.status || 'approved' })); }
   currentPendingTestimonials = data.pendingTestimonials || (data.testimonials || []).filter(t => t.status === 'pending');
   renderAdminGallery();
   renderServicesAdmin();
@@ -328,6 +383,9 @@ function readForm(){
     testimonials: currentTestimonials.map(t => ({ ...t, status: 'approved' })),
     pendingTestimonials: currentPendingTestimonials.map(t => ({ ...t, status: 'pending' })),
     restorationGallery: currentGallery,
+    heroPhoto: currentHeroPhoto,
+    testimonials: currentTestimonials.map(t => ({ ...t, status: 'approved' })),
+    pendingTestimonials: currentPendingTestimonials.map(t => ({ ...t, status: 'pending' })),
     heroPhoto: currentHeroPhoto,
     mainLocation: {
       name: val('mainLocName'),
@@ -439,42 +497,183 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  setupDropZone('dropZone', 'galleryFile', 'finished photo');
-  setupDropZone('beforeDropZone', 'beforeGalleryFile', 'before photo');
 
+  setupDropZonePair('singleDropZone', 'singleGalleryFile', 'single photo', 'singleGalleryMsg');
+  setupDropZonePair('beforeDropZone', 'beforeGalleryFile', 'before photo', 'beforeAfterMsg');
+  setupDropZonePair('afterDropZone', 'afterGalleryFile', 'after photo', 'beforeAfterMsg');
 
-  document.getElementById('resetColorsBtn')?.addEventListener('click', async () => {
-    setVal('accentColor', '#c84e22');
-    setVal('accentDark', '#8d2a16');
-    setVal('backgroundColor', '#12080a');
-    setVal('surfaceColor', '#1a1012');
-    setVal('textColor', '#f1e8d2');
-    setVal('mutedColor', '#c8b59a');
+  document.getElementById('uploadSingleGalleryBtn')?.addEventListener('click', async () => {
+    const title = val('singleGalleryTitle').trim();
+    const description = val('singleGalleryDescription').trim();
+    const status = document.getElementById('singleGalleryMsg');
+    const file = document.getElementById('singleGalleryFile')?.files?.[0];
+
+    if(!title || !file){
+      if(status) status.textContent = 'Add a title and choose the finished photo first.';
+      return;
+    }
+
+    try{
+      const imageData = await compressImageToDataUrl(file, status);
+      currentGallery.unshift({ title, description, image: imageData, beforeImage: '' });
+      renderAdminGallery();
+      setVal('singleGalleryTitle', '');
+      setVal('singleGalleryDescription', '');
+      setVal('singleGalleryFile', '');
+      if(document.getElementById('singleGalleryFile')) document.getElementById('singleGalleryFile').value = '';
+      if(status) status.textContent = 'Single photo added. Saving changes...';
+      await doSave();
+      if(status) status.textContent = 'Single restoration photo uploaded and saved.';
+    } catch(error){
+      if(status) status.textContent = 'Upload failed: ' + error.message;
+    }
+  });
+
+  document.getElementById('uploadBeforeAfterBtn')?.addEventListener('click', async () => {
+    const title = val('baGalleryTitle').trim();
+    const description = val('baGalleryDescription').trim();
+    const status = document.getElementById('beforeAfterMsg');
+    const beforeFile = document.getElementById('beforeGalleryFile')?.files?.[0];
+    const afterFile = document.getElementById('afterGalleryFile')?.files?.[0];
+
+    if(!title || !beforeFile || !afterFile){
+      if(status) status.textContent = 'Add a title and choose both before and after photos.';
+      return;
+    }
+
+    try{
+      if(status) status.textContent = 'Preparing before photo...';
+      const beforeData = await compressImageToDataUrl(beforeFile, status);
+      if(status) status.textContent = 'Preparing after photo...';
+      const afterData = await compressImageToDataUrl(afterFile, status);
+      currentGallery.unshift({ title, description, image: afterData, beforeImage: beforeData });
+      renderAdminGallery();
+      setVal('baGalleryTitle', '');
+      setVal('baGalleryDescription', '');
+      if(document.getElementById('beforeGalleryFile')) document.getElementById('beforeGalleryFile').value = '';
+      if(document.getElementById('afterGalleryFile')) document.getElementById('afterGalleryFile').value = '';
+      if(status) status.textContent = 'Before/after set added. Saving changes...';
+      await doSave();
+      if(status) status.textContent = 'Before/after restoration photos uploaded and saved.';
+    } catch(error){
+      if(status) status.textContent = 'Upload failed: ' + error.message;
+    }
+  });
+
+  document.getElementById('saveBtn')?.addEventListener('click', doSave);
+  document.getElementById('resetBtn')?.addEventListener('click', async () => {
+    localStorage.removeItem('memorialSiteContent');
+    fillForm(await loadSiteContent());
     const saveMsg = document.getElementById('saveMsg');
-    if(saveMsg) saveMsg.textContent = 'Default colors restored. Click Save Changes to publish.';
+    if(saveMsg) saveMsg.textContent = 'Reset to current Cloudflare content.';
   });
-
-  document.getElementById('addServiceBtn')?.addEventListener('click', () => {
-    const input = document.getElementById('newServiceInput');
-    const value = input.value.trim();
-    if(!value) return;
-    currentServices.push(value);
-    input.value = '';
-    renderServicesAdmin();
+  document.getElementById('logoutBtn')?.addEventListener('click', () => {
+    sessionStorage.removeItem('memorialAdminAuth');
+    location.reload();
   });
+});
 
 
-  setupDropZone('heroDropZone', 'heroPhotoFile', 'hero photo');
+/* v1.5.2 forced hero + testimonial admin fix */
+function renderHeroPhotoAdmin(){
+  const preview = document.getElementById('heroPhotoPreview');
+  const download = document.getElementById('downloadHeroPhotoBtn');
+  const clearBtn = document.getElementById('removeHeroPhotoBtn');
+  if(preview){
+    if(currentHeroPhoto){
+      preview.src = currentHeroPhoto;
+      preview.style.display = 'block';
+    } else {
+      preview.removeAttribute('src');
+      preview.style.display = 'none';
+    }
+  }
+  if(download) download.style.display = currentHeroPhoto ? 'inline-block' : 'none';
+  if(clearBtn) clearBtn.style.display = currentHeroPhoto ? 'inline-block' : 'none';
+}
+
+function testimonialAdminCard(t, i, type){
+  const isPending = type === 'pending';
+  return `
+    <div class="testimonial-admin-card">
+      <div class="testimonial-card-preview">
+        <p class="testimonial-text">“${t.text || ''}”</p>
+        <div class="testimonial-meta"><strong>${t.name || ''}</strong>${t.location ? ` <span>• ${t.location}</span>` : ''}</div>
+      </div>
+      <label>Name</label><input value="${String(t.name || '').replace(/"/g, '&quot;')}" oninput="${isPending ? 'updatePendingTestimonial' : 'updateApprovedTestimonial'}(${i}, 'name', this.value)" />
+      <label>Location</label><input value="${String(t.location || '').replace(/"/g, '&quot;')}" oninput="${isPending ? 'updatePendingTestimonial' : 'updateApprovedTestimonial'}(${i}, 'location', this.value)" />
+      <label>Testimonial</label><textarea oninput="${isPending ? 'updatePendingTestimonial' : 'updateApprovedTestimonial'}(${i}, 'text', this.value)">${t.text || ''}</textarea>
+      <div class="admin-actions">
+        ${isPending ? `<button class="btn btn-primary" type="button" onclick="approveTestimonial(${i})">Approve</button><button class="btn btn-secondary" type="button" onclick="denyPendingTestimonial(${i})">Deny</button>` : `<button class="btn btn-secondary" type="button" onclick="removeApprovedTestimonial(${i})">Remove</button>`}
+      </div>
+    </div>`;
+}
+
+function renderTestimonialsAdmin(){
+  const pendingWrap = document.getElementById('pendingTestimonialsList');
+  const approvedWrap = document.getElementById('approvedTestimonialsList');
+  if(approvedWrap){
+    approvedWrap.innerHTML = (currentTestimonials || []).length
+      ? currentTestimonials.map((t, i) => testimonialAdminCard(t, i, 'approved')).join('')
+      : '<p class="small">No active testimonials yet.</p>';
+  }
+  if(pendingWrap){
+    pendingWrap.innerHTML = (currentPendingTestimonials || []).length
+      ? currentPendingTestimonials.map((t, i) => testimonialAdminCard(t, i, 'pending')).join('')
+      : '<p class="small">No pending testimonials.</p>';
+  }
+}
+
+window.updatePendingTestimonial = function(index, field, value){
+  currentPendingTestimonials[index][field] = value;
+}
+
+window.updateApprovedTestimonial = function(index, field, value){
+  currentTestimonials[index][field] = value;
+}
+
+window.approveTestimonial = async function(index){
+  const item = currentPendingTestimonials.splice(index, 1)[0];
+  if(item) currentTestimonials.unshift({ ...item, status: 'approved' });
+  renderTestimonialsAdmin();
+  await doSave();
+}
+
+window.denyPendingTestimonial = async function(index){
+  currentPendingTestimonials.splice(index, 1);
+  renderTestimonialsAdmin();
+  await doSave();
+}
+
+window.removeApprovedTestimonial = async function(index){
+  currentTestimonials.splice(index, 1);
+  renderTestimonialsAdmin();
+  await doSave();
+}
+
+function initHeroAndTestimonialsFromData(data){
+  currentHeroPhoto = data.heroPhoto || '';
+  currentTestimonials = mergeSeededTestimonials((data.testimonials || []).filter(t => (t.status || 'approved') === 'approved'));
+  if(!currentTestimonials.length) currentTestimonials = FALLBACK_TESTIMONIALS.map(t => ({ ...t }));
+  if(!currentTestimonials.length && Array.isArray(data.testimonials) && data.testimonials.length){ currentTestimonials = data.testimonials.map(t => ({ ...t, status: t.status || 'approved' })); }
+  currentPendingTestimonials = data.pendingTestimonials || (data.testimonials || []).filter(t => t.status === 'pending');
+  renderHeroPhotoAdmin();
+  renderTestimonialsAdmin();
+}
+
+function setupHeroPhotoHandlers(){
+  if(window.__heroHandlersReady) return;
+  window.__heroHandlersReady = true;
+
+  if(typeof setupDropZone === 'function') setupDropZone('heroDropZone', 'heroPhotoFile', 'hero photo');
 
   document.getElementById('uploadHeroPhotoBtn')?.addEventListener('click', async () => {
     const status = document.getElementById('heroPhotoMsg');
     const file = document.getElementById('heroPhotoFile')?.files?.[0];
-
     if(!file){
       if(status) status.textContent = 'Choose a hero photo first.';
       return;
     }
-
     try{
       if(status) status.textContent = 'Preparing hero photo...';
       currentHeroPhoto = await compressImageToDataUrl(file, status);
@@ -505,59 +704,4 @@ document.addEventListener('DOMContentLoaded', async () => {
     await doSave();
     if(status) status.textContent = 'Hero photo removed and saved.';
   });
-
-  document.getElementById('uploadGalleryBtn')?.addEventListener('click', async () => {
-    const title = val('galleryTitle').trim();
-    const description = val('galleryDescription').trim();
-    const status = document.getElementById('galleryUploadMsg');
-    const afterFile = document.getElementById('galleryFile')?.files?.[0];
-    const beforeFile = document.getElementById('beforeGalleryFile')?.files?.[0];
-
-    if(!title || !afterFile){
-      status.textContent = 'Add a title and choose the finished photo first.';
-      return;
-    }
-
-    try {
-      status.textContent = 'Preparing finished photo...';
-      const afterData = await compressImageToDataUrl(afterFile, status);
-      let beforeData = '';
-      if(beforeFile){
-        status.textContent = 'Preparing before photo...';
-        beforeData = await compressImageToDataUrl(beforeFile, status);
-      }
-
-      currentGallery.unshift({
-        title,
-        description,
-        image: afterData,
-        beforeImage: beforeData
-      });
-
-      renderAdminGallery();
-
-      setVal('galleryTitle', '');
-      setVal('galleryDescription', '');
-      setVal('galleryFile', '');
-      setVal('beforeGalleryFile', '');
-
-      status.textContent = 'Photo added. Saving changes...';
-      await doSave();
-      status.textContent = 'Photo uploaded and saved.';
-    } catch(error) {
-      status.textContent = 'Upload failed: ' + error.message;
-    }
-  });
-
-  document.getElementById('saveBtn')?.addEventListener('click', doSave);
-  document.getElementById('resetBtn')?.addEventListener('click', async () => {
-    localStorage.removeItem('memorialSiteContent');
-    fillForm(await loadSiteContent());
-    const saveMsg = document.getElementById('saveMsg');
-    if(saveMsg) saveMsg.textContent = 'Reset to current Cloudflare content.';
-  });
-  document.getElementById('logoutBtn')?.addEventListener('click', () => {
-    sessionStorage.removeItem('memorialAdminAuth');
-    location.reload();
-  });
-});
+}
