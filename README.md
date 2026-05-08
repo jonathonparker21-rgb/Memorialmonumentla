@@ -1,27 +1,27 @@
 # Memorial Monuments of Louisiana
 
 ## Current package
-Version: v1.5.7
+Version: v1.5.8
 
-This build includes:
-- working clean admin base from the v1.5.x reset
-- separate restoration upload sections for:
-  - Single Photo
-  - Before / After Set
-- multi-photo before/after support
-- testimonial system rebuilt on the clean base
+This build keeps the current working admin setup and includes:
+- admin title set to **Owner Control Panel**
+- restoration upload sections for:
+  - **Single Photo**
+  - **Before / After Set**
+- testimonial system working on the cleaned v1.5.x base
 - sample testimonials visible in admin
-- pending testimonials visible in admin after local test submissions
-- testimonial admin rows styled to match the Current Restoration Items area
-- admin title updated to **Owner Control Panel**
+- pending testimonials visible in admin after same-browser test submissions
+- testimonial rows styled to match the look of the **Current Restoration Items** area
+- active testimonial rows with inline editing and **Remove**
+- pending testimonial rows with inline editing and **Approve** / **Deny**
 
-## Recent version notes
-- v1.5.1: clean rebase from the earlier stable admin structure
-- v1.5.3: testimonial system rebuilt on the clean base
-- v1.5.4: fixed broken repeated script query strings
-- v1.5.5: fixed testimonial render call in admin
-- v1.5.6: compact testimonial styling and admin title update
-- v1.5.7: testimonial rows restyled to match Current Restoration Items
+## What was changed in this version
+- kept the row-style testimonial layout
+- cleaned up the README so the version notes better match the current package
+- version bumped to v1.5.8
+
+## Current note
+Denied testimonials are not yet moved to a separate dedicated page in this package.
 
 ## Deployment note
 After uploading a new build to Cloudflare Pages, do a full refresh of the admin page.
