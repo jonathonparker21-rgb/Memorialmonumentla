@@ -1,5 +1,5 @@
 {
-  "version": "v1.7.1",
+  "version": "v1.7.2",
   "businessName": "Memorial Monuments of Louisiana",
   "tagline": "Honoring Loved Ones With Care, Respect, and Craftsmanship",
   "heroHeadline": "Locally Owned. Family Focused. Crafted With Care.",
@@ -16,7 +16,7 @@
     "On-site engraving"
   ],
   "mainLocation": {
-    "name": "Oak Grove Location",
+    "name": "Oak Grove Office",
     "address1": "201 Hospital Road",
     "address2": "Oak Grove, LA 71263",
     "phone": "318-369-6060",
@@ -24,7 +24,7 @@
     "mapsQuery": "201 Hospital Road Oak Grove LA 71263"
   },
   "secondLocation": {
-    "name": "Monroe Location",
+    "name": "Sterlington Office",
     "address1": "9850 Hwy 165 North",
     "address2": "Monroe, LA 71280",
     "phone": "318-369-6060",
@@ -83,7 +83,7 @@
       "beforeImage": ""
     }
   ],
-  "buildTimestamp": "2026-05-08 19:12:11",
+  "buildTimestamp": "2026-05-15 14:21:20",
   "forceRefreshBuild": true,
   "heicUploadFix": true,
   "imageDisplayFix": true,
@@ -124,5 +124,19 @@
   "dualOfficeHero": true,
   "heroPhotoOakGrove": "",
   "heroPhotoSterlington": "",
-  "dualHeroClickable": true
+  "dualHeroClickable": true,
+  "seoOptimized": true,
+  "siteUrl": "https://memorialmonumentsla.com",
+  "seo": {
+    "title": "Memorial Monuments of Louisiana | Monuments, Headstones & Restoration",
+    "description": "Memorial Monuments of Louisiana provides custom monuments, headstones, monument restoration, cleaning, releveling, lettering repainting, and on-site engraving for families across North Louisiana.",
+    "serviceArea": [
+      "Oak Grove, LA",
+      "Sterlington, LA",
+      "Monroe, LA",
+      "West Carroll Parish",
+      "North Louisiana",
+      "Northeast Louisiana"
+    ]
+  }
 }
