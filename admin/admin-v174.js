@@ -57,6 +57,8 @@ const FALLBACK_TESTIMONIALS = [
 const defaultCreds = { username: 'admin', password: 'ChangeMe123!' };
 let currentGallery = [];
 let currentHeroPhoto = '';
+let currentHeroPhotoOak = '';
+let currentHeroPhotoSterlington = '';
 let currentServices = [];
 let currentTestimonials = [];
 let currentPendingTestimonials = [];
@@ -294,22 +296,26 @@ window.removeServiceItem = function(index){
 
 
 function renderHeroPhotoAdmin(){
-  const preview = document.getElementById('heroPhotoPreview');
-  const download = document.getElementById('downloadHeroPhotoBtn');
-  const clearBtn = document.getElementById('removeHeroPhotoBtn');
-
-  if(preview){
-    if(currentHeroPhoto && String(currentHeroPhoto).trim()){
-      preview.src = currentHeroPhoto;
-      preview.style.display = 'block';
-    } else {
-      preview.removeAttribute('src');
-      preview.style.display = 'none';
+  const pairs = [
+    { val: currentHeroPhotoOak, preview: 'heroPhotoPreviewOak', download: 'downloadHeroPhotoBtnOak', clear: 'removeHeroPhotoBtnOak' },
+    { val: currentHeroPhotoSterlington, preview: 'heroPhotoPreviewSterlington', download: 'downloadHeroPhotoBtnSterlington', clear: 'removeHeroPhotoBtnSterlington' }
+  ];
+  pairs.forEach(pair => {
+    const preview = document.getElementById(pair.preview);
+    const download = document.getElementById(pair.download);
+    const clearBtn = document.getElementById(pair.clear);
+    if(preview){
+      if(pair.val && String(pair.val).trim()){
+        preview.src = pair.val;
+        preview.style.display = 'block';
+      } else {
+        preview.removeAttribute('src');
+        preview.style.display = 'none';
+      }
     }
-  }
-
-  if(download) download.style.display = currentHeroPhoto ? 'inline-block' : 'none';
-  if(clearBtn) clearBtn.style.display = currentHeroPhoto ? 'inline-block' : 'none';
+    if(download) download.style.display = pair.val ? 'inline-block' : 'none';
+    if(clearBtn) clearBtn.style.display = pair.val ? 'inline-block' : 'none';
+  });
 }
 
 function renderAdminGallery(){
@@ -394,6 +400,8 @@ function fillForm(data){
   const d = data.design || {};
   currentGallery = data.restorationGallery || [];
   currentHeroPhoto = (typeof data.heroPhoto === 'string') ? data.heroPhoto : '';
+  currentHeroPhotoOak = (typeof data.heroPhotoOakGrove === 'string' && data.heroPhotoOakGrove) ? data.heroPhotoOakGrove : currentHeroPhoto;
+  currentHeroPhotoSterlington = (typeof data.heroPhotoSterlington === 'string') ? data.heroPhotoSterlington : '';
   currentServices = data.services || [];
   currentTestimonials = mergeSeededTestimonials((data.testimonials || []).filter(t => (t.status || 'approved') === 'approved'));
   currentPendingTestimonials = data.pendingTestimonials || [];
@@ -425,6 +433,7 @@ function fillForm(data){
     secondPhone: data.secondLocation?.phone || '',
     secondEmail: data.secondLocation?.email || '',
     secondMap: data.secondLocation?.mapsQuery || '',
+    facebookUrl: data.social?.facebookUrl || '',
     accentColor: d.accentColor || '#c84e22',
     accentDark: d.accentDark || '#8d2a16',
     backgroundColor: d.backgroundColor || '#12080a',
@@ -461,11 +470,9 @@ function readForm(){
     pendingTestimonials: currentPendingTestimonials.map(t => ({ ...t, status: 'pending' })),
     deniedTestimonials: pruneDeniedTestimonials(currentDeniedTestimonials).map(t => ({ ...t, status: 'denied' })),
     restorationGallery: currentGallery,
-    heroPhoto: currentHeroPhoto,
-    testimonials: currentTestimonials.map(t => ({ ...t, status: 'approved' })),
-    pendingTestimonials: currentPendingTestimonials.map(t => ({ ...t, status: 'pending' })),
-    deniedTestimonials: pruneDeniedTestimonials(currentDeniedTestimonials).map(t => ({ ...t, status: 'denied' })),
-    heroPhoto: currentHeroPhoto,
+    heroPhoto: currentHeroPhotoOak || currentHeroPhoto,
+    heroPhotoOakGrove: currentHeroPhotoOak || currentHeroPhoto,
+    heroPhotoSterlington: currentHeroPhotoSterlington,
     mainLocation: {
       name: val('mainLocName'),
       address1: val('mainAddr1'),
@@ -481,6 +488,10 @@ function readForm(){
       phone: val('secondPhone'),
       email: val('secondEmail'),
       mapsQuery: val('secondMap')
+    },
+    social: {
+      ...(cachedContent?.social || {}),
+      facebookUrl: val('facebookUrl').trim()
     },
     design: {
       accentColor: val('accentColor'),
@@ -664,47 +675,68 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupDropZone('heroDropZone', 'heroPhotoFile', 'hero photo');
   }
 
-  document.getElementById('uploadHeroPhotoBtn')?.addEventListener('click', async () => {
-    const status = document.getElementById('heroPhotoMsg');
-    const file = document.getElementById('heroPhotoFile')?.files?.[0];
 
-    if(!file){
-      if(status) status.textContent = 'Choose a hero photo first.';
-      return;
+
+  function bindHeroUploader(kind){
+    const isOak = kind === 'Oak';
+    const ids = isOak ? {
+      drop: 'heroDropZoneOak', file: 'heroPhotoFileOak', upload: 'uploadHeroPhotoBtnOak', download: 'downloadHeroPhotoBtnOak', remove: 'removeHeroPhotoBtnOak', msg: 'heroPhotoMsgOak'
+    } : {
+      drop: 'heroDropZoneSterlington', file: 'heroPhotoFileSterlington', upload: 'uploadHeroPhotoBtnSterlington', download: 'downloadHeroPhotoBtnSterlington', remove: 'removeHeroPhotoBtnSterlington', msg: 'heroPhotoMsgSterlington'
+    };
+
+    if(typeof setupDropZonePair === 'function'){
+      setupDropZonePair(ids.drop, ids.file, isOak ? 'Oak Grove office photo' : 'Sterlington office photo', ids.msg);
+    } else if(typeof setupDropZone === 'function'){
+      setupDropZone(ids.drop, ids.file, isOak ? 'Oak Grove office photo' : 'Sterlington office photo');
     }
 
-    try{
-      if(status) status.textContent = 'Preparing hero photo...';
-      currentHeroPhoto = await compressImageToDataUrl(file, status);
+    document.getElementById(ids.upload)?.addEventListener('click', async () => {
+      const status = document.getElementById(ids.msg);
+      const file = document.getElementById(ids.file)?.files?.[0];
+      if(!file){
+        if(status) status.textContent = 'Choose a photo first.';
+        return;
+      }
+      try {
+        if(status) status.textContent = 'Preparing photo...';
+        const dataUrl = await compressImageToDataUrl(file, status);
+        if(isOak) currentHeroPhotoOak = dataUrl; else currentHeroPhotoSterlington = dataUrl;
+        currentHeroPhoto = currentHeroPhotoOak || currentHeroPhoto;
+        renderHeroPhotoAdmin();
+        if(status) status.textContent = 'Photo added. Saving changes...';
+        await doSave();
+        if(document.getElementById(ids.file)) document.getElementById(ids.file).value = '';
+        if(status) status.textContent = 'Photo uploaded and saved.';
+      } catch(error){
+        if(status) status.textContent = 'Photo upload failed: ' + error.message;
+      }
+    });
+
+    document.getElementById(ids.download)?.addEventListener('click', () => {
+      const src = isOak ? currentHeroPhotoOak : currentHeroPhotoSterlington;
+      if(!src) return;
+      const a = document.createElement('a');
+      a.href = src;
+      a.download = isOak ? 'oak-grove-office-photo.jpg' : 'sterlington-office-photo.jpg';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    });
+
+    document.getElementById(ids.remove)?.addEventListener('click', async () => {
+      const status = document.getElementById(ids.msg);
+      if(isOak) currentHeroPhotoOak = ''; else currentHeroPhotoSterlington = '';
+      currentHeroPhoto = currentHeroPhotoOak || '';
       renderHeroPhotoAdmin();
-      if(status) status.textContent = 'Hero photo added. Saving changes...';
+      if(status) status.textContent = 'Photo removed. Saving changes...';
       await doSave();
-      if(document.getElementById('heroPhotoFile')) document.getElementById('heroPhotoFile').value = '';
-      if(status) status.textContent = 'Hero photo uploaded and saved.';
-    } catch(error){
-      if(status) status.textContent = 'Hero upload failed: ' + error.message;
-    }
-  });
+      if(status) status.textContent = 'Photo removed and saved.';
+    });
+  }
 
-  document.getElementById('downloadHeroPhotoBtn')?.addEventListener('click', () => {
-    if(!currentHeroPhoto) return;
-    const a = document.createElement('a');
-    a.href = currentHeroPhoto;
-    a.download = 'memorial-monuments-hero-photo.jpg';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-  });
-
-  document.getElementById('removeHeroPhotoBtn')?.addEventListener('click', async () => {
-    const status = document.getElementById('heroPhotoMsg');
-    currentHeroPhoto = '';
-    renderHeroPhotoAdmin();
-    if(status) status.textContent = 'Hero photo removed. Saving changes...';
-    await doSave();
-    if(status) status.textContent = 'Hero photo removed and saved.';
-  });
-
+  bindHeroUploader('Oak');
+  bindHeroUploader('Sterlington');
 
   document.getElementById('resetBtn')?.addEventListener('click', async () => {
     localStorage.removeItem('memorialSiteContent');
@@ -836,6 +868,8 @@ window.removeApprovedTestimonial = async function(index){
 
 function initHeroAndTestimonialsFromData(data){
   currentHeroPhoto = (typeof data.heroPhoto === 'string') ? data.heroPhoto : '';
+  currentHeroPhotoOak = (typeof data.heroPhotoOakGrove === 'string' && data.heroPhotoOakGrove) ? data.heroPhotoOakGrove : currentHeroPhoto;
+  currentHeroPhotoSterlington = (typeof data.heroPhotoSterlington === 'string') ? data.heroPhotoSterlington : '';
   currentTestimonials = (data.testimonials || []).filter(t => (t.status || 'approved') === 'approved');
   if(!currentTestimonials.length) currentTestimonials = FALLBACK_TESTIMONIALS.map(t => ({ ...t }));
   if(!currentTestimonials.length && Array.isArray(data.testimonials) && data.testimonials.length){ currentTestimonials = data.testimonials.map(t => ({ ...t, status: t.status || 'approved' })); }

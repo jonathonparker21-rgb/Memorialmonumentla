@@ -1,21 +1,71 @@
 
 function renderHeroPhoto(data){
-  const heroPhotoEl = document.getElementById('heroPhotoImage');
-  const heroPhotoBox = document.getElementById('heroPhotoBox');
-  if(!heroPhotoEl || !heroPhotoBox) return;
+  const oakImg = document.getElementById('heroPhotoImageOak');
+  const oakBox = document.getElementById('heroPhotoBoxOak');
+  const oakLabel = document.getElementById('officePhotoLabelOak');
+  const stImg = document.getElementById('heroPhotoImageSterlington');
+  const stBox = document.getElementById('heroPhotoBoxSterlington');
+  const stLabel = document.getElementById('officePhotoLabelSterlington');
 
-  const hero = (data && typeof data.heroPhoto === 'string') ? data.heroPhoto.trim() : '';
+  const oakSrc = (data && typeof data.heroPhotoOakGrove === 'string' && data.heroPhotoOakGrove.trim())
+    ? data.heroPhotoOakGrove.trim()
+    : ((data && typeof data.heroPhoto === 'string') ? data.heroPhoto.trim() : '');
+  const stSrc = (data && typeof data.heroPhotoSterlington === 'string') ? data.heroPhotoSterlington.trim() : '';
 
-  if(hero){
-    heroPhotoEl.src = hero;
-    heroPhotoEl.style.display = 'block';
-    heroPhotoBox.classList.add('has-photo');
-  } else {
-    heroPhotoEl.removeAttribute('src');
-    heroPhotoEl.style.display = 'none';
-    heroPhotoBox.classList.remove('has-photo');
+  const oakName = 'Oak Grove Office';
+  const stName = 'Sterlington Office';
+
+  window.currentOfficeHeroPhotos = {
+    oak: { src: oakSrc, title: oakName },
+    sterlington: { src: stSrc, title: stName }
+  };
+
+  if(oakLabel) oakLabel.textContent = oakName;
+  if(stLabel) stLabel.textContent = stName;
+
+  function applyImage(src, imgEl, boxEl){
+    if(!imgEl || !boxEl) return;
+    if(src){
+      imgEl.src = src;
+      imgEl.style.display = 'block';
+      boxEl.classList.add('has-photo');
+    } else {
+      imgEl.removeAttribute('src');
+      imgEl.style.display = 'none';
+      boxEl.classList.remove('has-photo');
+    }
   }
+
+  applyImage(oakSrc, oakImg, oakBox);
+  applyImage(stSrc, stImg, stBox);
 }
+
+
+
+window.currentOfficeHeroPhotos = window.currentOfficeHeroPhotos || {};
+
+window.openOfficeHeroLightbox = function(which){
+  const item = (window.currentOfficeHeroPhotos || {})[which];
+  if(!item || !item.src) return;
+
+  const box = document.getElementById('officeHeroLightbox');
+  const img = document.getElementById('officeHeroLightboxImage');
+  const title = document.getElementById('officeHeroLightboxTitle');
+
+  if(img) img.src = item.src;
+  if(title) title.textContent = item.title || 'Office Photo';
+  if(box) box.classList.add('active');
+  document.body.classList.add('modal-open');
+};
+
+window.closeOfficeHeroLightbox = function(){
+  const box = document.getElementById('officeHeroLightbox');
+  const img = document.getElementById('officeHeroLightboxImage');
+
+  if(box) box.classList.remove('active');
+  document.body.classList.remove('modal-open');
+  if(img) img.removeAttribute('src');
+};
 
 
 const REBUILT_TESTIMONIAL_SAMPLES = [
@@ -286,6 +336,25 @@ window.closeRestorationLightbox = function(){
 };
 
 
+
+function renderFacebookLinks(data){
+  const facebookUrl = data && data.social && typeof data.social.facebookUrl === 'string'
+    ? data.social.facebookUrl.trim()
+    : '';
+
+  document.querySelectorAll('[data-facebook-link]').forEach(link => {
+    if(facebookUrl){
+      link.href = facebookUrl;
+      link.style.display = 'inline-flex';
+      link.setAttribute('target', '_blank');
+      link.setAttribute('rel', 'noopener');
+    } else {
+      link.removeAttribute('href');
+      link.style.display = 'none';
+    }
+  });
+}
+
 function setupReviewForm(data){
   const form = document.getElementById('reviewForm');
   if(!form) return;
@@ -323,6 +392,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if(data.version && versionEls.length){ versionEls.forEach(el => { el.textContent = data.version; }); }
   if(window.renderPage) window.renderPage(data);
   renderHeroPhoto(data);
+  renderFacebookLinks(data);
   renderHomeTestimonials(data);
   renderTestimonialsPage(data);
   renderRestorationGallery(data);

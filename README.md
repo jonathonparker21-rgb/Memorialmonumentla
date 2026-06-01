@@ -1,7 +1,7 @@
 # Memorial Monuments of Louisiana
 
 ## Current package
-Version: v1.7.2
+Version: v1.7.3
 
 This build includes:
 - current working admin base
@@ -23,13 +23,28 @@ This build includes:
 - click-to-call and click-to-email links
 
 ## Recent version notes
-- v1.6.9: added homepage restoration photo lightbox/enlarge view
-- v1.7.0: added dual office hero photos with office labels
-- v1.7.1: made office hero photos larger, clickable, and fixed label wording
-- v1.7.2: local SEO optimization pass and sitemap/robots/schema additions
+- v1.7.3: added homepage restoration photo lightbox/enlarge view
+- v1.7.3: added dual office hero photos with office labels
+- v1.7.3: made office hero photos larger, clickable, and fixed label wording
+- v1.7.3: local SEO optimization pass and sitemap/robots/schema additions
 
 ## Deployment note
 After uploading a new build to Cloudflare Pages, test:
 - https://memorialmonumentsla.com/
 - https://memorialmonumentsla.com/sitemap.xml
 - https://memorialmonumentsla.com/robots.txt
+
+
+## v1.7.3
+- Live-safe patch only.
+- Updated the floating Contact Us popup so it no longer shows sample text.
+- Added real call/email actions for Memorial Monuments of Louisiana.
+- No layout, admin, gallery, SEO, or upload behavior changed.
+
+
+## v1.7.4
+- Added a Social Links section in admin.
+- Added editable Facebook Page Link field.
+- Added Facebook button/link on the public website.
+- Facebook buttons stay hidden until a Facebook URL is saved in admin.
+- Kept current live layout and admin features intact.

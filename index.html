@@ -1,4 +1,4 @@
-<!-- VERSION: v1.7.2 -->
+<!-- VERSION: v1.7.4 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -125,6 +125,7 @@
         <li><a href="about.html">About Us</a></li>
         <li><a href="contact.html">Contact Us</a></li>
         <li><a href="testimonials.html">Testimonials</a></li>
+      <li><a data-facebook-link class="facebook-link" href="#" style="display:none;">Facebook</a></li>
       </ul>
     </nav>
   </div>
@@ -297,13 +298,20 @@
 <footer>
   <div class="container footer-box">
     <div class="footer-brand"><img src="assets/images/site-logo.png" alt="Memorial Monuments of Louisiana logo" class="footer-logo-large" /><div><strong id="footerName">Memorial Monuments of Louisiana</strong><br><span id="footerTagline">Honoring Loved Ones With Care, Respect, and Craftsmanship</span></div></div>
-    <div>© <span id="year"></span> Memorial Monuments of Louisiana<br><span>Version: <span class="siteVersion">v1.7.2</span></span><br><a class="subtle-admin-link" href="admin/index.html">Owner access</a></div>
+    <div>© <span id="year"></span> Memorial Monuments of Louisiana<br><span>Version: <span class="siteVersion">v1.7.4</span></span><br><a class="subtle-admin-link" href="admin/index.html">Owner access</a></div>
   </div>
 </footer>
 
 <button class="btn btn-primary chat-toggle" id="chatToggle">Message Us</button>
 <div class="chat-panel" id="chatPanel">
-  <div class="chat-head"><strong>Send a Message</strong><div class="small">Preview form for owner contact messages</div></div>
+    <strong>Contact Memorial Monuments of Louisiana</strong>
+    <p>Have a question about a monument, restoration, cleaning, releveling, or engraving? Call or email Memorial Monuments of Louisiana and we’ll be glad to help.</p>
+    <div class="chat-actions">
+      <a class="btn btn-primary" href="tel:3183696060">Call 318-369-6060</a>
+      <a class="btn btn-secondary" href="mailto:monumentsofla@yahoo.com">Email Us</a>
+      <a data-facebook-link class="btn btn-secondary facebook-popup-btn" href="#" style="display:none;">Facebook</a>
+    </div>
+  </div></div>
   <div class="chat-body">
     <form onsubmit="event.preventDefault(); alert('Preview mode: message form is ready to connect to email later.');">
       <input type="text" placeholder="Your name" required />
@@ -328,6 +336,6 @@ window.renderPage = (data) => {
   document.getElementById('servicesList').innerHTML = (data.services || []).map(s => `<li>${s}</li>`).join('');
 };
 </script>
-<script src="assets/js/main-v171.js?v=v1.7.2?v=v1.7.2?v=v1.7.2?v=v1.7.2?v=v1.7.2?v=v1.7.2?v=v1.7.2?v=v1.7.2?v=v1.7.2?v=v1.7.2?v=v1.7.2?v=v1.7.2?v=v1.7.2?v=v1.7.2?v=v1.7.2?v=v1.7.2?v=v1.7.2"></script>
+<script src="assets/js/main-v174.js?v=v1.7.4?v=v1.7.4?v=v1.7.4?v=v1.7.4?v=v1.7.4?v=v1.7.4?v=v1.7.4?v=v1.7.4?v=v1.7.4?v=v1.7.4?v=v1.7.4?v=v1.7.4?v=v1.7.4?v=v1.7.4?v=v1.7.4?v=v1.7.4?v=v1.7.4?v=v1.7.4?v=v1.7.4"></script>
 </body>
 </html>
