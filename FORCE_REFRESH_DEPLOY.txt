@@ -1,3 +1,3 @@
-v1.7.5
-2026-06-01 16:12:34
-Contact popup layout fixed.
+v1.7.7
+2026-06-01 16:36:47
+Footer credit added for OG Wireless Plus.

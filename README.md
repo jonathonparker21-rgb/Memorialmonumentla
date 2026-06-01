@@ -55,3 +55,16 @@ After uploading a new build to Cloudflare Pages, test:
 - Removed the contact popup content that was showing under the footer.
 - Kept the Facebook admin/link feature.
 - No admin upload, gallery, hero, SEO, or page layout changes made beyond repairing the popup placement.
+
+
+## v1.7.6
+- Removed the loose contact form that was appearing under the footer.
+- Rebuilt the floating Message Us widget as a single fixed-position widget.
+- Kept the Facebook admin/link feature.
+- No gallery, hero, SEO, or admin upload changes made.
+
+
+## v1.7.7
+- Added footer credit: Site designed by OG Wireless Plus.
+- Kept the v1.7.6 loose contact form fix.
+- No gallery, hero, SEO, admin, or popup behavior changed.
