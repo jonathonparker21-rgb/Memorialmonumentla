@@ -48,3 +48,10 @@ After uploading a new build to Cloudflare Pages, test:
 - Added Facebook button/link on the public website.
 - Facebook buttons stay hidden until a Facebook URL is saved in admin.
 - Kept current live layout and admin features intact.
+
+
+## v1.7.5
+- Fixed the broken floating Contact Us popup layout from v1.7.4.
+- Removed the contact popup content that was showing under the footer.
+- Kept the Facebook admin/link feature.
+- No admin upload, gallery, hero, SEO, or page layout changes made beyond repairing the popup placement.
