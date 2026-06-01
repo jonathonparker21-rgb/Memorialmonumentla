@@ -68,3 +68,10 @@ After uploading a new build to Cloudflare Pages, test:
 - Added footer credit: Site designed by OG Wireless Plus.
 - Kept the v1.7.6 loose contact form fix.
 - No gallery, hero, SEO, admin, or popup behavior changed.
+
+
+## v1.7.8
+- Fixed Message Us button click/toggle behavior.
+- Added inline fallback toggle so the popup works even if the browser cache is stubborn.
+- Kept footer credit, Facebook link, and v1.7.6 loose form fix.
+- No gallery, hero, admin upload, or SEO changes made.
